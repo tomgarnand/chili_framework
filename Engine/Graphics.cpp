@@ -334,9 +334,9 @@ void Graphics::DrawSpriteNonChroma(int x, int y, const RectI& srcRect, const Sur
 void Graphics::DrawSpriteNonChroma(int x, int y, RectI srcRect, const RectI& clipRect , const Surface& s)
 {
 	assert(srcRect.left >= 0);
-	assert(srcRect.right < s.GetWidth());
+	assert(srcRect.right <= s.GetWidth());
 	assert(srcRect.top >= 0);
-	assert(srcRect.bottom < s.GetHeight());
+	assert(srcRect.bottom <= s.GetHeight());
 	if (x < clipRect.left)
 	{
 		srcRect.left += clipRect.left - x;
@@ -365,12 +365,17 @@ void Graphics::DrawSpriteNonChroma(int x, int y, RectI srcRect, const RectI& cli
 	}
 }
 
+void Graphics::DrawSprite(int x, int y, RectI srcRect, const Surface& s, Color chroma)
+{
+	DrawSprite(x, y, srcRect, GetScreenRect(), s, chroma);
+}
+
 void Graphics::DrawSprite(int x, int y, RectI srcRect, const RectI& clipRect, const Surface& s, Color chroma)
 {
 	assert(srcRect.left >= 0);
-	assert(srcRect.right < s.GetWidth());
+	assert(srcRect.right <= s.GetWidth());
 	assert(srcRect.top >= 0);
-	assert(srcRect.bottom < s.GetHeight());
+	assert(srcRect.bottom <= s.GetHeight());
 	if (x < clipRect.left)
 	{
 		srcRect.left += clipRect.left - x;
