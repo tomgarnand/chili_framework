@@ -84,4 +84,9 @@ Vec2& Vec2::Transpose()
 	return *this;
 }
 
+Vec2::operator Vei2() const
+{
+	return { int(x), int(y) };
+}
+
 
