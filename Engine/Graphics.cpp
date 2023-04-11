@@ -318,9 +318,9 @@ void Graphics::PutPixel( int x,int y,Color c )
 
 void Graphics::DrawSprite(int x, int y, const Surface& s)
 {
-	for (int i = 0; i < s.GetWidth(); i++)
+	for (int j = 0; j < s.GetHeight(); j++)
 	{
-		for (int j = 0; j < s.GetHeight(); j++)
+		for (int i = 0; i < s.GetWidth(); i++)
 		{
 			PutPixel(x + i, y + j, s.GetPixel(i, j));
 		}
