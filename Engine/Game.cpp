@@ -25,7 +25,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	surf("dib.bmp")
+	surf("marle32x48.bmp")
 {
 }
 
@@ -43,5 +43,5 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	gfx.DrawSprite(100, 100, surf);
+	gfx.DrawSprite(wnd.mouse.GetPosX(), wnd.mouse.GetPosY(), { 64,96,48,96 }, Graphics::GetScreenRect(), surf);
 }
