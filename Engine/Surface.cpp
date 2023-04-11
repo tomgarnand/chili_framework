@@ -49,7 +49,7 @@ Surface::Surface(const std::string& filename)
 	{
 		for (int x = 0; x < width; x++)
 		{
-			putPixel(x, yStart - y , Color( file.get(), file.get(), file.get() ));
+			putPixel(x, y , Color( file.get(), file.get(), file.get() ));
 			if (bmInfoHeader.biBitCount == 32) { file.seekg(1, std::ios::cur); } //add logic for transparency pixel
 		}
 		file.seekg(padding, std::ios::cur);

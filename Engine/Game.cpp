@@ -25,7 +25,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	surf("dibr.bmp")
+	surf("dib.bmp")
 {
 }
 
