@@ -66,6 +66,12 @@
     <ClInclude Include="Vei2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FrameTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXErr.cpp">
@@ -104,6 +110,12 @@
     <ClCompile Include="RectI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FrameTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FramebufferPS.hlsl">
@@ -135,6 +147,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="marle32x48.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="link90x90.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
