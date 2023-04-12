@@ -26,6 +26,8 @@
 #include "Colors.h"
 #include "Surface.h"
 #include "Rect.h"
+#include <cassert>
+#include "SpriteEffect.h"
 
 class Graphics
 {
@@ -59,16 +61,53 @@ public:
 		PutPixel( x,y,{ unsigned char( r ),unsigned char( g ),unsigned char( b ) } );
 	}
 	void PutPixel( int x,int y,Color c );
-	void DrawSpriteNonChroma(int x, int y, const Surface& s);
-	void DrawSpriteNonChroma(int x, int y, const RectI& srcRect, const Surface& s);
-	void DrawSpriteNonChroma(int x, int y, RectI srcRect, const RectI& clipRect, const Surface& s);
-	void DrawSprite(int x, int y, const Surface& s, Color chroma = Colors::Magenta);
-	void DrawSprite(int x, int y, RectI srcRect, const Surface& s, Color chroma = Colors::Magenta);
-	void DrawSprite(int x, int y, RectI srcRect, const RectI& clipRect, const Surface& s, Color chroma = Colors::Magenta);
-	void DrawSpriteSubstitute(int x, int y, Color sub, const Surface& s, Color chroma = Colors::Magenta);
-	void DrawSpriteSubstitute(int x, int y, Color sub, RectI srcRect, const Surface& s, Color chroma = Colors::Magenta);
-	void DrawSpriteSubstitute(int x, int y, Color sub, RectI srcRect, const RectI& clipRect, const Surface& s, Color chroma = Colors::Magenta);
+	Color GetPixel(int x, int y);
 	~Graphics();
+
+	template<typename E>
+	void DrawSprite(int x, int y, const Surface& s, Color chroma, E effect)
+	{
+		DrawSprite(x, y, s.GetRect(), s, chroma);
+	}
+	template<typename E>
+	void DrawSprite(int x, int y, RectI srcRect, const Surface& s, Color chroma, E effect)
+	{
+		DrawSprite(x, y, srcRect, GetScreenRect(), s, chroma);
+	}
+	template<typename E>
+	void DrawSprite(int x, int y, RectI srcRect, const RectI& clipRect, const Surface& s, Color chroma, E effect)
+	{
+		assert(srcRect.left >= 0);
+		assert(srcRect.right <= s.GetWidth());
+		assert(srcRect.top >= 0);
+		assert(srcRect.bottom <= s.GetHeight());
+		if (x < clipRect.left)
+		{
+			srcRect.left += clipRect.left - x;
+			x = clipRect.left;
+		}
+		if (y < clipRect.top)
+		{
+			srcRect.top += clipRect.top - y;
+			y = clipRect.top;
+		}
+		if (x + srcRect.GetWidth() > clipRect.right)
+		{
+			srcRect.right -= (x - clipRect.right + srcRect.GetWidth());
+		}
+		if (y + srcRect.GetHeight() > clipRect.bottom)
+		{
+			srcRect.bottom -= (y - clipRect.bottom + srcRect.GetHeight());
+		}
+
+		for (int sy = srcRect.top; sy < srcRect.bottom; sy++)
+		{
+			for (int sx = srcRect.left; sx < srcRect.right; sx++)
+			{
+				effect(x + sx - srcRect.left, y + sy - srcRect.top, s.GetPixel(sx, sy), *this);
+			}
+		}
+	}
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device>				pDevice;
