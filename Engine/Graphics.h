@@ -27,7 +27,6 @@
 #include "Surface.h"
 #include "Rect.h"
 #include <cassert>
-#include "SpriteEffect.h"
 
 class Graphics
 {
@@ -65,17 +64,17 @@ public:
 	~Graphics();
 
 	template<typename E>
-	void DrawSprite(int x, int y, const Surface& s, Color chroma, E effect)
+	void DrawSprite(int x, int y, const Surface& s, E effect)
 	{
-		DrawSprite(x, y, s.GetRect(), s, chroma);
+		DrawSprite(x, y, s.GetRect(), s, effect);
 	}
 	template<typename E>
-	void DrawSprite(int x, int y, RectI srcRect, const Surface& s, Color chroma, E effect)
+	void DrawSprite(int x, int y, RectI srcRect, const Surface& s, E effect)
 	{
-		DrawSprite(x, y, srcRect, GetScreenRect(), s, chroma);
+		DrawSprite(x, y, srcRect, GetScreenRect(), s, effect);
 	}
 	template<typename E>
-	void DrawSprite(int x, int y, RectI srcRect, const RectI& clipRect, const Surface& s, Color chroma, E effect)
+	void DrawSprite(int x, int y, RectI srcRect, const RectI& clipRect, const Surface& s, E effect)
 	{
 		assert(srcRect.left >= 0);
 		assert(srcRect.right <= s.GetWidth());
@@ -104,7 +103,7 @@ public:
 		{
 			for (int sx = srcRect.left; sx < srcRect.right; sx++)
 			{
-				effect(x + sx - srcRect.left, y + sy - srcRect.top, s.GetPixel(sx, sy), *this);
+				effect(s.GetPixel(sx, sy), x + sx - srcRect.left, y + sy - srcRect.top, *this);
 			}
 		}
 	}

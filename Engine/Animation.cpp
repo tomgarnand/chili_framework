@@ -1,4 +1,5 @@
 #include "Animation.h"
+#include "SpriteEffect.h"
 
 Animation::Animation(int x, int y, int width, int height, int count, const Surface& sprite, float holdTime, Color chroma)
 	:
@@ -14,22 +15,23 @@ Animation::Animation(int x, int y, int width, int height, int count, const Surfa
 
 void Animation::Draw(const Vei2& pos, Graphics& gfx) const
 {
-	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], sprite, chroma);
+	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], sprite, SpriteEffect::Chroma{ chroma });
 }
 
 void Animation::Draw(const Vei2& pos, Graphics& gfx, const RectI& clipRect) const
 {
-	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, chroma);
+	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, SpriteEffect::Chroma{ chroma });
 }
 
 void Animation::DrawColor(const Vei2& pos, Color sub, Graphics& gfx) const
 {
-	gfx.DrawSpriteSubstitute(pos.x, pos.y, Colors::Red, frames[iCurFrame], sprite, chroma);
+	gfx.DrawSprite(pos.x, pos.y,  frames[iCurFrame], sprite, SpriteEffect::Substitution{ chroma, sub });
 }
 
 void Animation::DrawColor(const Vei2& pos, Color sub, Graphics& gfx, const RectI& clipRect) const
 {
-	gfx.DrawSpriteSubstitute(pos.x, pos.y, Colors::Red, frames[iCurFrame], clipRect, sprite, chroma);
+	SpriteEffect::Substitution e{ chroma, sub };
+	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, SpriteEffect::Substitution{ chroma, Colors::Red });
 }
 
 void Animation::Update(float dt)

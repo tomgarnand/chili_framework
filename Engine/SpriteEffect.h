@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Colors.h"
 #include "Graphics.h"
 
@@ -11,7 +12,7 @@ namespace SpriteEffect
 			:
 			chroma(chroma)
 		{}
-		Chroma operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
+		void operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
 		{
 			if (cSrc != chroma)
 			{
@@ -25,7 +26,7 @@ namespace SpriteEffect
 	{
 	public:
 		Copy() = default;
-		Copy operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
+		void operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
 		{
 			gfx.PutPixel(xDest, yDest, cSrc);
 		}
@@ -34,14 +35,14 @@ namespace SpriteEffect
 	class Substitution
 	{
 	public:
-		Substitution(Color cSrc, int xDest, int yDest, Graphics& gfx)
+		Substitution(Color chroma, Color sub)
 			:
-			sub(sub),
-			chroma(chroma)
+			chroma(chroma),
+			sub(sub)
 		{}
-		Substitution operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
+		void operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
 		{
-			if (cSrc == chroma)
+			if (cSrc != chroma)
 			{
 				gfx.PutPixel(xDest, yDest, sub);
 			}
@@ -53,16 +54,16 @@ namespace SpriteEffect
 	class Ghost
 	{
 	public:
-		Ghost(Color cSrc, int xDest, int yDest, Graphics& gfx)
+		Ghost(Color chroma)
 			:
 			chroma(chroma)
 		{}
-		Ghost operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
+		void operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
 		{
 			if (cSrc != chroma)
 			{
 				const Color dest = gfx.GetPixel(xDest, yDest);
-				const Color blend = Color({ (cSrc.GetR() + dest.GetR()) / 2,(cSrc.GetG() + dest.GetG()) / 2, (cSrc.GetB() + dest.GetB()) / 2 });
+				const Color blend = Color({ unsigned char((cSrc.GetR() + dest.GetR()) / 2),unsigned char((cSrc.GetG() + dest.GetG()) / 2), unsigned char((cSrc.GetB() + dest.GetB()) / 2) });
 				gfx.PutPixel(xDest, yDest, blend);
 			}
 		}

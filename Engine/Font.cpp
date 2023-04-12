@@ -1,5 +1,6 @@
 #include "Font.h"
 #include <cassert>
+#include "SpriteEffect.h"
 
 
 Font::Font(const std::string& filename, Color chroma)
@@ -26,6 +27,7 @@ Font::Font(const std::string& filename, Color chroma)
 }
 void Font::DrawText(const std::string& text, const Vei2& pos, Graphics& gfx) const
 {
+	SpriteEffect::Substitution sub{ chroma, textColor };
 	int i = 0;
 	int j = 0;
 	for (const char c : text)
@@ -38,7 +40,7 @@ void Font::DrawText(const std::string& text, const Vei2& pos, Graphics& gfx) con
 		}
 		else if (c >= firstChar && c <= lastChar)
 		{
-			gfx.DrawSpriteSubstitute(pos.x + i, pos.y + j, textColor, MapGlyphRect(c), gfx.GetScreenRect(), surface, chroma);
+			gfx.DrawSprite(pos.x + i, pos.y + j, MapGlyphRect(c), gfx.GetScreenRect(), surface, sub);
 		}
 		i += glyphWidth;
 	}
