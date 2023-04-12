@@ -5,8 +5,8 @@ Font::Font(const std::string& filename, Color chroma)
 	:
 	surface(filename),
 	chroma(chroma),
-	glyphWidth(16),
-	glyphHeight(28)
+	glyphWidth(surface.GetWidth()/ nColumns),
+	glyphHeight(surface.GetHeight()/nRows)
 {
 	int index;
 	alphabetSrcRect.reserve(int(' ') + (nRows * nColumns));
@@ -29,7 +29,7 @@ void Font::DrawText(const std::string& text, const Vei2& pos, Graphics& gfx) con
 	int i = 0;
 	for (const char c : text)
 	{
-		gfx.DrawSprite(pos.x + i, pos.y, MapGlyphRect(c), surface, chroma);
+		gfx.DrawSpriteSubstitute(pos.x + i, pos.y, textColor, MapGlyphRect(c), surface, chroma);
 		i += glyphWidth;
 	}
 }

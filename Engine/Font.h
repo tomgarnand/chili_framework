@@ -21,5 +21,6 @@ private:
 	static constexpr char firstChar = ' ';
 	static constexpr char lastChar = '~';
 	std::vector<RectI> alphabetSrcRect;
+	Color textColor = Colors::White;
 	
 };
