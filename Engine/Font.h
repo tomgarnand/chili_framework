@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 #include "Graphics.h"
 #include "Surface.h"
 #include "Vei2.h"
@@ -20,5 +20,6 @@ private:
 	Color chroma; //transparancy color
 	static constexpr char firstChar = ' ';
 	static constexpr char lastChar = '~';
-
+	std::vector<RectI> alphabetSrcRect;
+	
 };

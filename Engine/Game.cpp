@@ -62,5 +62,6 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
+	font.DrawText("hello there!!", { 400,300 }, gfx);
 	link.Draw(gfx);
 }
