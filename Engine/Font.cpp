@@ -1,4 +1,5 @@
 #include "Font.h"
+#include <cassert>
 
 
 Font::Font(const std::string& filename, Color chroma)
@@ -27,13 +28,25 @@ Font::Font(const std::string& filename, Color chroma)
 void Font::DrawText(const std::string& text, const Vei2& pos, Graphics& gfx) const
 {
 	int i = 0;
+	int j = 0;
 	for (const char c : text)
 	{
-		gfx.DrawSpriteSubstitute(pos.x + i, pos.y, textColor, MapGlyphRect(c), surface, chroma);
+		if (c == 10)
+		{
+			j += glyphHeight;
+			i = 0;
+			continue;
+		}
+		else if (c >= firstChar && c <= lastChar)
+		{
+			gfx.DrawSpriteSubstitute(pos.x + i, pos.y + j, textColor, MapGlyphRect(c), gfx.GetScreenRect(), surface, chroma);
+		}
 		i += glyphWidth;
 	}
 }
-RectI Font::MapGlyphRect(char c) const
+RectI Font::MapGlyphRect(const char c) const
 {
+	assert(c >= firstChar);
+	assert(c <= lastChar);
 	return alphabetSrcRect[c];
 }

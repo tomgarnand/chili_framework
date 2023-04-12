@@ -16,6 +16,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{8b6c92a8-f65d-451e-80e3-d65773602b92}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Images">
+      <UniqueIdentifier>{cd05879a-7d30-45f8-8ac0-f21d41689677}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -152,26 +155,26 @@
     <Image Include="Chili.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="dib.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Images\dib.bmp">
+      <Filter>Resource Files\Images</Filter>
     </Image>
-    <Image Include="dib32.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Images\dib32.bmp">
+      <Filter>Resource Files\Images</Filter>
     </Image>
-    <Image Include="dibr.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Images\dibr.bmp">
+      <Filter>Resource Files\Images</Filter>
     </Image>
-    <Image Include="rgb.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Images\Fixedsys16x28.bmp">
+      <Filter>Resource Files\Images</Filter>
     </Image>
-    <Image Include="marle32x48.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Images\link90x90.bmp">
+      <Filter>Resource Files\Images</Filter>
     </Image>
-    <Image Include="link90x90.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Images\marle32x48.bmp">
+      <Filter>Resource Files\Images</Filter>
     </Image>
-    <Image Include="Fixedsys16x28.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Images\rgb.bmp">
+      <Filter>Resource Files\Images</Filter>
     </Image>
   </ItemGroup>
 </Project>

@@ -56,12 +56,16 @@ void Game::UpdateModel()
 	{
 		dir.y -= 1.0f;
 	}
+	if (wnd.kbd.KeyIsPressed(VK_SPACE))
+	{
+		link.effectActivate();
+	}
 	link.SetDirection(dir);
 	link.Update(ft.Mark());
 }
 
 void Game::ComposeFrame()
 {
-	font.DrawText("hello there!!", { 400,300 }, gfx);
+	//font.DrawText("hello there!! \n beeblebum", { 400,300 }, gfx);
 	link.Draw(gfx);
 }

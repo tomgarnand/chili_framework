@@ -48,7 +48,7 @@ private:
 	/********************************/
 	/*  User Variables              */
 	FrameTimer ft;
-	Font font = Font("Fixedsys16x28.bmp", Colors::White);
+	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Character link = Character({ 100,100 });
 	/********************************/
 };

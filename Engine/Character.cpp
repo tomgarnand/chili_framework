@@ -2,7 +2,7 @@
 
 Character::Character(const Vec2& pos)
 	:
-	sprite("link90x90.bmp"),
+	sprite("Images//link90x90.bmp"),
 	pos(pos)
 {
 	for (int i = 0; i < int(Sequence::StandingLeft); i++)
@@ -17,7 +17,14 @@ Character::Character(const Vec2& pos)
 
 void Character::Draw(Graphics& gfx) const
 {
-	animations[int(iCurSequence)].Draw(pos, gfx);
+	if (effectActive)
+	{
+		animations[int(iCurSequence)].DrawColor(pos, Colors::Red, gfx);
+	}
+	else
+	{
+		animations[int(iCurSequence)].Draw(pos, gfx);
+	}
 }
 
 void Character::SetDirection(const Vec2& dir)
@@ -50,11 +57,11 @@ void Character::SetDirection(const Vec2& dir)
 		}
 		else if (vel.y > 0.0f)
 		{
-			iCurSequence = Sequence::StandingUp;
+			iCurSequence = Sequence::StandingDown;
 		}
 		else if (vel.y < 0.0f)
 		{
-			iCurSequence = Sequence::StandingDown;
+			iCurSequence = Sequence::StandingUp;
 		}
 	}
 	vel = dir * speed;
@@ -65,4 +72,20 @@ void Character::Update(float dt)
 {
 	pos += vel * dt;
 	animations[int(iCurSequence)].Update(dt);
+
+	if (effectActive)
+	{
+		effectTime += dt;
+		if (effectTime >= effectDuration)
+		{
+			effectTime = 0.0f;
+			effectActive = false;
+		}
+	}
+}
+
+void Character::effectActivate()
+{
+	effectActive = true;
+	effectTime = 0.0f;
 }
