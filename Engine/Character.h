@@ -24,6 +24,7 @@ public:
 	void SetDirection(const Vec2& dir);
 	void Update(float dt);
 	void effectActivate();
+	Surface GetSurface() const;
 private:
 	Surface sprite;
 	Vec2 pos;

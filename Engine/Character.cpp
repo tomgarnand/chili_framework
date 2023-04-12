@@ -89,3 +89,8 @@ void Character::effectActivate()
 	effectActive = true;
 	effectTime = 0.0f;
 }
+
+Surface Character::GetSurface() const
+{
+	return sprite;
+}

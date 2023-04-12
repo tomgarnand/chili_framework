@@ -66,6 +66,6 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	//font.DrawText("hello there!! \n beeblebum", { 400,300 }, gfx);
+	font.DrawText("hello there!! \n beeblebum", { 400,300 }, gfx);
 	link.Draw(gfx);
 }

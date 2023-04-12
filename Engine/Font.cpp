@@ -9,7 +9,6 @@ Font::Font(const std::string& filename, Color chroma)
 	glyphWidth(surface.GetWidth()/ nColumns),
 	glyphHeight(surface.GetHeight()/nRows)
 {
-	int index;
 	alphabetSrcRect.reserve(int(' ') + (nRows * nColumns));
 	for (int i = 0; i < 32; i++)
 	{
