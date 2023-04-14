@@ -23,6 +23,16 @@ void Animation::Draw(const Vei2& pos, Graphics& gfx, const RectI& clipRect) cons
 	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, SpriteEffect::Chroma{ chroma });
 }
 
+void Animation::DrawInverse(const Vei2& pos, Graphics& gfx) const
+{
+	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], sprite, SpriteEffect::Inverse{ chroma });
+}
+
+void Animation::DrawInverse(const Vei2& pos, Graphics& gfx, const RectI& clipRect) const
+{
+	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, SpriteEffect::Inverse{ chroma });
+}
+
 void Animation::DrawColor(const Vei2& pos, Color sub, Graphics& gfx) const
 {
 	gfx.DrawSprite(pos.x, pos.y,  frames[iCurFrame], sprite, SpriteEffect::Substitution{ chroma, sub });

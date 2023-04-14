@@ -10,6 +10,8 @@ public:
 	Animation(int x, int y, int width, int height, int count, const Surface& sprite, float holdTime, Color chroma = Colors::Magenta);
 	void Draw(const Vei2& pos, Graphics& gfx) const;
 	void Draw(const Vei2& pos, Graphics& gfx, const RectI& clipRect) const;
+	void DrawInverse(const Vei2& pos, Graphics& gfx) const;
+	void DrawInverse(const Vei2& pos, Graphics& gfx, const RectI& clipRect) const;
 	void DrawColor(const Vei2& pos, Color sub, Graphics& gfx) const;
 	void DrawColor(const Vei2& pos, Color sub, Graphics& gfx, const RectI& clipRect) const;
 	void Update(float dt);

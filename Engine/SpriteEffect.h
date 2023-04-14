@@ -32,6 +32,25 @@ namespace SpriteEffect
 		}
 	private:
 	};
+	class Inverse
+	{
+	public:
+		Inverse(Color chroma)
+			:
+			chroma(chroma)
+
+		{}
+		void operator()(Color cSrc, int xDest, int yDest, Graphics& gfx) const
+		{
+			if (cSrc != chroma)
+			{
+				const Color invert = Color({ unsigned char(abs(cSrc.GetR() - 255) ),unsigned char(abs(cSrc.GetG() - 255)), unsigned char(abs(cSrc.GetB() - 255)) });
+				gfx.PutPixel(xDest, yDest, invert);
+			}
+		}
+	private:
+		Color chroma = Colors::Magenta;
+	};
 	class Substitution
 	{
 	public:

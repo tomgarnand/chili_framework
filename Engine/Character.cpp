@@ -19,7 +19,7 @@ void Character::Draw(Graphics& gfx) const
 {
 	if (effectActive)
 	{
-		animations[int(iCurSequence)].DrawColor(pos, Colors::Red, gfx);
+		animations[int(iCurSequence)].DrawInverse(pos, gfx);
 	}
 	else
 	{
