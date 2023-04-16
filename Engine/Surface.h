@@ -19,7 +19,7 @@ public:
 	RectI GetRect() const;
 	Color GetPixel(int x, int y) const;
 	void putPixel(int x, int y, Color c);
-
+	
 
 	
 private:

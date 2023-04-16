@@ -2,19 +2,43 @@
 #include "ChiliWin.h"
 #include <cassert>
 #include <fstream>
+#include <iostream>
 
 
 Surface::Surface(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::binary);
-	assert(file);
+	try
+	{
+		if (!file)
+		{
+			throw std::exception("Surface init failed: File does not exist.");
+		}
+	}
+	catch (const std::runtime_error& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+
+	
+
 	BITMAPFILEHEADER bmFileHeader;
 	file.read(reinterpret_cast<char*>(&bmFileHeader),sizeof(bmFileHeader));
 
 	BITMAPINFOHEADER bmInfoHeader;
 	file.read(reinterpret_cast<char*>(&bmInfoHeader), sizeof(bmInfoHeader));
 
-	assert(bmInfoHeader.biCompression == BI_RGB);
+	try 
+	{
+		if (bmInfoHeader.biCompression != BI_RGB)
+		{
+			throw std::exception("Surface init failed: File is not RGB format");
+		}
+	}
+	catch (const std::runtime_error& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
 
 	width = bmInfoHeader.biWidth;
 	height = bmInfoHeader.biHeight;
