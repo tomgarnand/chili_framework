@@ -28,6 +28,7 @@
 #include "Character.h"
 #include "Font.h"
 
+#include "GUI_Boxes.h"
 
 class Game
 {
@@ -50,5 +51,7 @@ private:
 	FrameTimer ft;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Character link = Character({ 100,100 });
+
+	GUI_Boxes gui;
 	/********************************/
 };
