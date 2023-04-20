@@ -27,7 +27,8 @@
 #include "FrameTimer.h"
 #include "Character.h"
 #include "Font.h"
-
+#include "Sound.h"
+#include "GUI_Boxes.h"
 
 class Game
 {
@@ -37,6 +38,12 @@ public:
 	Game& operator=( const Game& ) = delete;
 	void Go();
 private:
+	enum class State
+	{
+		Menu,
+		World,
+		Combat
+	};
 	void ComposeFrame();
 	void UpdateModel();
 	/********************************/
@@ -50,6 +57,9 @@ private:
 	FrameTimer ft;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Character link = Character({ 100,100 });
+	Sound hover = { L"Sounds//menu_boop.wav" };
+	State state = State::Menu;
+	GUI gui;
 
 	/********************************/
 };

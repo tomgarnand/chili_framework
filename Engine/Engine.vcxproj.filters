@@ -87,7 +87,7 @@
     <ClInclude Include="GUI_Boxes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SelectionMenu.h">
+    <ClInclude Include="SelectionMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -132,9 +132,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Font.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI_Boxes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

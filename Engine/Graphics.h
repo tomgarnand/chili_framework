@@ -61,6 +61,7 @@ public:
 	}
 	void PutPixel( int x,int y,Color c );
 	void DrawRect(int x0, int y0, int x1, int y1, Color c);
+	void DrawRect(RectI rect, Color c);
 	Color GetPixel(int x, int y);
 	~Graphics();
 

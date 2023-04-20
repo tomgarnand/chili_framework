@@ -24,7 +24,8 @@
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd )
+	gfx( wnd ),
+	gui()
 {
 }
 
@@ -57,16 +58,40 @@ void Game::UpdateModel()
 	}
 	if (wnd.kbd.KeyIsPressed(VK_SPACE))
 	{
+		hover.Play();
 		link.effectActivate();
 	}
 	link.SetDirection(dir);
 	link.Update(ft.Mark());
+
+
+	while (!wnd.mouse.IsEmpty())
+	{
+		const auto e = wnd.mouse.Read();
+		if (state != State::Menu)
+		{
+			if (e.GetType() == Mouse::Event::Type::LPress)
+			{
+				//state = State::World;
+			}
+		}
+		else
+		{
+			const std::string s = gui.GetMainMenu().ProcessMouse(e);
+			if (false)
+			{
+				//state = State::World;
+			}
+		}
+	}
+
 }
 
 void Game::ComposeFrame()
 {
 	font.DrawText("hello there!! \n beeblebum", { 400,300 }, gfx);
 	link.Draw(gfx);
+	std::vector<std::string> s = { "hi" };
+	gui.DrawGUI(gfx, GUI_Boxes::Menu{}, s, gui.GetMainMenu());
 
-	
 }
