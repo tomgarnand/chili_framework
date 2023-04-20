@@ -24,9 +24,7 @@
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd ),
-	gui()
-
+	gfx( wnd )
 {
 }
 
@@ -69,6 +67,6 @@ void Game::ComposeFrame()
 {
 	font.DrawText("hello there!! \n beeblebum", { 400,300 }, gfx);
 	link.Draw(gfx);
-	gui.DrawGUI(gui.GetDefaultLoc(GUI_Boxes::BoxType::Menu), gfx);
+
 	
 }
