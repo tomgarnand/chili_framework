@@ -27,7 +27,14 @@ private:
 			{
 				gfx.DrawRect( rect,highlightColor );
 			}
-			font.DrawText(s, Vei2(rect.left, rect.top), gfx);
+			if (Centered)
+			{
+				font.DrawText(s, rect, gfx);
+			}
+			else
+			{
+				font.DrawText(s, Vei2(rect.left, rect.top), gfx);
+			}
 		}
 		bool IsHit(const Vei2& pt) const
 		{
@@ -49,7 +56,10 @@ private:
 		{
 			return s;
 		}
-
+		void SetCentered()
+		{
+			Centered = true;
+		}
 	private:
 		static constexpr int highlightThickness = 6;
 		static constexpr Color highlightColor = Colors::Yellow;
@@ -57,15 +67,28 @@ private:
 		std::string s;
 		RectI rect;
 		Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
+		bool Centered = false;
 		
 	};
 public:
 	SelectionMenu() = default;
+	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows, bool center)
+		:
+		SelectionMenu(rect, input, rows)
+	{
+		if (center)
+		{
+			for (auto& e : entries)
+			{
+				e.SetCentered();
+			}
+		}
+	}
 	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows) 
 	{
 		assert(rows > 0);
-		RectI adjustedRect = RectI(Vec2(rect.left, rect.top) + GetTopOffsetMenu(), (Vec2(rect.right, rect.bottom) - GetTopOffsetMenu()));
-		std::vector<RectI> MenuRects = SelectionRects(adjustedRect, font_height, input.size(), rows, 0, 0);
+		RectI adjustedRect = RectI(Vei2(rect.left, rect.top) + GetTopOffsetMenu(), (Vei2(rect.right, rect.bottom) - GetTopOffsetMenu()));
+		std::vector<RectI> MenuRects = SelectionRects(adjustedRect, font_height, int(input.size()), rows, 0, 0);
 		int i = 0;
 		for (auto s : input)
 		{

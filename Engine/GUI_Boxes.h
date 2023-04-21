@@ -13,7 +13,7 @@ public:
 		input({ "Items","Equipment","Abilities","Save","Load","Game End" }),
 		MainMenu(SelectionMenu(GetMenuRect(), input, 1)),
 		//Inv
-		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3))
+		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3, true))
 
 	{
 		
