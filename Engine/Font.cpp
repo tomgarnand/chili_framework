@@ -25,6 +25,21 @@ Font::Font(const std::string& filename, Color chroma)
 		}
 	}
 }
+//draws text in the center (width) of a Rect
+void Font::DrawText(const std::string& text, const RectI& rect, Graphics& gfx) const
+{
+	int sizeStr = text.length() * glyphWidth;
+	int sizeRect = rect.right - rect.left;
+	if (sizeStr > (rect.right - rect.left))
+	{
+		DrawText(text, Vec2(rect.left, rect.top), gfx);
+	}
+	else
+	{
+		int newPos = (sizeRect - sizeStr) / 2;
+		DrawText(text, Vec2(rect.left + newPos, rect.top), gfx);
+	}
+}
 void Font::DrawText(const std::string& text, const Vei2& pos, Graphics& gfx) const
 {
 	SpriteEffect::Substitution sub{ chroma, textColor };

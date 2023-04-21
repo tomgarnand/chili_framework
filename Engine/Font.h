@@ -8,6 +8,7 @@ class Font
 {
 public:
 	Font(const std::string& filename, Color chroma = Colors::White);
+	void DrawText(const std::string& text, const RectI& rect, Graphics& gfx) const;
 	void DrawText(const std::string& text, const Vei2& pos, Graphics& gfx) const;
 	int GetGlyphHeight()
 	{
