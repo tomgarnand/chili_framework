@@ -29,6 +29,7 @@
 #include "Font.h"
 #include "Sound.h"
 #include "GUI_Boxes.h"
+#include <utility>
 
 class Game
 {
@@ -58,8 +59,15 @@ private:
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Character link = Character({ 100,100 });
 	Sound hover = { L"Sounds//menu_boop.wav" };
-	State state = State::Menu;
+	State state = State::World;
 	GUI gui;
+	std::vector<std::string> Items[4]; //consumeables, equipment, ?, key items?
 
+	SelectionMenu Inventory;
+	std::vector<std::string> Ability;
+	SelectionMenu Abilities;
+	SelectionMenu Equipment;
+
+	
 	/********************************/
 };

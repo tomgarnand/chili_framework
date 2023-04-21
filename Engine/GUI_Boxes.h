@@ -9,20 +9,30 @@ class GUI
 public:
 	GUI()
 		:
-		//test input for now, will have to come up with a method for holding static menus and dynamic like items
 		//Menu
 		input({ "Items","Equipment","Abilities","Save","Load","Game End" }),
-		MainMenu(SelectionMenu(GetMenuRect(), input))
+		MainMenu(SelectionMenu(GetMenuRect(), input, SelectionMenu::Fill::Down, 1)),
+		//Inv
+		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, SelectionMenu::Fill::Right, 3))
+
 	{
 		
 	}
-	template<typename E> void DrawGUI(Graphics& gfx, E which, std::vector<std::string> input, SelectionMenu& Menu)
+	template<typename E> void DrawGUI(Graphics& gfx, E which, SelectionMenu& Menu)
 	{
-		which(gfx, input, Menu);
+		which(gfx, Menu);
 	}
 	SelectionMenu& GetMainMenu()
 	{
 		return MainMenu;
+	}
+	SelectionMenu& GetInvTabsMenu()
+	{
+		return InventoryTabs;
+	}
+	SelectionMenu GetSubMenu(std::vector<std::string> input)
+	{
+		return SelectionMenu(GetSubMenuRect(), input, SelectionMenu::Fill::Right, 3);
 	}
 private:
 
@@ -30,10 +40,20 @@ public:
 	static constexpr Color BoxColor = Colors::Blue;
 	std::vector<std::string> input;
 	SelectionMenu MainMenu;
+	SelectionMenu InventoryTabs;
 	static RectI GetMenuRect()
 	{
 		return { 40,240,40,380 };
 	}
+	static RectI GetSubMenuRect()
+	{
+		return { 244,800,124,380 };
+	}
+	static RectI GetSubMenuTabsRect()
+	{
+		return { 244,800,40,120 };
+	}
+	
 };
 namespace GUI_Boxes
 {
@@ -41,7 +61,7 @@ namespace GUI_Boxes
 	{
 	public:
 		Menu() = default;
-		void operator()(Graphics& gfx, std::vector<std::string> input, SelectionMenu& menu)
+		void operator()(Graphics& gfx, SelectionMenu& menu)
 		{
 			gfx.DrawRect(GUI::GetMenuRect(), GUI::BoxColor);
 			menu.Draw(gfx);
@@ -49,5 +69,28 @@ namespace GUI_Boxes
 
 	private:
 		
+	};
+	class SubMenu
+	{
+	public:
+		SubMenu(SelectionMenu& MainMenu, SelectionMenu& InventoryTabs)
+			:
+			MainMenu(MainMenu),
+			InventoryTabs(InventoryTabs)
+		{
+			
+		}
+		void operator()(Graphics& gfx, SelectionMenu& menu)
+		{
+			gfx.DrawRect(GUI::GetMenuRect(), GUI::BoxColor);
+			MainMenu.Draw(gfx);
+			gfx.DrawRect(GUI::GetSubMenuTabsRect(), GUI::BoxColor);
+			InventoryTabs.Draw(gfx);
+			gfx.DrawRect(GUI::GetSubMenuRect(), GUI::BoxColor);
+			menu.Draw(gfx);
+		}
+	private:
+		SelectionMenu& MainMenu;
+		SelectionMenu& InventoryTabs;
 	};
 }

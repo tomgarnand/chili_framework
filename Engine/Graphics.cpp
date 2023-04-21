@@ -321,7 +321,7 @@ void Graphics::PutPixel( int x,int y,Color c )
 	pSysBuffer[Graphics::ScreenWidth * y + x] = c;
 }
 
-void Graphics::DrawRect(int x0, int y0, int x1, int y1, Color c)
+void Graphics::DrawRect(int x0, int x1, int y0, int y1, Color c)
 {
 	//always transparent
 	for (int x = x0; x <= x1; x++)
@@ -338,7 +338,7 @@ void Graphics::DrawRect(int x0, int y0, int x1, int y1, Color c)
 
 void Graphics::DrawRect(RectI rect, Color c)
 {
-	DrawRect(rect.left, rect.top, rect.right, rect.bottom, c);
+	DrawRect(rect.left, rect.right, rect.top,  rect.bottom, c);
 }
 
 Color Graphics::GetPixel(int x, int y)

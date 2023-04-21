@@ -27,6 +27,12 @@ Game::Game( MainWindow& wnd )
 	gfx( wnd ),
 	gui()
 {
+	//initialize inventory from load file?
+	
+	
+	Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], SelectionMenu::Fill::Right, 2);
+	Abilities = SelectionMenu(gui.GetSubMenuRect(), Ability, SelectionMenu::Fill::Right, 2);
+	Equipment = SelectionMenu(gui.GetSubMenuRect(), Items[1], SelectionMenu::Fill::Right, 2); //TODO add items sub section... >_<
 }
 
 void Game::Go()
@@ -40,26 +46,48 @@ void Game::Go()
 void Game::UpdateModel()
 {
 	Vec2 dir = { 0.0f, 0.0f };
-	if (wnd.kbd.KeyIsPressed(VK_RIGHT))
+
+	const auto e = wnd.kbd.ReadKey();
+	if (e.IsPress())
 	{
-		dir.x += 1.0f;
+		switch(e.GetCode())
+		case (27) : //escape
+		{
+			state == State::Menu ? state = State::World : state = State::Menu;
+			break;
+		}
+		
 	}
-	else if (wnd.kbd.KeyIsPressed(VK_LEFT))
+	if (true) //state == State::World)
 	{
-		dir.x -= 1.0f;
-	}
-	else if (wnd.kbd.KeyIsPressed(VK_DOWN))
-	{
-		dir.y += 1.0f;
-	}
-	else if (wnd.kbd.KeyIsPressed(VK_UP))
-	{
-		dir.y -= 1.0f;
-	}
-	if (wnd.kbd.KeyIsPressed(VK_SPACE))
-	{
-		hover.Play();
-		link.effectActivate();
+		if (wnd.kbd.KeyIsPressed(VK_RIGHT))
+		{
+			dir.x += 1.0f;
+		}
+		else if (wnd.kbd.KeyIsPressed(VK_LEFT))
+		{
+			dir.x -= 1.0f;
+		}
+		else if (wnd.kbd.KeyIsPressed(VK_DOWN))
+		{
+			dir.y += 1.0f;
+		}
+		else if (wnd.kbd.KeyIsPressed(VK_UP))
+		{
+			dir.y -= 1.0f;
+		}
+		if (wnd.kbd.KeyIsPressed(VK_SPACE))
+		{
+			link.effectActivate();
+			if (Items[0].size() < 2)
+			{
+				Items[0].emplace_back("Health Potion");
+				Items[0].emplace_back("Teleport Crystal");
+				Items[0].emplace_back("Scroll of Revival");
+				Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], SelectionMenu::Fill::Right, 2);
+				
+			}
+		}
 	}
 	link.SetDirection(dir);
 	link.Update(ft.Mark());
@@ -68,16 +96,32 @@ void Game::UpdateModel()
 	while (!wnd.mouse.IsEmpty())
 	{
 		const auto e = wnd.mouse.Read();
-		if (state != State::Menu)
+		if (state == State::Menu)
 		{
+			const std::string s = gui.GetMainMenu().ProcessMouse(e);
+			const std::string ss = Inventory.ProcessMouse(e);
+			const std::string t = gui.GetInvTabsMenu().ProcessMouse(e);
 			if (e.GetType() == Mouse::Event::Type::LPress)
 			{
-				//state = State::World;
+				if (s != "")
+				{
+					auto p = GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() };
+				}
+				if (ss != "")
+				{
+					//TODO: create a whole use item function
+					const auto new_end = std::remove_if(Items[0].begin(), Items[0].end(), [ss](auto item)
+						{
+							return ss == item;
+						});
+					Items[0].erase(new_end, Items[0].end());
+					Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], SelectionMenu::Fill::Right, 2);
+				}
 			}
 		}
 		else
 		{
-			const std::string s = gui.GetMainMenu().ProcessMouse(e);
+			
 			if (false)
 			{
 				//state = State::World;
@@ -91,7 +135,12 @@ void Game::ComposeFrame()
 {
 	font.DrawText("hello there!! \n beeblebum", { 400,300 }, gfx);
 	link.Draw(gfx);
-	std::vector<std::string> s = { "hi" };
-	gui.DrawGUI(gfx, GUI_Boxes::Menu{}, s, gui.GetMainMenu());
+	if (state == State::Menu)
+	{
+
+		//gui.DrawGUI(gfx, GUI_Boxes::Menu{}, gui.GetMainMenu());
+
+		gui.DrawGUI(gfx, GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, Inventory);
+	}
 
 }

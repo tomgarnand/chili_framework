@@ -60,7 +60,7 @@ public:
 		PutPixel( x,y,{ unsigned char( r ),unsigned char( g ),unsigned char( b ) } );
 	}
 	void PutPixel( int x,int y,Color c );
-	void DrawRect(int x0, int y0, int x1, int y1, Color c);
+	void DrawRect(int x0, int x1, int y0, int y1, Color c);
 	void DrawRect(RectI rect, Color c);
 	Color GetPixel(int x, int y);
 	~Graphics();
@@ -124,7 +124,7 @@ private:
 	D3D11_MAPPED_SUBRESOURCE							mappedSysBufferTexture;
 	Color*                                              pSysBuffer = nullptr;
 public:
-	static constexpr int ScreenWidth = 800;
-	static constexpr int ScreenHeight = 600;
+	static constexpr int ScreenWidth = 1080;
+	static constexpr int ScreenHeight = 720;
 	static RectI GetScreenRect();
 };

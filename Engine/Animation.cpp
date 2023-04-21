@@ -41,7 +41,7 @@ void Animation::DrawColor(const Vei2& pos, Color sub, Graphics& gfx) const
 void Animation::DrawColor(const Vei2& pos, Color sub, Graphics& gfx, const RectI& clipRect) const
 {
 	SpriteEffect::Substitution e{ chroma, sub };
-	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, SpriteEffect::Substitution{ chroma, Colors::Red });
+	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, e);
 }
 
 void Animation::Update(float dt)
