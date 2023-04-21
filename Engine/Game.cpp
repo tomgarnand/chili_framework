@@ -30,9 +30,9 @@ Game::Game( MainWindow& wnd )
 	//initialize inventory from load file?
 	
 	
-	Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], SelectionMenu::Fill::Right, 2);
-	Abilities = SelectionMenu(gui.GetSubMenuRect(), Ability, SelectionMenu::Fill::Right, 2);
-	Equipment = SelectionMenu(gui.GetSubMenuRect(), Items[1], SelectionMenu::Fill::Right, 2); //TODO add items sub section... >_<
+	Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], 2);
+	Abilities = SelectionMenu(gui.GetSubMenuRect(), Ability, 2);
+	Equipment = SelectionMenu(gui.GetSubMenuRect(), Items[1], 2); //TODO add items sub section... >_<
 }
 
 void Game::Go()
@@ -84,7 +84,7 @@ void Game::UpdateModel()
 				Items[0].emplace_back("Health Potion");
 				Items[0].emplace_back("Teleport Crystal");
 				Items[0].emplace_back("Scroll of Revival");
-				Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], SelectionMenu::Fill::Right, 2);
+				Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], 2);
 				
 			}
 		}
@@ -115,7 +115,7 @@ void Game::UpdateModel()
 							return ss == item;
 						});
 					Items[0].erase(new_end, Items[0].end());
-					Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], SelectionMenu::Fill::Right, 2);
+					Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], 2);
 				}
 			}
 		}

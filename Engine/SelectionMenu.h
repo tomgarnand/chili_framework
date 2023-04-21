@@ -7,14 +7,10 @@
 #include <map>
 #include "Font.h"
 
+
 class SelectionMenu
 {
 public:
-	enum class Fill
-	{
-		Down,
-		Right
-	};
 private:
 	class Entry
 	{
@@ -65,54 +61,18 @@ private:
 	};
 public:
 	SelectionMenu() = default;
-	SelectionMenu(const RectI rect, std::vector<std::string> input, Fill dir, int wrap) 
+	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows) 
 	{
-		assert(wrap > 0);
-		Vei2 topLeft = Vei2(rect.left, rect.top) + GetTopOffsetMenu();
-		Vei2 botRight;
-		int Col = 0;
-		switch (dir) {
-		case Fill::Down :
-			botRight = Vei2(rect.right - GetTopOffsetMenu().x, rect.top + font_height + GetTopOffsetMenu().y);
-			break;
-		case Fill::Right :
-			Col = (rect.right - rect.left - (GetTopOffsetMenu().x * 2))/wrap; //the avaiable space in each column
-			botRight = Vei2(Col + rect.left + GetTopOffsetMenu().x, rect.top + font_height + GetTopOffsetMenu().y);
-			break;
-		}
-		
-		auto entryRect = RectI(topLeft,botRight); //top line of first rect, ready to be scaled down with font
-		
-		switch (dir)
-		case Fill::Down:
+		assert(rows > 0);
+		RectI adjustedRect = RectI(Vec2(rect.left, rect.top) + GetTopOffsetMenu(), (Vec2(rect.right, rect.bottom) - GetTopOffsetMenu()));
+		std::vector<RectI> MenuRects = SelectionRects(adjustedRect, font_height, input.size(), rows, 0, 0);
+		int i = 0;
+		for (auto s : input)
 		{
-			for (auto s : input)
-			{
-				entries.emplace_back(s, entryRect);
-				entryRect.top += font_height;
-				entryRect.bottom += font_height;
-			}
-			break;
-		case Fill::Right:
-			int i = 0;
-			RectI temp = entryRect;
-			for (auto s : input)
-			{
-				if (i >= wrap)
-				{
-					entryRect.left = temp.left;
-					entryRect.right = temp.right;
-					entryRect.top += font_height;
-					entryRect.bottom += font_height;
-					i = 0;
-				}
-				entries.emplace_back(s, entryRect);
-				entryRect.left += Col;
-				entryRect.right += Col;
-				i++;
-			}
-			break;
+			entries.emplace_back(s, MenuRects[i]);
+			i++;
 		}
+	
 	}
 	
 	void UpdateSelectionMenu(std::vector<std::string> input)
@@ -173,6 +133,35 @@ private:
 			n.ResetHighlight();
 		}
 	}
+	std::vector<RectI> SelectionRects(RectI space, int height, int numSquares, int numRows, int xOff, int yOff)
+	{
+		std::vector<RectI> grid(numSquares);
+		int x0 = space.left;
+		int y0 = space.top;
+		int x1 = space.left + ((space.right - space.left) / numRows);
+		int y1 = space.top + height;
+
+		int x = x1 - x0;
+		int y = y1 - y0;
+
+		int r = 0;
+		for (int i = 0; i < numSquares; i++)
+		{
+			if (r >= numRows)
+			{
+				x0 = space.left;
+				x1 = space.left + ((space.right - space.left) / numRows);
+				y0 += y;
+				y1 += y;
+				r = 0;
+			}
+			grid[i] = (RectI(x0 + xOff, x1 - xOff, y0 + yOff, y1 - yOff));
+			x0 += x;
+			x1 += x;
+			r++;
+		}
+		return grid;
+	}
 private:
 	//Spacing between top corner of GUI Rect and Text
 	static Vei2 GetTopOffsetMenu() 
@@ -187,58 +176,3 @@ private:
 
 };
 
-class SelectionRects
-{
-public:
-	class Selection
-	{
-	public:
-		Selection(int x0, int x1, int y0, int y1)
-			:
-			rect(RectI(x0,x1,y0,y1))
-		{
-
-		}
-		RectI GetRect() const
-		{
-			return rect;
-		}
-	private:
-		RectI rect;
-	};
-public:
-	SelectionRects(RectI firstRect, int xOff, int yOff, int numSquares, int numRows)
-	{
-		int x0 = firstRect.left;
-		int y0 = firstRect.top;
-		int x1 = firstRect.right;
-		int y1 = firstRect.bottom;
-
-		int x = firstRect.right - firstRect.left;
-		int y = firstRect.bottom - firstRect.top;
-
-		int r = 0;
-		for (int i = 0; i < numSquares; i++)
-		{
-			if (r > numRows)
-			{
-				x0 = firstRect.left;
-				x1 = firstRect.right;
-				y0 += y;
-				y1 += y;
-				r = 0;
-			}
-			grid[i] = Selection(x0 + xOff, y0 + yOff, x1 - xOff, y1 - yOff);
-			x0 += x;
-			x1 += x;
-			
-		}
-	}
-	RectI GetRect(int index)
-	{
-		return grid[index].GetRect();
-	}
-
-private:
-	Selection grid[];
-};

@@ -11,9 +11,9 @@ public:
 		:
 		//Menu
 		input({ "Items","Equipment","Abilities","Save","Load","Game End" }),
-		MainMenu(SelectionMenu(GetMenuRect(), input, SelectionMenu::Fill::Down, 1)),
+		MainMenu(SelectionMenu(GetMenuRect(), input, 1)),
 		//Inv
-		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, SelectionMenu::Fill::Right, 3))
+		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3))
 
 	{
 		
@@ -32,7 +32,7 @@ public:
 	}
 	SelectionMenu GetSubMenu(std::vector<std::string> input)
 	{
-		return SelectionMenu(GetSubMenuRect(), input, SelectionMenu::Fill::Right, 3);
+		return SelectionMenu(GetSubMenuRect(), input,  3);
 	}
 private:
 
