@@ -12,7 +12,14 @@ public:
 		right(right_in),
 		top(top_in),
 		bottom(bottom_in)
+	{}
+	bool operator ==(const Rect& rhs) const
 	{
+		return (left == rhs.left && right == rhs.right && top == rhs.top && bottom == rhs.bottom);
+	}
+	bool operator !=(const Rect& rhs) const
+	{
+		return (left != rhs.left && right != rhs.right && top != rhs.top && bottom != rhs.bottom);
 	}
 	Rect(const Vec2_<T>& topLeft, const Vec2_<T>& bottomRight)
 		:

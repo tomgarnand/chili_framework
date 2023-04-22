@@ -9,10 +9,10 @@
 #include <vector>
 
 
+
 class SelectionMenu
 {
 public:
-private:
 	class Entry
 	{
 	public:
@@ -22,6 +22,21 @@ private:
 			s(s),
 			rect(rect)
 		{}
+		Entry operator=(const Entry& other)
+		{
+			rect = other.rect;
+			s = other.s;
+			Centered = other.Centered;
+			return *this;
+		}
+		bool operator==(const Entry& other) const
+		{
+			return (s == other.s && rect == other.rect);
+		}
+		bool operator!=(const Entry& other) const
+		{
+			return (s != other.s && rect != other.rect);
+		}
 		void Draw(Graphics& gfx) const
 		{
 			if (highlighted)
@@ -55,11 +70,20 @@ private:
 		}
 		std::string GetStr() const
 		{
+			if (this == nullptr)
+			{
+				return "";
+			}
 			return s;
 		}
 		RectI GetRect() const
 		{
 			return rect;
+		}
+		RectI SwapRects(RectI temp)
+		{
+			std::swap(temp, rect);
+			return temp;
 		}
 		void SetCentered()
 		{
@@ -142,12 +166,27 @@ public:
 			pLast = &entries.back();
 		}
 	}
-	void UpdateSelectionMenu(std::vector<std::string>::iterator Iter)
+	//erase entry and shift all rects over
+	void UpdateSelectionMenu(Entry* entry)
 	{
-		//TODO: add a method of expanding menus without reinitializing
+		//const auto Iter2del = std::remove_if(entries.begin(), entries.end(), 
+		//	[entry](auto item)
+		//	{
+		//		return entry == item;
+		//	});
+		//auto new_Iter = entries.erase(Iter2del, entries.end());
+		RectI temp = entry->GetRect();
+		auto iter = entries.begin() + (entry - entries.data());
+		for (auto i = iter, e = entries.end(); i != e; i++)
+		{
+			temp = i->SwapRects(temp);
+		}
+		entries.erase(iter);
+		!entries.empty() ? pLast = &entries.back() : pLast = nullptr;
+
 	}
 	// returns Size::Something when an entry is clicked, otherwise returns Size::Invalid
-	std::string ProcessMouse(const Mouse::Event& e) //TODO: change this to returning a rect? or vector loc?
+	Entry* ProcessMouse(const Mouse::Event& e) //TODO: change this to returning a rect? or vector loc?
 	{
 		switch (e.GetType())
 		{
@@ -166,7 +205,7 @@ public:
 					}
 					// immediately exit if found a hit
 					// (if we don't, highlight will be reset below)
-					return n.GetStr();
+					return &n;
 				}
 			}
 
@@ -178,12 +217,12 @@ public:
 			{
 				if (n.IsHit(e.GetPos()))
 				{
-					return n.GetStr();
+					return &n;
 				}
 			}
 			break;
 		}
-		return "";
+		return nullptr;
 	}
 	void Draw(Graphics& gfx) const
 	{

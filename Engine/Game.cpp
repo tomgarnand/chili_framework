@@ -103,33 +103,30 @@ void Game::UpdateModel()
 		const auto e = wnd.mouse.Read();
 		if (state == State::Menu)
 		{
-			const std::string s = gui.GetMainMenu().ProcessMouse(e);
-			const std::string ss = Inventory.ProcessMouse(e);
-			const std::string t = gui.GetInvTabsMenu().ProcessMouse(e);
+
+			SelectionMenu::Entry* main = gui.GetMainMenu().ProcessMouse(e);
+			SelectionMenu::Entry* sub = Inventory.ProcessMouse(e);
+			SelectionMenu::Entry* tab = gui.GetInvTabsMenu().ProcessMouse(e);
 			if (e.GetType() == Mouse::Event::Type::LPress)
 			{
-				if (s == "Game End")
+				if (main->GetStr() == "Game End")
 				{
 					wnd.Kill();
 				}
-				if (s == "Items")
+				if (main->GetStr() == "Items")
 				{
 					MenuState = std::make_pair(GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, &Inventory);
 				}
-				if (t == "Equipment")
+				if (tab->GetStr() == "Equipment")
 				{
 					MenuState = std::make_pair(GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, &Equipment);
 
 				}
-				if (ss != "")
+				if (sub != nullptr)
 				{
+					//use item
 					//TODO: create a whole use item function
-					const auto new_end = std::remove_if(Items[0].begin(), Items[0].end(), [ss](auto item)
-						{
-							return ss == item;
-						});
-					Items[0].erase(new_end, Items[0].end());
-					Inventory.UpdateSelectionMenu(new_end);
+					Inventory.UpdateSelectionMenu(sub);
 					
 				}
 			}
