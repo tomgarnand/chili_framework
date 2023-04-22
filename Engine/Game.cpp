@@ -21,6 +21,7 @@
 #include "MainWindow.h"
 #include "Game.h"
 
+
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
@@ -33,6 +34,9 @@ Game::Game( MainWindow& wnd )
 	Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], 2);
 	Abilities = SelectionMenu(gui.GetSubMenuRect(), Ability, 2);
 	Equipment = SelectionMenu(gui.GetSubMenuRect(), Items[1], 2); //TODO add items sub section... >_<
+
+	MenuStateF = GUI_Boxes::Menu{};
+	//MenuState = std::make_pair(GUI_Boxes::Menu{}, gui.GetMainMenu());
 }
 
 void Game::Go()
@@ -92,7 +96,7 @@ void Game::UpdateModel()
 	link.SetDirection(dir);
 	link.Update(ft.Mark());
 
-
+	
 	while (!wnd.mouse.IsEmpty())
 	{
 		const auto e = wnd.mouse.Read();
@@ -103,12 +107,20 @@ void Game::UpdateModel()
 			const std::string t = gui.GetInvTabsMenu().ProcessMouse(e);
 			if (e.GetType() == Mouse::Event::Type::LPress)
 			{
-				if (s != "")
+				if (s == "Items")
 				{
-					auto p = GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() };
+					MenuStateF = GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() };
+					////GUI_Boxes::SubMenu ItemsMenu( gui.GetMainMenu(), gui.GetInvTabsMenu() );
+					//std::pair<std::function<void(Graphics& gfx, SelectionMenu& menu)>, SelectionMenu> MenuState;
+					//MenuState = std::make_pair( ItemsMenu , Inventory );
 				}
 				if (ss != "")
 				{
+					if (ss == "Items")
+					{
+						//MenuState = std::make_pair(GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, Inventory);
+						
+					}
 					//TODO: create a whole use item function
 					const auto new_end = std::remove_if(Items[0].begin(), Items[0].end(), [ss](auto item)
 						{
@@ -133,14 +145,12 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	font.DrawText("hello there!! \n beeblebum", { 400,300 }, gfx);
+	
 	link.Draw(gfx);
 	if (state == State::Menu)
 	{
-
 		//gui.DrawGUI(gfx, GUI_Boxes::Menu{}, gui.GetMainMenu());
-
-		gui.DrawGUI(gfx, GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, Inventory);
+		gui.DrawGUI(gfx, MenuStateF, gui.GetMainMenu());
 	}
 
 }

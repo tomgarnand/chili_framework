@@ -30,6 +30,7 @@
 #include "Sound.h"
 #include "GUI_Boxes.h"
 #include <utility>
+#include <functional>
 
 class Game
 {
@@ -67,7 +68,9 @@ private:
 	std::vector<std::string> Ability;
 	SelectionMenu Abilities;
 	SelectionMenu Equipment;
-
+	
+	//std::pair<std::function<void(Graphics&, SelectionMenu& )>, SelectionMenu> MenuState = std::make_pair(GUI_Boxes::Menu{}, gui.GetMainMenu());
+	std::function<void(Graphics&, SelectionMenu&)> MenuStateF;
 	
 	/********************************/
 };
