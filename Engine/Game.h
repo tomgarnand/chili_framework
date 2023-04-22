@@ -62,15 +62,15 @@ private:
 	Sound hover = { L"Sounds//menu_boop.wav" };
 	State state = State::World;
 	GUI gui;
-	std::vector<std::string> Items[4]; //consumeables, equipment, ?, key items?
+	std::vector<std::string> Items[4]; //not really needed anymore
 
 	SelectionMenu Inventory;
 	std::vector<std::string> Ability;
 	SelectionMenu Abilities;
 	SelectionMenu Equipment;
 	
-	//std::pair<std::function<void(Graphics&, SelectionMenu& )>, SelectionMenu> MenuState = std::make_pair(GUI_Boxes::Menu{}, gui.GetMainMenu());
-	std::function<void(Graphics&, SelectionMenu&)> MenuStateF;
+	std::pair<std::function<void(Graphics&, SelectionMenu&)>, SelectionMenu*> MenuState;
+
 	
 	/********************************/
 };

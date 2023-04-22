@@ -22,21 +22,22 @@
 #include "Game.h"
 
 
-Game::Game( MainWindow& wnd )
+Game::Game(MainWindow& wnd)
 	:
-	wnd( wnd ),
-	gfx( wnd ),
-	gui()
-{
-	//initialize inventory from load file?
+	wnd(wnd),
+	gfx(wnd),
+	gui(),
+	Inventory(SelectionMenu(gui.GetSubMenuRect(), Items[0], 2)),
+	Equipment(SelectionMenu(gui.GetSubMenuRect(), Items[1], 2)),
+	Abilities(SelectionMenu(gui.GetSubMenuRect(), Ability, 2))
 	
-	
-	Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], 2);
-	Abilities = SelectionMenu(gui.GetSubMenuRect(), Ability, 2);
-	Equipment = SelectionMenu(gui.GetSubMenuRect(), Items[1], 2); //TODO add items sub section... >_<
 
-	MenuStateF = GUI_Boxes::Menu{};
-	//MenuState = std::make_pair(GUI_Boxes::Menu{}, gui.GetMainMenu());
+{
+	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
+
+
+	MenuState = std::make_pair(GUI_Boxes::Menu{}, gui.pGetMainMenu());
+
 }
 
 void Game::Go()
@@ -85,10 +86,10 @@ void Game::UpdateModel()
 			link.effectActivate();
 			if (Items[0].size() < 2)
 			{
-				Items[0].emplace_back("Health Potion");
-				Items[0].emplace_back("Teleport Crystal");
-				Items[0].emplace_back("Scroll of Revival");
-				Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], 2);
+				Equipment.UpdateSelectionMenu("Sword of Cunning", gui.GetSubMenuRect());
+				Inventory.UpdateSelectionMenu("Health Potion", gui.GetSubMenuRect());
+				Inventory.UpdateSelectionMenu("Teleport Crystal", gui.GetSubMenuRect());
+				Inventory.UpdateSelectionMenu("Scroll of Revival", gui.GetSubMenuRect());
 				
 			}
 		}
@@ -107,27 +108,29 @@ void Game::UpdateModel()
 			const std::string t = gui.GetInvTabsMenu().ProcessMouse(e);
 			if (e.GetType() == Mouse::Event::Type::LPress)
 			{
+				if (s == "Game End")
+				{
+					wnd.Kill();
+				}
 				if (s == "Items")
 				{
-					MenuStateF = GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() };
-					////GUI_Boxes::SubMenu ItemsMenu( gui.GetMainMenu(), gui.GetInvTabsMenu() );
-					//std::pair<std::function<void(Graphics& gfx, SelectionMenu& menu)>, SelectionMenu> MenuState;
-					//MenuState = std::make_pair( ItemsMenu , Inventory );
+					MenuState = std::make_pair(GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, &Inventory);
+				}
+				if (t == "Equipment")
+				{
+					MenuState = std::make_pair(GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, &Equipment);
+
 				}
 				if (ss != "")
 				{
-					if (ss == "Items")
-					{
-						//MenuState = std::make_pair(GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, Inventory);
-						
-					}
 					//TODO: create a whole use item function
 					const auto new_end = std::remove_if(Items[0].begin(), Items[0].end(), [ss](auto item)
 						{
 							return ss == item;
 						});
 					Items[0].erase(new_end, Items[0].end());
-					Inventory = SelectionMenu(gui.GetSubMenuRect(), Items[0], 2);
+					Inventory.UpdateSelectionMenu(new_end);
+					
 				}
 			}
 		}
@@ -149,8 +152,7 @@ void Game::ComposeFrame()
 	link.Draw(gfx);
 	if (state == State::Menu)
 	{
-		//gui.DrawGUI(gfx, GUI_Boxes::Menu{}, gui.GetMainMenu());
-		gui.DrawGUI(gfx, MenuStateF, gui.GetMainMenu());
+		gui.DrawGUI(gfx, MenuState.first, *MenuState.second);
 	}
 
 }

@@ -11,7 +11,7 @@ public:
 		:
 		//Menu
 		input({ "Items","Equipment","Abilities","Save","Load","Game End" }),
-		MainMenu(SelectionMenu(GetMenuRect(), input, 1)),
+		MainMenu(SelectionMenu(GetMenuRect(), input)),
 		//Inv
 		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3, true))
 
@@ -26,13 +26,21 @@ public:
 	{
 		return MainMenu;
 	}
+	SelectionMenu* pGetMainMenu()
+	{
+		return &MainMenu;
+	}
 	SelectionMenu& GetInvTabsMenu()
 	{
 		return InventoryTabs;
 	}
-	SelectionMenu GetSubMenu(std::vector<std::string> input)
+	SelectionMenu* pGetInvTabsMenu()
 	{
-		return SelectionMenu(GetSubMenuRect(), input,  3);
+		return &InventoryTabs;
+	}
+	SelectionMenu* GetSubMenu(std::vector<std::string> input)
+	{
+		return &SelectionMenu(GetSubMenuRect(), input);
 	}
 private:
 
@@ -61,6 +69,7 @@ namespace GUI_Boxes
 	{
 	public:
 		Menu() = default;
+
 		void operator()(Graphics& gfx, SelectionMenu& menu)
 		{
 			gfx.DrawRect(GUI::GetMenuRect(), GUI::BoxColor);

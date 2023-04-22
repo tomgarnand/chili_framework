@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include "Font.h"
+#include <vector>
 
 
 class SelectionMenu
@@ -25,7 +26,7 @@ private:
 		{
 			if (highlighted)
 			{
-				gfx.DrawRect( rect,highlightColor );
+				gfx.DrawRect(rect, highlightColor);
 			}
 			if (Centered)
 			{
@@ -38,7 +39,7 @@ private:
 		}
 		bool IsHit(const Vei2& pt) const
 		{
-			return rect.left < pt.x && rect.right > pt.x && rect.top < pt.y && rect.bottom > pt.y;
+			return rect.left < pt.x&& rect.right > pt.x && rect.top < pt.y&& rect.bottom > pt.y;
 		}
 		void ResetHighlight()
 		{
@@ -56,6 +57,10 @@ private:
 		{
 			return s;
 		}
+		RectI GetRect() const
+		{
+			return rect;
+		}
 		void SetCentered()
 		{
 			Centered = true;
@@ -68,10 +73,11 @@ private:
 		RectI rect;
 		Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 		bool Centered = false;
-		
+
 	};
 public:
 	SelectionMenu() = default;
+
 	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows, bool center)
 		:
 		SelectionMenu(rect, input, rows)
@@ -84,21 +90,59 @@ public:
 			}
 		}
 	}
-	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows) 
+	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows)
+		:
+		rows(rows)
 	{
 		assert(rows > 0);
 		RectI adjustedRect = RectI(Vei2(rect.left, rect.top) + GetTopOffsetMenu(), (Vei2(rect.right, rect.bottom) - GetTopOffsetMenu()));
-		std::vector<RectI> MenuRects = SelectionRects(adjustedRect, font_height, int(input.size()), rows, 0, 0);
+		std::vector<RectI> MenuRects = SelectionRects(adjustedRect, int(input.size()));
 		int i = 0;
-		for (auto s : input)
+		for (auto& s : input)
 		{
 			entries.emplace_back(s, MenuRects[i]);
 			i++;
 		}
-	
+		!input.empty() ? pLast = &entries.back() : pLast = nullptr;
 	}
-	
-	void UpdateSelectionMenu(std::vector<std::string> input)
+	SelectionMenu(const RectI rect, std::vector<std::string> input)
+		:
+		SelectionMenu(rect, input, 1)
+	{
+
+	}
+	SelectionMenu& operator=(const SelectionMenu& other)
+	{
+		for (auto& e : other.entries)
+		{
+			entries.emplace_back(e.GetStr(), e.GetRect());
+		}
+		pLast = other.pLast;
+		return *this;
+	}
+	SelectionMenu(SelectionMenu& other)
+	{
+		for (auto& e : other.entries)
+		{
+			entries.emplace_back(e.GetStr(), e.GetRect());
+		}
+		rows = other.rows;
+		pLast = other.pLast;
+	}
+	void UpdateSelectionMenu(std::string input, RectI guiRect)
+	{
+		if (pLast != nullptr)
+		{
+			entries.emplace_back(input, GetNewRect());
+			pLast = &entries.back();
+		}
+		else
+		{
+			entries.emplace_back(input, SelectionRects(RectI(Vei2(guiRect.left, guiRect.top) + GetTopOffsetMenu(), Vei2(guiRect.right, guiRect.bottom) - GetTopOffsetMenu()), 1).front());
+			pLast = &entries.back();
+		}
+	}
+	void UpdateSelectionMenu(std::vector<std::string>::iterator Iter)
 	{
 		//TODO: add a method of expanding menus without reinitializing
 	}
@@ -139,7 +183,7 @@ public:
 			}
 			break;
 		}
-		return ""; 
+		return "";
 	}
 	void Draw(Graphics& gfx) const
 	{
@@ -156,12 +200,13 @@ private:
 			n.ResetHighlight();
 		}
 	}
-	std::vector<RectI> SelectionRects(RectI space, int height, int numSquares, int numRows, int xOff, int yOff)
+	std::vector<RectI> SelectionRects(RectI space, int numSquares)
 	{
+		int height = font_height;
 		std::vector<RectI> grid(numSquares);
 		int x0 = space.left;
 		int y0 = space.top;
-		int x1 = space.left + ((space.right - space.left) / numRows);
+		int x1 = space.left + ((space.right - space.left) / rows);
 		int y1 = space.top + height;
 
 		int x = x1 - x0;
@@ -170,10 +215,10 @@ private:
 		int r = 0;
 		for (int i = 0; i < numSquares; i++)
 		{
-			if (r >= numRows)
+			if (r >= rows)
 			{
 				x0 = space.left;
-				x1 = space.left + ((space.right - space.left) / numRows);
+				x1 = space.left + ((space.right - space.left) / rows);
 				y0 += y;
 				y1 += y;
 				r = 0;
@@ -184,6 +229,22 @@ private:
 			r++;
 		}
 		return grid;
+	}
+	RectI GetNewRect()
+	{
+		RectI LastRect = pLast->GetRect();
+		RectI NewRect;
+		int ColWidth = (LastRect.right - LastRect.left);
+		if (entries.size() % rows == 0) //if end of row, go down
+		{
+			NewRect = RectI(LastRect.left - (ColWidth * (rows - 1)), LastRect.right - (ColWidth * (rows - 1)), LastRect.top + font_height, LastRect.bottom + font_height);
+		}
+		//else if in a row, go right
+		else
+		{
+			NewRect = RectI(LastRect.right, LastRect.right + ColWidth, LastRect.top, LastRect.bottom);
+		}
+		return NewRect;
 	}
 private:
 	//Spacing between top corner of GUI Rect and Text
@@ -196,6 +257,9 @@ private:
 	std::vector<Entry> entries;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	int font_height = font.GetGlyphHeight();
-
+	Entry* pLast = nullptr;
+	int rows;
+	int xOff = 0;
+	int yOff = 0;
 };
 
