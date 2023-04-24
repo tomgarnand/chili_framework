@@ -30,10 +30,10 @@ public:
 	{
 		gfx.DrawRect(GUI::GetMenuRect(), GUI::BoxColor);
 		MainMenu.Draw(gfx);
-		for (auto e : stack)
+		for (auto& e : stack)
 		{
-			gfx.DrawRect(e->pGetSelectionMenu()->GetMenuRect(), BoxColor);
-			e->GetSelectionMenu().Draw(gfx);
+			gfx.DrawRect(e->pGetNextMenu()->GetMenuRect(), BoxColor);
+			e->pGetNextMenu()->Draw(gfx);
 		}
 	}
 	SelectionMenu& GetMainMenu()
@@ -84,64 +84,3 @@ public:
 	}
 	
 };
-namespace GUI_Boxes
-{
-	class Menu
-	{
-	public:
-		Menu() = default;
-
-		void operator()(Graphics& gfx, SelectionMenu& menu)
-		{
-			gfx.DrawRect(GUI::GetMenuRect(), GUI::BoxColor);
-			menu.Draw(gfx);
-		}
-
-	private:
-		
-	};
-	class SubMenu
-	{
-	public:
-		SubMenu(SelectionMenu& MainMenu, SelectionMenu& InventoryTabs)
-			:
-			MainMenu(MainMenu),
-			InventoryTabs(InventoryTabs)
-		{
-			
-		}
-		void operator()(Graphics& gfx, SelectionMenu& menu)
-		{
-			gfx.DrawRect(GUI::GetMenuRect(), GUI::BoxColor);
-			MainMenu.Draw(gfx);
-			gfx.DrawRect(GUI::GetSubMenuTabsRect(), GUI::BoxColor);
-			InventoryTabs.Draw(gfx);
-			gfx.DrawRect(GUI::GetSubMenuRect(), GUI::BoxColor);
-			menu.Draw(gfx);
-		}
-	private:
-		SelectionMenu& MainMenu;
-		SelectionMenu& InventoryTabs;
-	};
-}
-
-namespace MenuLinks
-{
-	class Inventory
-	{
-	public:
-		Inventory()
-			:
-			InventoryTabs(InventoryTabs)
-		{
-
-		}
-
-		void operator()(SelectionMenu& InventoryTabs)
-		{
-
-		}
-	private:
-		SelectionMenu& InventoryTabs;
-	};
-}

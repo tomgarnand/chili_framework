@@ -69,7 +69,6 @@ private:
 	std::vector<SelectionMenu::Entry*> MenuStack;
 	SelectionMenu* root;
 	std::vector<SelectionMenu*> PossibleSelect;
-	std::vector<SelectionMenu::Entry*> selects;
 	SelectionMenu::Entry* select;
 	/********************************/
 };

@@ -91,65 +91,62 @@ public:
 		}
 		void InitInnerMenu(SelectionMenu* inner)
 		{
-			menu = inner;
+			NextMenu = inner;
 		}
 		void InitParentMenu(SelectionMenu* parent)
 		{
 			ParentMenu = parent;
 		}
-		SelectionMenu* pGetSelectionMenu()
+		SelectionMenu* pGetNextMenu()
 		{
-			return menu;
+			return NextMenu;
 		}
 		SelectionMenu* pGetParentMenu()
 		{
 			return ParentMenu;
 		}
-		SelectionMenu GetParentMenu()
-		{
-			return *ParentMenu;
-		}
-		SelectionMenu GetSelectionMenu()
-		{
-			return *menu;
-		}
+
+
 	private:
+		Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 		static constexpr int highlightThickness = 6;
 		static constexpr Color highlightColor = Colors::Yellow;
-		bool highlighted = false;
-		std::string s;
+
 		RectI rect;
-		Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
+		bool highlighted = false;
 		bool Centered = false;
-		SelectionMenu* menu = nullptr;
-		SelectionMenu* ParentMenu = nullptr;
+
+		std::string s;
+		
+		SelectionMenu* NextMenu = nullptr; //SelectionMenu that *this entry leads to
+		SelectionMenu* ParentMenu = nullptr; //SelectionMenu that *this entry is contained in
 
 	};
 public:
 	SelectionMenu() = default;
-	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows, bool center, std::vector<SelectionMenu*> inner)
+	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows, bool center, std::vector<SelectionMenu*> NextMenu)
 		:
-		SelectionMenu(rect, input, rows, center)
+		SelectionMenu(MenuRect, input, rows, center)
 	{
 		int i = 0;
 		for (auto& e : entries)
 		{
-			if (i >= inner.size())
+			if (i >= NextMenu.size())
 			{
 				break;
 			}
-			if (inner[i] != nullptr)
+			if (NextMenu[i] != nullptr)
 			{
-				e.InitInnerMenu(inner[i]);
+				e.InitInnerMenu(NextMenu[i]);
 				e.InitParentMenu(this);
 			}
 			i++;
 		}
 		//we only ever need to init one layer of selectionMenu's, because they are reverse-initialized, starting with a empty (front level, intended to be modified in game) selectionmenu
 	}
-	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows, bool center)
+	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows, bool center)
 		:
-		SelectionMenu(rect, input, rows)
+		SelectionMenu(MenuRect, input, rows)
 	{
 		if (center)
 		{
@@ -159,13 +156,13 @@ public:
 			}
 		}
 	}
-	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows)
+	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows)
 		:
 		rows(rows),
-		MenuRect(rect)
+		MenuRect(MenuRect)
 	{
 		assert(rows > 0);
-		RectI adjustedRect = RectI(Vei2(rect.left, rect.top) + GetTopOffsetMenu(), (Vei2(rect.right, rect.bottom) - GetTopOffsetMenu()));
+		RectI adjustedRect = RectI(Vei2(MenuRect.left, MenuRect.top) + GetTopOffsetMenu(), (Vei2(MenuRect.right, MenuRect.bottom) - GetTopOffsetMenu()));
 		std::vector<RectI> MenuRects = SelectionRects(adjustedRect, int(input.size()));
 		int i = 0;
 		for (auto& s : input)
@@ -181,16 +178,6 @@ public:
 	{
 
 	}
-	//SelectionMenu& operator=(const SelectionMenu& other)
-	//{
-	//	for (auto& e : other.entries)
-	//	{
-	//		entries.emplace_back(e.GetStr(), e.GetRect());
-	//	}
-	//	pLast = other.pLast;
-	//	MenuRect = other.MenuRect;
-	//	return *this;
-	//}
 	SelectionMenu(SelectionMenu& other)
 	{
 		for (auto e : other.entries)
@@ -198,7 +185,7 @@ public:
 			
 			entries.emplace_back(e.GetStr(), e.GetRect());
 			entries.back().InitParentMenu(e.pGetParentMenu());
-			entries.back().InitInnerMenu(e.pGetSelectionMenu());
+			entries.back().InitInnerMenu(e.pGetNextMenu());
 			if (e.IsHighlighted())
 			{
 				entries.back().SetHighlight();
@@ -245,7 +232,6 @@ public:
 		!entries.empty() ? pLast = &entries.back() : pLast = nullptr;
 
 	}
-	// returns Size::Something when an entry is clicked
 	Entry* ProcessMouse(const Mouse::Event& e) 
 	{
 		switch (e.GetType())
@@ -255,21 +241,16 @@ public:
 			{
 				if (n.IsHit(e.GetPos()))
 				{
-					// need to test here to prevent sfx from firing
-					// on every mouse move event
 					if (!n.IsHighlighted())
 					{
 						ResetHighlights();
 						n.SetHighlight();
 						hover.Play();
 					}
-					// immediately exit if found a hit
-					// (if we don't, highlight will be reset below)
+
 					return &n;
 				}
 			}
-
-			// if no entry was hit, reset all highlights
 			ResetHighlights();
 			break;
 		case Mouse::Event::Type::LPress:
@@ -369,16 +350,18 @@ private:
 	}
 	static constexpr int verticalSpacing = 4;
 	Sound hover = { L"Sounds//menu_boop.wav" };
-	std::vector<Entry> entries;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	int font_height = font.GetGlyphHeight();
-	Entry* pLast = nullptr;
+	
+	std::vector<Entry> entries; 
+	Entry* pLast = nullptr; //Pointer to last entry element, used to efficiently add on additional entries
+	
+	RectI MenuRect;
 	int rows;
 	int xOff = 0;
 	int yOff = 0;
-	RectI MenuRect;
 	bool Centered = false;
-	//SelectionMenu* openDefault = nullptr; //not needed, because we can reverse open the selectionmenu of the entry
-	SelectionMenu::Entry* openDefaultEntry = nullptr;
+	
+	SelectionMenu::Entry* openDefaultEntry = nullptr; //For when a 'Tab' menu should be paired with another menu. Could be used in longer chains too
 };
 

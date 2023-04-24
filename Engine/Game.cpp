@@ -100,9 +100,6 @@ void Game::UpdateModel()
 		const auto e = wnd.mouse.Read();
 		if (state == State::Menu)
 		{
-			//which Menus/SubMenus should we process mice for?
-			//for all active SelectionMenus, process mice
-			
 			for (auto m : PossibleSelect)
 			{
 				SelectionMenu::Entry* main = m->ProcessMouse(e); //just for visual purposes...
@@ -113,17 +110,18 @@ void Game::UpdateModel()
 				for (SelectionMenu* m : PossibleSelect)
 				{
 					select = m->ProcessMouse(e);
-					if (select != nullptr) //for all SelectionMenus that return things: main -> sub & tab -> ?
+					if (select != nullptr) 
 					{
+						
 						if (MenuStack.empty()) //if nothing has been added to the MenuStack, just straight add whateva
 						{
 							
 							MenuStack.emplace_back(select);
-							PossibleSelect.emplace_back(select->pGetSelectionMenu());
-							if (select->pGetSelectionMenu()->GetOpenDefault() != nullptr)
+							PossibleSelect.emplace_back(select->pGetNextMenu());
+							if (select->pGetNextMenu()->GetOpenDefault() != nullptr)
 							{
-								MenuStack.emplace_back(select->pGetSelectionMenu()->GetOpenDefault());
-								PossibleSelect.emplace_back(select->pGetSelectionMenu()->GetOpenDefault()->pGetSelectionMenu());
+								MenuStack.emplace_back(select->pGetNextMenu()->GetOpenDefault());
+								PossibleSelect.emplace_back(select->pGetNextMenu()->GetOpenDefault()->pGetNextMenu());
 							}
 							break;
 						}
@@ -134,7 +132,7 @@ void Game::UpdateModel()
 						for (auto s : MenuStack)
 						{
 							
-							if (s == select) //check to see if it already is in stack
+							if (s == select) //check to see if it already is in stack. TODO: Disable toggling defaulted children
 							{
 								inStack = true;
 								auto Iter = MenuStack.begin() + (s - MenuStack.front());
@@ -164,11 +162,11 @@ void Game::UpdateModel()
 											}
 											inMenu = true;
 											MenuStack.emplace_back(select);
-											PossibleSelect.emplace_back(select->pGetSelectionMenu());
-											if (select->pGetSelectionMenu()->GetOpenDefault() != nullptr)
+											PossibleSelect.emplace_back(select->pGetNextMenu());
+											if (select->pGetNextMenu()->GetOpenDefault() != nullptr)
 											{
-												MenuStack.emplace_back(select->pGetSelectionMenu()->GetOpenDefault());
-												PossibleSelect.emplace_back(select->pGetSelectionMenu()->GetOpenDefault()->pGetSelectionMenu());
+												MenuStack.emplace_back(select->pGetNextMenu()->GetOpenDefault());
+												PossibleSelect.emplace_back(select->pGetNextMenu()->GetOpenDefault()->pGetNextMenu());
 											}
 											break;
 										}
@@ -180,21 +178,8 @@ void Game::UpdateModel()
 								}
 							}
 						}
-
-
-						//check to see if this is a function selection
-							//if so, resolve
 					}
 				}
-
-
-				//if (sub != nullptr)
-				//{
-				//	//use item
-				//	//TODO: create a whole use item function
-				//	Inventory.UpdateSelectionMenu(sub);
-				//	
-				//}
 			}
 		}
 	}
