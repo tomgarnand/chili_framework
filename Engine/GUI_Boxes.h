@@ -2,14 +2,14 @@
 #include "Graphics.h"
 #include <map>
 #include "SelectionMenu.h"
-
+#include "ProcessMenu.h"
 
 class GUI
 {
 public:
 	GUI()
 		:
-		Inventory(SelectionMenu(GetSubMenuRect(), {}, 2)),
+		Inventory(SelectionMenu(GetSubMenuRect(), {}, 2, false, ProcessMenu::Item{ GetInv() })),
 		Equipment(SelectionMenu(GetSubMenuRect(), {}, 2)),
 		Abilities(SelectionMenu(GetSubMenuRect(), {}, 2)),
 		Important(SelectionMenu(GetSubMenuRect(), {}, 2)),
@@ -24,6 +24,7 @@ public:
 	{
 		InventoryTabs.CreateDefaultEntry(0);
 		EquipmentTabs.CreateDefaultEntry(1);
+		AbilitiesTabs.CreateDefaultEntry(0);
 
 	}
 	void DrawGUI(Graphics& gfx,  std::vector<SelectionMenu::Entry*> stack)
@@ -84,3 +85,5 @@ public:
 	}
 	
 };
+
+

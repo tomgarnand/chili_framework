@@ -7,6 +7,7 @@
 #include <map>
 #include "Font.h"
 #include <vector>
+#include <functional>
 
 
 
@@ -105,8 +106,18 @@ public:
 		{
 			return ParentMenu;
 		}
-
-
+		void SetProcess(std::function<void(Entry* entry)> Func)
+		{
+			ProcessFunc = Func;
+		}
+		void Process(Entry* entry)
+		{
+			ProcessFunc(entry);
+		}
+		std::function<void(Entry* entry)> GetProcessFunc()
+		{
+			return  ProcessFunc;
+		}
 	private:
 		Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 		static constexpr int highlightThickness = 6;
@@ -121,9 +132,20 @@ public:
 		SelectionMenu* NextMenu = nullptr; //SelectionMenu that *this entry leads to
 		SelectionMenu* ParentMenu = nullptr; //SelectionMenu that *this entry is contained in
 
+		std::function<void(Entry* entry)> ProcessFunc = nullptr;
 	};
 public:
 	SelectionMenu() = default;
+	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows, bool center, std::function<void(Entry* entry)> Func)
+		:
+		SelectionMenu(MenuRect, input, rows, center)
+	{
+		ProcessFunc = Func;
+		for (auto& e : entries)
+		{
+			e.SetProcess(Func);
+		}
+	}
 	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows, bool center, std::vector<SelectionMenu*> NextMenu)
 		:
 		SelectionMenu(MenuRect, input, rows, center)
@@ -205,11 +227,13 @@ public:
 		if (pLast != nullptr)
 		{
 			entries.emplace_back(input, GetNewRect());
+			entries.back().SetProcess(ProcessFunc);
 			pLast = &entries.back();
 		}
 		else
 		{
 			entries.emplace_back(input, SelectionRects(RectI(Vei2(guiRect.left, guiRect.top) + GetTopOffsetMenu(), Vei2(guiRect.right, guiRect.bottom) - GetTopOffsetMenu()), 1).front());
+			entries.back().SetProcess(ProcessFunc);
 			pLast = &entries.back();
 		}
 	}
@@ -363,5 +387,6 @@ private:
 	bool Centered = false;
 	
 	SelectionMenu::Entry* openDefaultEntry = nullptr; //For when a 'Tab' menu should be paired with another menu. Could be used in longer chains too
+	std::function<void(Entry* entry)> ProcessFunc = nullptr;
 };
 

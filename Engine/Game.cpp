@@ -112,7 +112,11 @@ void Game::UpdateModel()
 					select = m->ProcessMouse(e);
 					if (select != nullptr) 
 					{
-						
+						if (select->GetProcessFunc() != nullptr)
+						{
+							select->Process(select);
+							break;
+						}
 						if (MenuStack.empty()) //if nothing has been added to the MenuStack, just straight add whateva
 						{
 							
@@ -141,6 +145,7 @@ void Game::UpdateModel()
 								{
 									PossibleSelect.pop_back();
 								}
+								//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
 								break;
 							}
 						}
@@ -160,6 +165,7 @@ void Game::UpdateModel()
 											{
 												PossibleSelect.pop_back();
 											}
+											//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
 											inMenu = true;
 											MenuStack.emplace_back(select);
 											PossibleSelect.emplace_back(select->pGetNextMenu());
