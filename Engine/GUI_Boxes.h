@@ -28,14 +28,12 @@ public:
 		AbilitiesTabs.CreateDefaultEntry(0);
 
 	}
-	void DrawGUI(Graphics& gfx,  std::vector<SelectionMenu::Entry*> stack)
+	void DrawGUI(Graphics& gfx,  std::vector<SelectionMenu*> stack)
 	{
-		gfx.DrawRect(GUI::GetMenuRect(), GUI::BoxColor);
-		MainMenu.Draw(gfx);
 		for (auto& e : stack)
 		{
-			gfx.DrawRect(e->pGetNextMenu()->GetMenuRect(), BoxColor);
-			e->pGetNextMenu()->Draw(gfx);
+			gfx.DrawRect(e->GetMenuRect(), BoxColor);
+			e->Draw(gfx);
 		}
 	}
 	SelectionMenu& GetMainMenu()

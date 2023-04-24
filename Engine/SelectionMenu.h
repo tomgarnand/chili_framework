@@ -324,6 +324,15 @@ public:
 	{
 		return entries;
 	}
+	std::vector<Entry*> pGetEntries()
+	{
+		std::vector<Entry*> ptr;
+		for (auto e : entries)
+		{
+			ptr.emplace_back(&e);
+		}
+		return ptr;
+	}
 	void CreateDefaultEntry(int i)
 	{
 		openDefaultEntry = &entries[i];
@@ -406,6 +415,7 @@ private:
 	int font_height = font.GetGlyphHeight();
 	
 	std::vector<Entry> entries; 
+	
 	Entry* pLast = nullptr; //Pointer to last entry element, used to efficiently add on additional entries
 	
 	RectI MenuRect;

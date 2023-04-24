@@ -33,7 +33,7 @@ Game::Game(MainWindow& wnd)
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
 
 	root = gui.pGetMainMenu();
-	PossibleSelect.emplace_back(root);
+	Stack.emplace_back(root);
 	select = nullptr;
 }
 
@@ -105,9 +105,10 @@ void Game::UpdateModel()
 		const auto e = wnd.mouse.Read();
 		if (state == State::Menu)
 		{
-			for (SelectionMenu* m : PossibleSelect)
+			int it = 1;
+			for (SelectionMenu* sm : Stack)
 			{
-				select = m->ProcessMouse(e); 
+				select = sm->ProcessMouse(e); 
 
 				if (e.GetType() == Mouse::Event::Type::LPress && select != nullptr) 
 				{
@@ -120,88 +121,43 @@ void Game::UpdateModel()
 					{
 						break;
 					}
-					if (select->GetProcessFunc() != nullptr)
-					{
-						select->Process(select);
-						break;
-					}
-					if (MenuStack.empty()) //if nothing has been added to the MenuStack, just straight add whateva
-					{
-						MenuStack.emplace_back(select);
-						PossibleSelect.emplace_back(select->pGetNextMenu());
-						if (select->pGetNextMenu()->GetOpenDefault() != nullptr) //if it has a defaulted child, emplace that too!
-						{
-							MenuStack.emplace_back(select->pGetNextMenu()->GetOpenDefault());
-							PossibleSelect.emplace_back(select->pGetNextMenu()->GetOpenDefault()->pGetNextMenu());
-						}
-						break;
-					}
-
 
 					bool inMenu = false;
-					bool inStack = false;
 					int i = 0;
-					for (auto s : MenuStack)
+					for (auto e : sm->GetEntries()) //for every Entry in a SelectionMenu of Stack
 					{
+						//check to see if Entry is in the Selection Menu
+						if (*select == e) //if an Entry of a SelectionMenu layer is what was Selected
+						{
+							//Remove any SelectionMenu layers above the currently iterating SelectionMenu (sm)
+							//If the current SelectionMenu layer (sm) is the top one, this does nothing
+							int size = Stack.size();
+							for (int i = 0; i < size - it; i++)
+							{
+								Stack.pop_back();
+							}
 
-						if (s == select) //check to see if it already is in stack.
-						{
-							inStack = true;
-							if (s->pGetParentMenu()->GetOpenDefault() != nullptr) //If Select Entry, already on the stack, with with a Default open, ignore the click
+							//Emplace the NextMenu the Selected Entry points to
+							auto e_temp = e.pGetNextMenu();
+							if (e.pGetNextMenu() != nullptr)
 							{
-								break;
-							}
-							std::vector<SelectionMenu::Entry*>::iterator Iter = MenuStack.begin() + i;
-							MenuStack.erase(Iter, MenuStack.end());
-							while (PossibleSelect.size() > MenuStack.size() + 1) //this might not work in a case: Menu -> Menu & Menu(Default) -> Menu -> Menu & Menu(Default) . I think it would pop back 1 too many time. Use i?
-							{
-								PossibleSelect.pop_back();
-							}
-							//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
-							break;
-						}
-						i++;
-					}
-					if (!inStack)
-					{
-						while (!inMenu) //check to see if select is an alternative entry of a SelectionMenu that is already on the stack
-						{
-							int i = 0;
-							for (auto s : MenuStack) //TODO: reverse iteration
-							{
-								for (auto sm : s->pGetParentMenu()->GetEntries())  //sm is all of the entries of the parent menu, i.e. The an Inventory Tab entry gets all the Inventory Tab Entries 
+								Stack.emplace_back(e_temp);
+								while (e_temp->GetOpenDefault() != nullptr) //Add a chain of defaults, however long (c++23 replace this with a Appened_range vector funtion)
 								{
-									if (*select == sm) //highlighted members wont be equal so we cant check for equality the normal way (even tho my operator== doesnt check for it... weird) EDIT: fixed?
-									{
-										std::vector<SelectionMenu::Entry*>::iterator Iter = MenuStack.begin() + i;
-										MenuStack.erase(Iter, MenuStack.end());
-										while (PossibleSelect.size() > MenuStack.size() + 1)
-										{
-											PossibleSelect.pop_back();
-										}
-										//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
-										inMenu = true;
-										MenuStack.emplace_back(select);
-										PossibleSelect.emplace_back(select->pGetNextMenu());
-										if (select->pGetNextMenu()->GetOpenDefault() != nullptr) //if it has a defaulted child, emplace that too!
-										{
-											MenuStack.emplace_back(select->pGetNextMenu()->GetOpenDefault());
-											PossibleSelect.emplace_back(select->pGetNextMenu()->GetOpenDefault()->pGetNextMenu());
-										}
-										break;
-									}
+									e_temp = e_temp->GetOpenDefault()->pGetNextMenu();
+									Stack.emplace_back(e_temp);
+									
 								}
-								if (inMenu)
-								{
-									break;
-								}
-								i++;
+							}
+							else
+							{
+								select->Process(select);
 							}
 						}
 					}
-				
 					
 				}
+				it++;
 			}
 		}
 	}
@@ -213,7 +169,7 @@ void Game::ComposeFrame()
 	link.Draw(gfx);
 	if (state == State::Menu)
 	{
- 		gui.DrawGUI(gfx, MenuStack);
+ 		gui.DrawGUI(gfx, Stack);
 	}
 
 }
