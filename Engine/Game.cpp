@@ -26,18 +26,15 @@ Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
 	gfx(wnd),
-	gui(),
-	Inventory(SelectionMenu(gui.GetSubMenuRect(), Items[0], 2)),
-	Equipment(SelectionMenu(gui.GetSubMenuRect(), Items[1], 2)),
-	Abilities(SelectionMenu(gui.GetSubMenuRect(), Ability, 2))
+	gui()
 	
 
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
 
-
-	MenuState = std::make_pair(GUI_Boxes::Menu{}, gui.pGetMainMenu());
-
+	root = gui.pGetMainMenu();
+	PossibleSelect.emplace_back(root);
+	select = nullptr;
 }
 
 void Game::Go()
@@ -84,12 +81,12 @@ void Game::UpdateModel()
 		if (wnd.kbd.KeyIsPressed(VK_SPACE))
 		{
 			link.effectActivate();
-			if (Items[0].size() < 2)
+			if (true) //(Items[0].size() < 2)
 			{
-				Equipment.UpdateSelectionMenu("Sword of Cunning", gui.GetSubMenuRect());
-				Inventory.UpdateSelectionMenu("Health Potion", gui.GetSubMenuRect());
-				Inventory.UpdateSelectionMenu("Teleport Crystal", gui.GetSubMenuRect());
-				Inventory.UpdateSelectionMenu("Scroll of Revival", gui.GetSubMenuRect());
+				gui.GetInv().UpdateSelectionMenu("Sword of Cunning", gui.GetSubMenuRect());
+				//Inventory.UpdateSelectionMenu("Health Potion", gui.GetSubMenuRect());
+				//Inventory.UpdateSelectionMenu("Teleport Crystal", gui.GetSubMenuRect());
+				//Inventory.UpdateSelectionMenu("Scroll of Revival", gui.GetSubMenuRect());
 				
 			}
 		}
@@ -103,44 +100,104 @@ void Game::UpdateModel()
 		const auto e = wnd.mouse.Read();
 		if (state == State::Menu)
 		{
-
-			SelectionMenu::Entry* main = gui.GetMainMenu().ProcessMouse(e);
-			SelectionMenu::Entry* sub = Inventory.ProcessMouse(e);
-			SelectionMenu::Entry* tab = gui.GetInvTabsMenu().ProcessMouse(e);
-			if (e.GetType() == Mouse::Event::Type::LPress)
-			{
-				if (main->GetStr() == "Game End")
-				{
-					wnd.Kill();
-				}
-				if (main->GetStr() == "Items")
-				{
-					MenuState = std::make_pair(GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, &Inventory);
-				}
-				if (tab->GetStr() == "Equipment")
-				{
-					MenuState = std::make_pair(GUI_Boxes::SubMenu{ gui.GetMainMenu(), gui.GetInvTabsMenu() }, &Equipment);
-
-				}
-				if (sub != nullptr)
-				{
-					//use item
-					//TODO: create a whole use item function
-					Inventory.UpdateSelectionMenu(sub);
-					
-				}
-			}
-		}
-		else
-		{
+			//which Menus/SubMenus should we process mice for?
+			//for all active SelectionMenus, process mice
 			
-			if (false)
+			for (auto m : PossibleSelect)
 			{
-				//state = State::World;
+				SelectionMenu::Entry* main = m->ProcessMouse(e); //just for visual purposes...
+			}
+			
+			if (e.GetType() == Mouse::Event::Type::LPress) //returns only for things that branch into more things
+			{
+				for (SelectionMenu* m : PossibleSelect)
+				{
+					select = m->ProcessMouse(e);
+					if (select != nullptr) //for all SelectionMenus that return things: main -> sub & tab -> ?
+					{
+						if (MenuStack.empty()) //if nothing has been added to the MenuStack, just straight add whateva
+						{
+							
+							MenuStack.emplace_back(select);
+							PossibleSelect.emplace_back(select->pGetSelectionMenu());
+							if (select->pGetSelectionMenu()->GetOpenDefault() != nullptr)
+							{
+								MenuStack.emplace_back(select->pGetSelectionMenu()->GetOpenDefault());
+								PossibleSelect.emplace_back(select->pGetSelectionMenu()->GetOpenDefault()->pGetSelectionMenu());
+							}
+							break;
+						}
+
+
+						bool inMenu = false;
+						bool inStack = false;
+						for (auto s : MenuStack)
+						{
+							
+							if (s == select) //check to see if it already is in stack
+							{
+								inStack = true;
+								auto Iter = MenuStack.begin() + (s - MenuStack.front());
+								MenuStack.erase(Iter, MenuStack.end());
+								while (PossibleSelect.size() > MenuStack.size() + 1)
+								{
+									PossibleSelect.pop_back();
+								}
+								break;
+							}
+						}
+						if (!inStack)
+						{
+							while (!inMenu) //check to see if select is an alternative entry of a SelectionMenu that is already on the stack
+							{
+								for (auto s : MenuStack)
+								{
+									for (auto sm : s->pGetParentMenu()->GetEntries())
+									{
+										if (select->GetStr() == sm.GetStr()) //highlighted members wont be equal so we cant check for equality the normal way (even tho my operator== doesnt check for it... weird)
+										{
+											auto Iter = MenuStack.begin() + (s - MenuStack.front());
+											MenuStack.erase(Iter, MenuStack.end());
+											while (PossibleSelect.size() > MenuStack.size() + 1)
+											{
+												PossibleSelect.pop_back();
+											}
+											inMenu = true;
+											MenuStack.emplace_back(select);
+											PossibleSelect.emplace_back(select->pGetSelectionMenu());
+											if (select->pGetSelectionMenu()->GetOpenDefault() != nullptr)
+											{
+												MenuStack.emplace_back(select->pGetSelectionMenu()->GetOpenDefault());
+												PossibleSelect.emplace_back(select->pGetSelectionMenu()->GetOpenDefault()->pGetSelectionMenu());
+											}
+											break;
+										}
+									}
+									if (inMenu)
+									{
+										break;
+									}
+								}
+							}
+						}
+
+
+						//check to see if this is a function selection
+							//if so, resolve
+					}
+				}
+
+
+				//if (sub != nullptr)
+				//{
+				//	//use item
+				//	//TODO: create a whole use item function
+				//	Inventory.UpdateSelectionMenu(sub);
+				//	
+				//}
 			}
 		}
 	}
-
 }
 
 void Game::ComposeFrame()
@@ -149,7 +206,7 @@ void Game::ComposeFrame()
 	link.Draw(gfx);
 	if (state == State::Menu)
 	{
-		gui.DrawGUI(gfx, MenuState.first, *MenuState.second);
+ 		gui.DrawGUI(gfx, MenuStack);
 	}
 
 }

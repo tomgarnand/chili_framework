@@ -9,18 +9,32 @@ class GUI
 public:
 	GUI()
 		:
+		Inventory(SelectionMenu(GetSubMenuRect(), {}, 2)),
+		Equipment(SelectionMenu(GetSubMenuRect(), {}, 2)),
+		Abilities(SelectionMenu(GetSubMenuRect(), {}, 2)),
+		Important(SelectionMenu(GetSubMenuRect(), {}, 2)),
+		EquipmentTabs(SelectionMenu(GetSubMenuTabsRect(), { "Worn", "Held" }, 3, true, { nullptr, &Equipment })),
+		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3, true, { &Inventory, &Equipment, &Important })),
+		AbilitiesTabs(SelectionMenu(GetSubMenuTabsRect(), { "Skills", "Spells", "Passives" }, 3, true)),
 		//Menu
-		input({ "Items","Equipment","Abilities","Save","Load","Game End" }),
-		MainMenu(SelectionMenu(GetMenuRect(), input)),
-		//Inv
-		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3, true))
-
-	{
+		MainMenu(SelectionMenu(GetMenuRect(), { "Items","Equipment","Abilities","Save","Load","Game End" }, 1, false, 
+			{ &InventoryTabs, &EquipmentTabs, &AbilitiesTabs }
+		))
 		
-	}
-	template<typename E> void DrawGUI(Graphics& gfx, E which, SelectionMenu& Menu)
 	{
-		which(gfx, Menu);
+		InventoryTabs.CreateDefaultEntry(0);
+		EquipmentTabs.CreateDefaultEntry(1);
+
+	}
+	void DrawGUI(Graphics& gfx,  std::vector<SelectionMenu::Entry*> stack)
+	{
+		gfx.DrawRect(GUI::GetMenuRect(), GUI::BoxColor);
+		MainMenu.Draw(gfx);
+		for (auto e : stack)
+		{
+			gfx.DrawRect(e->pGetSelectionMenu()->GetMenuRect(), BoxColor);
+			e->GetSelectionMenu().Draw(gfx);
+		}
 	}
 	SelectionMenu& GetMainMenu()
 	{
@@ -30,13 +44,13 @@ public:
 	{
 		return &MainMenu;
 	}
-	SelectionMenu& GetInvTabsMenu()
+	SelectionMenu& GetInv()
 	{
-		return InventoryTabs;
+		return Inventory;
 	}
-	SelectionMenu* pGetInvTabsMenu()
+	SelectionMenu* pGetInv()
 	{
-		return &InventoryTabs;
+		return &Inventory;
 	}
 	SelectionMenu* GetSubMenu(std::vector<std::string> input)
 	{
@@ -46,9 +60,16 @@ private:
 
 public:
 	static constexpr Color BoxColor = Colors::Blue;
-	std::vector<std::string> input;
-	SelectionMenu MainMenu;
+
+	//Static Menus
+	SelectionMenu Inventory;
+	SelectionMenu Equipment;
+	SelectionMenu Abilities;
+	SelectionMenu Important;
+	SelectionMenu EquipmentTabs;
 	SelectionMenu InventoryTabs;
+	SelectionMenu AbilitiesTabs;
+	SelectionMenu MainMenu;
 	static RectI GetMenuRect()
 	{
 		return { 40,240,40,380 };
@@ -100,6 +121,27 @@ namespace GUI_Boxes
 		}
 	private:
 		SelectionMenu& MainMenu;
+		SelectionMenu& InventoryTabs;
+	};
+}
+
+namespace MenuLinks
+{
+	class Inventory
+	{
+	public:
+		Inventory()
+			:
+			InventoryTabs(InventoryTabs)
+		{
+
+		}
+
+		void operator()(SelectionMenu& InventoryTabs)
+		{
+
+		}
+	private:
 		SelectionMenu& InventoryTabs;
 	};
 }

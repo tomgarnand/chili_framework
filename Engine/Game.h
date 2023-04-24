@@ -31,6 +31,8 @@
 #include "GUI_Boxes.h"
 #include <utility>
 #include <functional>
+#include <map>
+#include <unordered_map>
 
 class Game
 {
@@ -62,15 +64,12 @@ private:
 	Sound hover = { L"Sounds//menu_boop.wav" };
 	State state = State::World;
 	GUI gui;
-	std::vector<std::string> Items[4]; //not really needed anymore
-
-	SelectionMenu Inventory;
-	std::vector<std::string> Ability;
-	SelectionMenu Abilities;
-	SelectionMenu Equipment;
 	
-	std::pair<std::function<void(Graphics&, SelectionMenu&)>, SelectionMenu*> MenuState;
-
 	
+	std::vector<SelectionMenu::Entry*> MenuStack;
+	SelectionMenu* root;
+	std::vector<SelectionMenu*> PossibleSelect;
+	std::vector<SelectionMenu::Entry*> selects;
+	SelectionMenu::Entry* select;
 	/********************************/
 };

@@ -47,7 +47,7 @@ public:
 			{
 				font.DrawText(s, rect, gfx);
 			}
-			else
+			if (!Centered)
 			{
 				font.DrawText(s, Vei2(rect.left, rect.top), gfx);
 			}
@@ -89,6 +89,30 @@ public:
 		{
 			Centered = true;
 		}
+		void InitInnerMenu(SelectionMenu* inner)
+		{
+			menu = inner;
+		}
+		void InitParentMenu(SelectionMenu* parent)
+		{
+			ParentMenu = parent;
+		}
+		SelectionMenu* pGetSelectionMenu()
+		{
+			return menu;
+		}
+		SelectionMenu* pGetParentMenu()
+		{
+			return ParentMenu;
+		}
+		SelectionMenu GetParentMenu()
+		{
+			return *ParentMenu;
+		}
+		SelectionMenu GetSelectionMenu()
+		{
+			return *menu;
+		}
 	private:
 		static constexpr int highlightThickness = 6;
 		static constexpr Color highlightColor = Colors::Yellow;
@@ -97,11 +121,32 @@ public:
 		RectI rect;
 		Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 		bool Centered = false;
+		SelectionMenu* menu = nullptr;
+		SelectionMenu* ParentMenu = nullptr;
 
 	};
 public:
 	SelectionMenu() = default;
-
+	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows, bool center, std::vector<SelectionMenu*> inner)
+		:
+		SelectionMenu(rect, input, rows, center)
+	{
+		int i = 0;
+		for (auto& e : entries)
+		{
+			if (i >= inner.size())
+			{
+				break;
+			}
+			if (inner[i] != nullptr)
+			{
+				e.InitInnerMenu(inner[i]);
+				e.InitParentMenu(this);
+			}
+			i++;
+		}
+		//we only ever need to init one layer of selectionMenu's, because they are reverse-initialized, starting with a empty (front level, intended to be modified in game) selectionmenu
+	}
 	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows, bool center)
 		:
 		SelectionMenu(rect, input, rows)
@@ -116,7 +161,8 @@ public:
 	}
 	SelectionMenu(const RectI rect, std::vector<std::string> input, int rows)
 		:
-		rows(rows)
+		rows(rows),
+		MenuRect(rect)
 	{
 		assert(rows > 0);
 		RectI adjustedRect = RectI(Vei2(rect.left, rect.top) + GetTopOffsetMenu(), (Vei2(rect.right, rect.bottom) - GetTopOffsetMenu()));
@@ -135,25 +181,39 @@ public:
 	{
 
 	}
-	SelectionMenu& operator=(const SelectionMenu& other)
-	{
-		for (auto& e : other.entries)
-		{
-			entries.emplace_back(e.GetStr(), e.GetRect());
-		}
-		pLast = other.pLast;
-		return *this;
-	}
+	//SelectionMenu& operator=(const SelectionMenu& other)
+	//{
+	//	for (auto& e : other.entries)
+	//	{
+	//		entries.emplace_back(e.GetStr(), e.GetRect());
+	//	}
+	//	pLast = other.pLast;
+	//	MenuRect = other.MenuRect;
+	//	return *this;
+	//}
 	SelectionMenu(SelectionMenu& other)
 	{
-		for (auto& e : other.entries)
+		for (auto e : other.entries)
 		{
+			
 			entries.emplace_back(e.GetStr(), e.GetRect());
+			entries.back().InitParentMenu(e.pGetParentMenu());
+			entries.back().InitInnerMenu(e.pGetSelectionMenu());
+			if (e.IsHighlighted())
+			{
+				entries.back().SetHighlight();
+			}
+			if (other.Centered)
+			{
+				entries.back().SetCentered();
+			}
 		}
+		Centered = other.Centered;
 		rows = other.rows;
 		pLast = other.pLast;
+		MenuRect = other.MenuRect;
 	}
-	void UpdateSelectionMenu(std::string input, RectI guiRect)
+	void UpdateSelectionMenu(std::string input, RectI guiRect) //for some reason this is really slow
 	{
 		if (pLast != nullptr)
 		{
@@ -185,8 +245,8 @@ public:
 		!entries.empty() ? pLast = &entries.back() : pLast = nullptr;
 
 	}
-	// returns Size::Something when an entry is clicked, otherwise returns Size::Invalid
-	Entry* ProcessMouse(const Mouse::Event& e) //TODO: change this to returning a rect? or vector loc?
+	// returns Size::Something when an entry is clicked
+	Entry* ProcessMouse(const Mouse::Event& e) 
 	{
 		switch (e.GetType())
 		{
@@ -230,6 +290,22 @@ public:
 		{
 			n.Draw(gfx);
 		}
+	}
+	std::vector<Entry> GetEntries()
+	{
+		return entries;
+	}
+	void CreateDefaultEntry(int i)
+	{
+		openDefaultEntry = &entries[i];
+	}
+	RectI GetMenuRect()
+	{
+		return MenuRect;
+	}
+	Entry* GetOpenDefault()
+	{
+		return openDefaultEntry;
 	}
 private:
 	void ResetHighlights()
@@ -300,5 +376,9 @@ private:
 	int rows;
 	int xOff = 0;
 	int yOff = 0;
+	RectI MenuRect;
+	bool Centered = false;
+	//SelectionMenu* openDefault = nullptr; //not needed, because we can reverse open the selectionmenu of the entry
+	SelectionMenu::Entry* openDefaultEntry = nullptr;
 };
 
