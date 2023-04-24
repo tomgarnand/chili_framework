@@ -105,107 +105,102 @@ void Game::UpdateModel()
 		const auto e = wnd.mouse.Read();
 		if (state == State::Menu)
 		{
-			for (auto m : PossibleSelect)
+			for (SelectionMenu* m : PossibleSelect)
 			{
-				SelectionMenu::Entry* main = m->ProcessMouse(e); //just for visual purposes...
-			}
-			
-			if (e.GetType() == Mouse::Event::Type::LPress) //returns only for things that branch into more things
-			{
-				for (SelectionMenu* m : PossibleSelect)
+				select = m->ProcessMouse(e); 
+
+				if (e.GetType() == Mouse::Event::Type::LPress && select != nullptr) 
 				{
-					select = m->ProcessMouse(e);
-					if (select != nullptr) 
+					if (select->GetStr() == "Game End")
 					{
-						if (select->GetStr() == "Game End")
+						wnd.Kill();
+						break;
+					}
+					if (select->GetStr() == "Save" || select->GetStr() == "Load")
+					{
+						break;
+					}
+					if (select->GetProcessFunc() != nullptr)
+					{
+						select->Process(select);
+						break;
+					}
+					if (MenuStack.empty()) //if nothing has been added to the MenuStack, just straight add whateva
+					{
+						MenuStack.emplace_back(select);
+						PossibleSelect.emplace_back(select->pGetNextMenu());
+						if (select->pGetNextMenu()->GetOpenDefault() != nullptr) //if it has a defaulted child, emplace that too!
 						{
-							wnd.Kill();
-							break;
+							MenuStack.emplace_back(select->pGetNextMenu()->GetOpenDefault());
+							PossibleSelect.emplace_back(select->pGetNextMenu()->GetOpenDefault()->pGetNextMenu());
 						}
-						if (select->GetStr() == "Save" || select->GetStr() == "Load")
+						break;
+					}
+
+
+					bool inMenu = false;
+					bool inStack = false;
+					int i = 0;
+					for (auto s : MenuStack)
+					{
+
+						if (s == select) //check to see if it already is in stack.
 						{
-							break;
-						}
-						if (select->GetProcessFunc() != nullptr)
-						{
-							select->Process(select);
-							break;
-						}
-						if (MenuStack.empty()) //if nothing has been added to the MenuStack, just straight add whateva
-						{
-							MenuStack.emplace_back(select);
-							PossibleSelect.emplace_back(select->pGetNextMenu());
-							if (select->pGetNextMenu()->GetOpenDefault() != nullptr)
+							inStack = true;
+							if (s->pGetParentMenu()->GetOpenDefault() != nullptr) //If Select Entry, already on the stack, with with a Default open, ignore the click
 							{
-								MenuStack.emplace_back(select->pGetNextMenu()->GetOpenDefault());
-								PossibleSelect.emplace_back(select->pGetNextMenu()->GetOpenDefault()->pGetNextMenu());
+								break;
 							}
+							std::vector<SelectionMenu::Entry*>::iterator Iter = MenuStack.begin() + i;
+							MenuStack.erase(Iter, MenuStack.end());
+							while (PossibleSelect.size() > MenuStack.size() + 1) //this might not work in a case: Menu -> Menu & Menu(Default) -> Menu -> Menu & Menu(Default) . I think it would pop back 1 too many time. Use i?
+							{
+								PossibleSelect.pop_back();
+							}
+							//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
 							break;
 						}
-
-
-						bool inMenu = false;
-						bool inStack = false;
-						int i = 0;
-						for (auto s : MenuStack)
+						i++;
+					}
+					if (!inStack)
+					{
+						while (!inMenu) //check to see if select is an alternative entry of a SelectionMenu that is already on the stack
 						{
-							
-							if (s == select) //check to see if it already is in stack.
+							int i = 0;
+							for (auto s : MenuStack) //TODO: reverse iteration
 							{
-								inStack = true;
-								if (s->pGetParentMenu()->GetOpenDefault() != nullptr) //If Select Entry, already on the stack, with with a Default open, ignore the click
+								for (auto sm : s->pGetParentMenu()->GetEntries())  //sm is all of the entries of the parent menu, i.e. The an Inventory Tab entry gets all the Inventory Tab Entries 
+								{
+									if (*select == sm) //highlighted members wont be equal so we cant check for equality the normal way (even tho my operator== doesnt check for it... weird) EDIT: fixed?
+									{
+										std::vector<SelectionMenu::Entry*>::iterator Iter = MenuStack.begin() + i;
+										MenuStack.erase(Iter, MenuStack.end());
+										while (PossibleSelect.size() > MenuStack.size() + 1)
+										{
+											PossibleSelect.pop_back();
+										}
+										//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
+										inMenu = true;
+										MenuStack.emplace_back(select);
+										PossibleSelect.emplace_back(select->pGetNextMenu());
+										if (select->pGetNextMenu()->GetOpenDefault() != nullptr) //if it has a defaulted child, emplace that too!
+										{
+											MenuStack.emplace_back(select->pGetNextMenu()->GetOpenDefault());
+											PossibleSelect.emplace_back(select->pGetNextMenu()->GetOpenDefault()->pGetNextMenu());
+										}
+										break;
+									}
+								}
+								if (inMenu)
 								{
 									break;
 								}
-								std::vector<SelectionMenu::Entry*>::iterator Iter = MenuStack.begin() + i;
-								MenuStack.erase(Iter, MenuStack.end());
-								while (PossibleSelect.size() > MenuStack.size() + 1)
-								{
-									PossibleSelect.pop_back();
-								}
-								//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
-								break;
-							}
-							i++;
-						}
-						if (!inStack)
-						{
-							while (!inMenu) //check to see if select is an alternative entry of a SelectionMenu that is already on the stack
-							{
-								int i = 0;
-								for (auto s : MenuStack) //TODO: reverse iteration
-								{
-									for (auto sm : s->pGetParentMenu()->GetEntries())  //sm is all of the entries of the parent menu, i.e. The an Inventory Tab entry gets all the Inventory Tab Entries 
-									{
-										if (*select == sm) //highlighted members wont be equal so we cant check for equality the normal way (even tho my operator== doesnt check for it... weird) EDIT: fixed?
-										{
-											std::vector<SelectionMenu::Entry*>::iterator Iter = MenuStack.begin() + i;
-											MenuStack.erase(Iter, MenuStack.end());
-											while (PossibleSelect.size() > MenuStack.size() + 1)
-											{
-												PossibleSelect.pop_back();
-											}
-											//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
-											inMenu = true;
-											MenuStack.emplace_back(select);
-											PossibleSelect.emplace_back(select->pGetNextMenu());
-											if (select->pGetNextMenu()->GetOpenDefault() != nullptr)
-											{
-												MenuStack.emplace_back(select->pGetNextMenu()->GetOpenDefault());
-												PossibleSelect.emplace_back(select->pGetNextMenu()->GetOpenDefault()->pGetNextMenu());
-											}
-											break;
-										}
-									}
-									if (inMenu)
-									{
-										break;
-									}
-									i++;
-								}
+								i++;
 							}
 						}
 					}
+				
+					
 				}
 			}
 		}

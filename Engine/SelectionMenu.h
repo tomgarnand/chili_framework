@@ -40,7 +40,7 @@ public:
 		}
 		void Draw(Graphics& gfx) const
 		{
-			if (highlighted)
+			if (highlighted || SelectedTab)
 			{
 				gfx.DrawRect(rect, highlightColor);
 			}
@@ -52,6 +52,18 @@ public:
 			{
 				font.DrawText(s, Vei2(rect.left, rect.top), gfx);
 			}
+		}
+		void SetSelectedTab()
+		{
+			SelectedTab = true;;
+		}
+		void ResetSelectedTab()
+		{
+			SelectedTab = false;
+		}
+		bool IsSelectedTab()
+		{
+			return SelectedTab;
 		}
 		bool IsHit(const Vei2& pt) const
 		{
@@ -124,8 +136,9 @@ public:
 		static constexpr Color highlightColor = Colors::Yellow;
 
 		RectI rect;
-		bool highlighted = false;
 		bool Centered = false;
+		bool highlighted = false;
+		bool SelectedTab = false;
 
 		std::string s;
 		
@@ -275,14 +288,25 @@ public:
 					return &n;
 				}
 			}
-			ResetHighlights();
+			for (auto& n : entries)
+			{
+				if (!n.IsSelectedTab())
+				{
+					ResetHighlights();
+				}
+			}
 			break;
 		case Mouse::Event::Type::LPress:
 			for (auto& n : entries)
 			{
-				if (n.IsHit(e.GetPos()))
+				if (MenuIsHit(e.GetPos()))
 				{
-					return &n;
+					n.ResetSelectedTab();
+					if (n.IsHit(e.GetPos()))
+					{
+						n.SetSelectedTab();
+						return &n;
+					}
 				}
 			}
 			break;
@@ -311,6 +335,10 @@ public:
 	Entry* GetOpenDefault()
 	{
 		return openDefaultEntry;
+	}
+	bool MenuIsHit(const Vei2& pt) const
+	{
+		return MenuRect.left < pt.x&& MenuRect.right > pt.x && MenuRect.top < pt.y&& MenuRect.bottom > pt.y;
 	}
 private:
 	void ResetHighlights()
@@ -387,6 +415,7 @@ private:
 	bool Centered = false;
 	
 	SelectionMenu::Entry* openDefaultEntry = nullptr; //For when a 'Tab' menu should be paired with another menu. Could be used in longer chains too
+
 	std::function<void(Entry* entry)> ProcessFunc = nullptr;
 };
 
