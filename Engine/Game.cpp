@@ -83,11 +83,16 @@ void Game::UpdateModel()
 			link.effectActivate();
 			if (true) //(Items[0].size() < 2)
 			{
-				gui.GetInv().UpdateSelectionMenu("Sword of Cunning", gui.GetSubMenuRect());
-				//Inventory.UpdateSelectionMenu("Health Potion", gui.GetSubMenuRect());
-				//Inventory.UpdateSelectionMenu("Teleport Crystal", gui.GetSubMenuRect());
-				//Inventory.UpdateSelectionMenu("Scroll of Revival", gui.GetSubMenuRect());
-				
+				gui.GetEqu().UpdateSelectionMenu("Sword of Cunning", gui.GetSubMenuRect());
+
+				gui.GetInv().UpdateSelectionMenu("Health Potion", gui.GetSubMenuRect());
+				gui.GetInv().UpdateSelectionMenu("Teleport Crystal", gui.GetSubMenuRect());
+				gui.GetInv().UpdateSelectionMenu("Scroll of Revival", gui.GetSubMenuRect());
+
+				gui.GetSki().UpdateSelectionMenu("Attack", gui.GetSubMenuRect());
+				gui.GetSki().UpdateSelectionMenu("Heal", gui.GetSubMenuRect());
+
+				gui.GetImp().UpdateSelectionMenu("Notebook", gui.GetSubMenuRect());
 			}
 		}
 	}
@@ -112,6 +117,15 @@ void Game::UpdateModel()
 					select = m->ProcessMouse(e);
 					if (select != nullptr) 
 					{
+						if (select->GetStr() == "Game End")
+						{
+							wnd.Kill();
+							break;
+						}
+						if (select->GetStr() == "Save" || select->GetStr() == "Load")
+						{
+							break;
+						}
 						if (select->GetProcessFunc() != nullptr)
 						{
 							select->Process(select);
@@ -119,7 +133,6 @@ void Game::UpdateModel()
 						}
 						if (MenuStack.empty()) //if nothing has been added to the MenuStack, just straight add whateva
 						{
-							
 							MenuStack.emplace_back(select);
 							PossibleSelect.emplace_back(select->pGetNextMenu());
 							if (select->pGetNextMenu()->GetOpenDefault() != nullptr)
@@ -133,13 +146,18 @@ void Game::UpdateModel()
 
 						bool inMenu = false;
 						bool inStack = false;
+						int i = 0;
 						for (auto s : MenuStack)
 						{
 							
-							if (s == select) //check to see if it already is in stack. TODO: Disable toggling defaulted children
+							if (s == select) //check to see if it already is in stack.
 							{
 								inStack = true;
-								auto Iter = MenuStack.begin() + (s - MenuStack.front());
+								if (s->pGetParentMenu()->GetOpenDefault() != nullptr) //If Select Entry, already on the stack, with with a Default open, ignore the click
+								{
+									break;
+								}
+								std::vector<SelectionMenu::Entry*>::iterator Iter = MenuStack.begin() + i;
 								MenuStack.erase(Iter, MenuStack.end());
 								while (PossibleSelect.size() > MenuStack.size() + 1)
 								{
@@ -148,18 +166,20 @@ void Game::UpdateModel()
 								//TODO: set opendefault to the last open tab as we back out. Possibly with a game-level toggle that will appear in a config file
 								break;
 							}
+							i++;
 						}
 						if (!inStack)
 						{
 							while (!inMenu) //check to see if select is an alternative entry of a SelectionMenu that is already on the stack
 							{
-								for (auto s : MenuStack)
+								int i = 0;
+								for (auto s : MenuStack) //TODO: reverse iteration
 								{
-									for (auto sm : s->pGetParentMenu()->GetEntries())
+									for (auto sm : s->pGetParentMenu()->GetEntries())  //sm is all of the entries of the parent menu, i.e. The an Inventory Tab entry gets all the Inventory Tab Entries 
 									{
-										if (select->GetStr() == sm.GetStr()) //highlighted members wont be equal so we cant check for equality the normal way (even tho my operator== doesnt check for it... weird)
+										if (*select == sm) //highlighted members wont be equal so we cant check for equality the normal way (even tho my operator== doesnt check for it... weird) EDIT: fixed?
 										{
-											auto Iter = MenuStack.begin() + (s - MenuStack.front());
+											std::vector<SelectionMenu::Entry*>::iterator Iter = MenuStack.begin() + i;
 											MenuStack.erase(Iter, MenuStack.end());
 											while (PossibleSelect.size() > MenuStack.size() + 1)
 											{
@@ -181,6 +201,7 @@ void Game::UpdateModel()
 									{
 										break;
 									}
+									i++;
 								}
 							}
 						}

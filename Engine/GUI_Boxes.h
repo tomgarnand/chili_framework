@@ -9,15 +9,16 @@ class GUI
 public:
 	GUI()
 		:
-		Inventory(SelectionMenu(GetSubMenuRect(), {}, 2, false, ProcessMenu::Item{ GetInv() })),
-		Equipment(SelectionMenu(GetSubMenuRect(), {}, 2)),
-		Abilities(SelectionMenu(GetSubMenuRect(), {}, 2)),
-		Important(SelectionMenu(GetSubMenuRect(), {}, 2)),
-		EquipmentTabs(SelectionMenu(GetSubMenuTabsRect(), { "Worn", "Held" }, 3, true, { nullptr, &Equipment })),
-		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3, true, { &Inventory, &Equipment, &Important })),
-		AbilitiesTabs(SelectionMenu(GetSubMenuTabsRect(), { "Skills", "Spells", "Passives" }, 3, true)),
+		Inventory    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Item{ GetInv() })),
+		Equipment    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Equip{ GetEqu(), GetWorn() })),
+		Worn         (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Equip{ GetWorn(), GetEqu() })),
+		Skills       (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Use{ GetSki() })),
+		Important    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Use{ GetImp() })),
+		EquipmentTabs(SelectionMenu(GetSubMenuTabsRect(), { "Worn", "Inventory" }              , 3, true , { &Worn, &Equipment })),
+		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3, true , { &Inventory, &Equipment, &Important })),
+		AbilitiesTabs(SelectionMenu(GetSubMenuTabsRect(), { "Skills", "Spells", "Passives" }   , 3, true , { &Skills, nullptr, nullptr })),
 		//Menu
-		MainMenu(SelectionMenu(GetMenuRect(), { "Items","Equipment","Abilities","Save","Load","Game End" }, 1, false, 
+		MainMenu(SelectionMenu(GetMenuRect(), { "Inventory","Equipment","Abilities","Save","Load","Game End" }, 1, false, 
 			{ &InventoryTabs, &EquipmentTabs, &AbilitiesTabs }
 		))
 		
@@ -53,9 +54,21 @@ public:
 	{
 		return &Inventory;
 	}
-	SelectionMenu* GetSubMenu(std::vector<std::string> input)
+	SelectionMenu& GetEqu()
 	{
-		return &SelectionMenu(GetSubMenuRect(), input);
+		return Equipment;
+	}
+	SelectionMenu& GetSki()
+	{
+		return Skills;
+	}
+	SelectionMenu& GetImp()
+	{
+		return Important;
+	}
+	SelectionMenu& GetWorn()
+	{
+		return Worn;
 	}
 private:
 
@@ -65,7 +78,8 @@ public:
 	//Static Menus
 	SelectionMenu Inventory;
 	SelectionMenu Equipment;
-	SelectionMenu Abilities;
+	SelectionMenu Worn;
+	SelectionMenu Skills;
 	SelectionMenu Important;
 	SelectionMenu EquipmentTabs;
 	SelectionMenu InventoryTabs;
