@@ -38,30 +38,23 @@ public:
 		{
 			return (s != other.s && rect != other.rect);
 		}
-		void Draw(Graphics& gfx) const
+		void Draw(Graphics& gfx, Font& font) const
 		{
 			if (highlighted)
 			{
 				gfx.DrawRect(rect, highlightColor);
 			}
-			if (Centered)
-			{
-				font.DrawText(s, rect, gfx);
-			}
-			if (!Centered)
-			{
-				font.DrawText(s, Vei2(rect.left, rect.top), gfx);
-			}
+			Centered ? font.DrawText(s, rect, gfx) : font.DrawText(s, Vei2(rect.left, rect.top), gfx);
 		}
 		void SetSelectedTab()
 		{
-			SelectedTab = true;;
+			SelectedTab = true;
 		}
 		void ResetSelectedTab()
 		{
 			SelectedTab = false;
 		}
-		bool IsSelectedTab()
+		bool IsSelectedTab() const
 		{
 			return SelectedTab;
 		}
@@ -110,11 +103,11 @@ public:
 		{
 			ParentMenu = parent;
 		}
-		SelectionMenu* pGetNextMenu()
+		SelectionMenu* pGetNextMenu() const
 		{
 			return NextMenu;
 		}
-		SelectionMenu* pGetParentMenu()
+		SelectionMenu* pGetParentMenu() const
 		{
 			return ParentMenu;
 		}
@@ -126,13 +119,11 @@ public:
 		{
 			ProcessFunc(entry);
 		}
-		std::function<void(Entry* entry)> GetProcessFunc()
-		{
-			return  ProcessFunc;
-		}
+		
 	private:
-		Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
-		static constexpr int highlightThickness = 6;
+
+
+	private:
 		static constexpr Color highlightColor = Colors::Yellow;
 
 		RectI rect;
@@ -148,7 +139,6 @@ public:
 		std::function<void(Entry* entry)> ProcessFunc = nullptr;
 	};
 public:
-	SelectionMenu() = default;
 	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows, bool center, std::function<void(Entry* entry)> Func)
 		:
 		SelectionMenu(MenuRect, input, rows, center)
@@ -210,32 +200,9 @@ public:
 	SelectionMenu(const RectI rect, std::vector<std::string> input)
 		:
 		SelectionMenu(rect, input, 1)
-	{
-
-	}
-	SelectionMenu(SelectionMenu& other)
-	{
-		for (auto e : other.entries)
-		{
-			
-			entries.emplace_back(e.GetStr(), e.GetRect());
-			entries.back().InitParentMenu(e.pGetParentMenu());
-			entries.back().InitInnerMenu(e.pGetNextMenu());
-			if (e.IsHighlighted())
-			{
-				entries.back().SetHighlight();
-			}
-			if (other.Centered)
-			{
-				entries.back().SetCentered();
-			}
-		}
-		Centered = other.Centered;
-		rows = other.rows;
-		pLast = other.pLast;
-		MenuRect = other.MenuRect;
-	}
-	void UpdateSelectionMenu(std::string input, RectI guiRect) //for some reason this is really slow
+	{}
+	//for some reason this is really slow
+	void UpdateSelectionMenu(std::string input, RectI guiRect) 
 	{
 		if (pLast != nullptr)
 		{
@@ -245,7 +212,8 @@ public:
 		}
 		else
 		{
-			entries.emplace_back(input, SelectionRects(RectI(Vei2(guiRect.left, guiRect.top) + GetTopOffsetMenu(), Vei2(guiRect.right, guiRect.bottom) - GetTopOffsetMenu()), 1).front());
+			RectI newRect = SelectionRects(RectI(Vei2(guiRect.left, guiRect.top) + GetTopOffsetMenu(), Vei2(guiRect.right, guiRect.bottom) - GetTopOffsetMenu()), 1).front();
+			entries.emplace_back(input, newRect);
 			entries.back().SetProcess(ProcessFunc);
 			pLast = &entries.back();
 		}
@@ -253,12 +221,6 @@ public:
 	//erase entry and shift all rects over
 	void UpdateSelectionMenu(Entry* entry)
 	{
-		//const auto Iter2del = std::remove_if(entries.begin(), entries.end(), 
-		//	[entry](auto item)
-		//	{
-		//		return entry == item;
-		//	});
-		//auto new_Iter = entries.erase(Iter2del, entries.end());
 		RectI temp = entry->GetRect();
 		auto iter = entries.begin() + (entry - entries.data());
 		for (auto i = iter, e = entries.end(); i != e; i++)
@@ -323,7 +285,7 @@ public:
 	{
 		for (const auto n : entries)
 		{
-			n.Draw(gfx);
+			n.Draw(gfx, font);
 		}
 	}
 	std::vector<Entry> GetEntries()
@@ -344,19 +306,22 @@ public:
 		openDefaultEntry = sel;
 		sel->SetSelectedTab();
 	}
-	RectI GetMenuRect()
+	RectI GetMenuRect() const
 	{
 		return MenuRect;
 	}
-	Entry* GetOpenDefault()
+	Entry* GetOpenDefault() const
 	{
 		return openDefaultEntry;
 	}
+
+private:
+	//this could be cleaned up for menu's that don't fill all space alloted to them
+
 	bool MenuIsHit(const Vei2& pt) const
 	{
 		return MenuRect.left + GetTopOffsetMenu().x < pt.x&& MenuRect.right - GetTopOffsetMenu().x > pt.x && MenuRect.top + GetTopOffsetMenu().y < pt.y&& MenuRect.bottom - GetTopOffsetMenu().y > pt.y;
 	}
-private:
 	void ResetHighlights()
 	{
 		for (auto& n : entries)
@@ -418,7 +383,7 @@ private:
 	}
 	static constexpr int verticalSpacing = 4;
 	Sound hover = { L"Sounds//menu_boop.wav" };
-	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
+	Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	int font_height = font.GetGlyphHeight();
 	
 	std::vector<Entry> entries; 

@@ -64,7 +64,8 @@ private:
 	Sound hover = { L"Sounds//menu_boop.wav" };
 	State state = State::World;
 	GUI gui;
-	
+	MenuProcessing menu;
+
 	
 	SelectionMenu* root;
 	std::vector<SelectionMenu*> Stack;

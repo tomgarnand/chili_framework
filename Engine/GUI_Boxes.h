@@ -9,11 +9,11 @@ class GUI
 public:
 	GUI()
 		:
-		Inventory    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Item{ GetInv() })),
-		Equipment    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Equip{ GetEqu(), GetWorn() })),
-		Worn         (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Equip{ GetWorn(), GetEqu() })),
-		Skills       (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Use{ GetSki() })),
-		Important    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, ProcessMenu::Use{ GetImp() })),
+		Inventory    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Item{ GetInv() })),
+		Equipment    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Equip{ GetEqu(), GetWorn() })),
+		Worn         (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Equip{ GetWorn(), GetEqu() })),
+		Skills       (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Use{ GetSki() })),
+		Important    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Use{ GetImp() })),
 		EquipmentTabs(SelectionMenu(GetSubMenuTabsRect(), { "Worn", "Inventory" }              , 3, true , { &Worn, &Equipment })),
 		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3, true , { &Inventory, &Equipment, &Important })),
 		AbilitiesTabs(SelectionMenu(GetSubMenuTabsRect(), { "Skills", "Spells", "Passives" }   , 3, true , { &Skills, nullptr, nullptr })),
