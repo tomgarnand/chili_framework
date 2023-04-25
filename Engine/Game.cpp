@@ -146,10 +146,10 @@ void Game::UpdateModel()
 								{
 									e_temp = e_temp->GetOpenDefault()->pGetNextMenu();
 									Stack.emplace_back(e_temp);
-									
 								}
+								sm->RememberDefaultEntry(select);
 							}
-							else
+							else //Use items, etc. If there's no NextMenu, that means it should be Processed
 							{
 								select->Process(select);
 							}

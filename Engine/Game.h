@@ -66,7 +66,6 @@ private:
 	GUI gui;
 	
 	
-	std::vector<SelectionMenu::Entry*> MenuStack;
 	SelectionMenu* root;
 	std::vector<SelectionMenu*> Stack;
 	SelectionMenu::Entry* select;

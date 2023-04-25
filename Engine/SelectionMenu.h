@@ -40,7 +40,7 @@ public:
 		}
 		void Draw(Graphics& gfx) const
 		{
-			if (highlighted || SelectedTab)
+			if (highlighted)
 			{
 				gfx.DrawRect(rect, highlightColor);
 			}
@@ -274,39 +274,45 @@ public:
 		switch (e.GetType())
 		{
 		case Mouse::Event::Type::Move:
+		{
+			bool oneHit = false;
 			for (auto& n : entries)
 			{
 				if (n.IsHit(e.GetPos()))
 				{
+					oneHit = true;
 					if (!n.IsHighlighted())
 					{
+
 						ResetHighlights();
 						n.SetHighlight();
 						hover.Play();
 					}
-
 					return &n;
 				}
 			}
-			for (auto& n : entries)
+			if (!oneHit && !MenuIsHit(e.GetPos()))
 			{
-				if (!n.IsSelectedTab())
+				for (auto& n : entries)
 				{
-					ResetHighlights();
+					if (!n.IsSelectedTab())
+					{
+						n.ResetHighlight();
+					}
+					else
+					{
+						n.SetHighlight();
+					}
 				}
 			}
 			break;
+		}
 		case Mouse::Event::Type::LPress:
 			for (auto& n : entries)
 			{
-				if (MenuIsHit(e.GetPos()))
+				if (n.IsHit(e.GetPos()))
 				{
-					n.ResetSelectedTab();
-					if (n.IsHit(e.GetPos()))
-					{
-						n.SetSelectedTab();
-						return &n;
-					}
+					return &n;
 				}
 			}
 			break;
@@ -324,18 +330,19 @@ public:
 	{
 		return entries;
 	}
-	std::vector<Entry*> pGetEntries()
-	{
-		std::vector<Entry*> ptr;
-		for (auto e : entries)
-		{
-			ptr.emplace_back(&e);
-		}
-		return ptr;
-	}
-	void CreateDefaultEntry(int i)
+	void SetDefaultEntry(int i) //probably dont need this if I could figure out how to grab a entry from GUI
 	{
 		openDefaultEntry = &entries[i];
+		entries[i].SetSelectedTab();
+	}
+	void RememberDefaultEntry(Entry* sel)
+	{
+		if (openDefaultEntry != nullptr)
+		{
+			openDefaultEntry->ResetSelectedTab();
+		}
+		openDefaultEntry = sel;
+		sel->SetSelectedTab();
 	}
 	RectI GetMenuRect()
 	{
@@ -347,7 +354,7 @@ public:
 	}
 	bool MenuIsHit(const Vei2& pt) const
 	{
-		return MenuRect.left < pt.x&& MenuRect.right > pt.x && MenuRect.top < pt.y&& MenuRect.bottom > pt.y;
+		return MenuRect.left + GetTopOffsetMenu().x < pt.x&& MenuRect.right - GetTopOffsetMenu().x > pt.x && MenuRect.top + GetTopOffsetMenu().y < pt.y&& MenuRect.bottom - GetTopOffsetMenu().y > pt.y;
 	}
 private:
 	void ResetHighlights()

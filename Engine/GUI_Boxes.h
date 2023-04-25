@@ -23,9 +23,9 @@ public:
 		))
 		
 	{
-		InventoryTabs.CreateDefaultEntry(0);
-		EquipmentTabs.CreateDefaultEntry(1);
-		AbilitiesTabs.CreateDefaultEntry(0);
+		InventoryTabs.SetDefaultEntry(0);
+		EquipmentTabs.SetDefaultEntry(1);
+		AbilitiesTabs.SetDefaultEntry(0);
 
 	}
 	void DrawGUI(Graphics& gfx,  std::vector<SelectionMenu*> stack)
