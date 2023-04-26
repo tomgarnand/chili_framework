@@ -1,6 +1,11 @@
 #pragma once
 #include "SelectionMenu.h"
 
+//features to add:
+//scroll box
+//	//used menu space?
+//text box
+//font scaling
 namespace MenuElements
 {
 	class Item

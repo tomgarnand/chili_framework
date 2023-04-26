@@ -32,10 +32,7 @@ Game::Game(MainWindow& wnd)
 
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
-
-	root = gui.pGetMainMenu();
-	Stack.emplace_back(root);
-	select = nullptr;
+	Stack.emplace_back(gui.pGetMainMenu());
 }
 
 void Game::Go()

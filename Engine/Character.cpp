@@ -1,5 +1,6 @@
 #include "Character.h"
 
+
 Character::Character(const Vec2& pos)
 	:
 	sprite("Images//link90x90.bmp"),
@@ -72,6 +73,7 @@ void Character::Update(float dt)
 {
 	pos += vel * dt;
 	animations[int(iCurSequence)].Update(dt);
+
 
 	if (effectActive)
 	{

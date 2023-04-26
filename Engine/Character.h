@@ -2,6 +2,7 @@
 
 #include "Animation.h"
 #include "Vec2.h"
+#include "World.h"
 
 class Character
 {
@@ -34,6 +35,6 @@ private:
 	float speed = 80.0f;
 
 	bool effectActive = false;
-	float effectTime;
+	float effectTime = 0.0f;
 	float effectDuration = 0.045f;
 };

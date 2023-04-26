@@ -94,7 +94,14 @@
       <CallingConvention>VectorCall</CallingConvention>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -151,6 +158,7 @@
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="ProcessMenu.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
@@ -160,6 +168,7 @@
     <ClInclude Include="SpriteEffect.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Vec2.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
@@ -252,7 +261,19 @@
     <Image Include="Images\marle32x48.bmp" />
     <Image Include="Images\rgb.bmp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\tmxlite_native.redist.1.0.2\build\native\tmxlite_native.redist.targets" Condition="Exists('..\packages\tmxlite_native.redist.1.0.2\build\native\tmxlite_native.redist.targets')" />
+    <Import Project="..\packages\tmxlite_native.1.0.2\build\native\tmxlite_native.targets" Condition="Exists('..\packages\tmxlite_native.1.0.2\build\native\tmxlite_native.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\tmxlite_native.redist.1.0.2\build\native\tmxlite_native.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\tmxlite_native.redist.1.0.2\build\native\tmxlite_native.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\tmxlite_native.1.0.2\build\native\tmxlite_native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\tmxlite_native.1.0.2\build\native\tmxlite_native.targets'))" />
+  </Target>
 </Project>

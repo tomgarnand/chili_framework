@@ -67,8 +67,8 @@ private:
 	MenuProcessing menu;
 
 	
-	SelectionMenu* root;
+
 	std::vector<SelectionMenu*> Stack;
-	SelectionMenu::Entry* select;
+
 	/********************************/
 };
