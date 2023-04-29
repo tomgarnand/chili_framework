@@ -15,16 +15,7 @@ Animation::Animation(int x, int y, int width, int height, int count, const Surfa
 
 void Animation::Draw(const Vei2& pos, Graphics& gfx) const
 {
-	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], sprite, 
-		[this](Color cSrc, int xDest, int yDest, Graphics& gfx)
-		{
-			if (cSrc != chroma)
-			{
-				const Color invert = Color({ unsigned char(abs(cSrc.GetR() - 255)),unsigned char(abs(cSrc.GetG() - 255)), unsigned char(abs(cSrc.GetB() - 255)) });
-				gfx.PutPixel(xDest, yDest, invert);
-			}
-		}
-		);
+	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], sprite, SpriteEffect::Inverse{chroma});
 }
 
 void Animation::Draw(const Vei2& pos, Graphics& gfx, const RectI& clipRect) const

@@ -96,6 +96,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -167,6 +168,15 @@
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SpriteEffect.h" />
     <ClInclude Include="Surface.h" />
+    <ClInclude Include="TMXLoader\RapidXML\rapidxml.hpp" />
+    <ClInclude Include="TMXLoader\RapidXML\rapidxml_iterators.hpp" />
+    <ClInclude Include="TMXLoader\RapidXML\rapidxml_print.hpp" />
+    <ClInclude Include="TMXLoader\RapidXML\rapidxml_utils.hpp" />
+    <ClInclude Include="TMXLoader\TMXLoader.h" />
+    <ClInclude Include="TMXLoader\TMXMap.h" />
+    <ClInclude Include="TMXLoader\TMXTile.h" />
+    <ClInclude Include="TMXLoader\TMXTileLayer.h" />
+    <ClInclude Include="TMXLoader\TMXTileSet.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
@@ -185,6 +195,11 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="TMXLoader\TMXLoader.cpp" />
+    <ClCompile Include="TMXLoader\TMXMap.cpp" />
+    <ClCompile Include="TMXLoader\TMXTile.cpp" />
+    <ClCompile Include="TMXLoader\TMXTileLayer.cpp" />
+    <ClCompile Include="TMXLoader\TMXTileSet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FramebufferPS.hlsl">
@@ -260,6 +275,9 @@
     <Image Include="Images\link90x90.bmp" />
     <Image Include="Images\marle32x48.bmp" />
     <Image Include="Images\rgb.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TMXLoader\RapidXML\manual.html" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

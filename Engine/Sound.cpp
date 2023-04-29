@@ -76,7 +76,7 @@ SoundSystem::XAudioDll::XAudioDll()
 	LoadType type = LoadType::System;
 	while( true )
 	{
-		hModule = LoadLibrary( GetDllPath( type ) );
+		hModule = LoadLibrary( GetDllPath( type ).c_str() );
 		if( hModule != 0 )
 		{
 			return;
@@ -123,7 +123,7 @@ SoundSystem::XAudioDll::operator HMODULE() const
 	return hModule;
 }
 
-const wchar_t* SoundSystem::XAudioDll::GetDllPath( LoadType type )
+std::wstring SoundSystem::XAudioDll::GetDllPath( LoadType type )
 {
 	switch( type )
 	{

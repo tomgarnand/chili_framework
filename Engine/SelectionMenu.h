@@ -383,9 +383,10 @@ private:
 	}
 	static constexpr int verticalSpacing = 4;
 	Sound hover = { L"Sounds//menu_boop.wav" };
-	Font& font = Font("Images//Fixedsys16x28.bmp", Colors::White);
-	int font_height = font.GetGlyphHeight();
-	
+	Font fontV = Font("Images//Fixedsys16x28.bmp", Colors::White);
+	Font& font = fontV;
+	int font_height = fontV.GetGlyphHeight();
+
 	std::vector<Entry> entries; 
 	
 	Entry* pLast = nullptr; //Pointer to last entry element, used to efficiently add on additional entries

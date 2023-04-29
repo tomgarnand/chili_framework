@@ -33,7 +33,7 @@ MainWindow::MainWindow( HINSTANCE hInst,wchar_t * pArgs )
 	// register window class
 	WNDCLASSEX wc = { sizeof( WNDCLASSEX ),CS_CLASSDC,_HandleMsgSetup,0,0,
 		hInst,nullptr,nullptr,nullptr,nullptr,
-		wndClassName,nullptr };
+		wndClassName.c_str(),nullptr };
 	wc.hIconSm = (HICON)LoadImage( hInst,MAKEINTRESOURCE( IDI_APPICON ),IMAGE_ICON,16,16,0 );
 	wc.hIcon = (HICON)LoadImage( hInst,MAKEINTRESOURCE( IDI_APPICON ),IMAGE_ICON,32,32,0 );
 	wc.hCursor = LoadCursor( nullptr,IDC_ARROW );
@@ -46,7 +46,7 @@ MainWindow::MainWindow( HINSTANCE hInst,wchar_t * pArgs )
 	wr.top = 100;
 	wr.bottom = Graphics::ScreenHeight + wr.top;
 	AdjustWindowRect( &wr,WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,FALSE );
-	hWnd = CreateWindow( wndClassName,L"Chili DirectX Framework",
+	hWnd = CreateWindow( wndClassName.c_str(),L"Chili DirectX Framework",
 		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
 		wr.left,wr.top,wr.right - wr.left,wr.bottom - wr.top,
 		nullptr,nullptr,hInst,this );
@@ -66,7 +66,7 @@ MainWindow::MainWindow( HINSTANCE hInst,wchar_t * pArgs )
 MainWindow::~MainWindow()
 {
 	// unregister window class
-	UnregisterClass( wndClassName,hInst );
+	UnregisterClass( wndClassName.c_str(),hInst );
 }
 
 bool MainWindow::IsActive() const

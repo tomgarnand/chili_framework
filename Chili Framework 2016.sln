@@ -5,6 +5,32 @@ VisualStudioVersion = 16.0.33027.164
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{FFCA512B-49FC-4FC8-8A73-C4F87D322FF2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TMXLoader", "TMXLoader", "{FA9D0F06-DF4B-40E9-AE84-64FD2EBFAFC1}"
+	ProjectSection(SolutionItems) = preProject
+		Engine\TMXLoader\RapidXML\rapidxml.hpp = Engine\TMXLoader\RapidXML\rapidxml.hpp
+		Engine\TMXLoader\RapidXML\rapidxml_iterators.hpp = Engine\TMXLoader\RapidXML\rapidxml_iterators.hpp
+		Engine\TMXLoader\RapidXML\rapidxml_print.hpp = Engine\TMXLoader\RapidXML\rapidxml_print.hpp
+		Engine\TMXLoader\RapidXML\rapidxml_utils.hpp = Engine\TMXLoader\RapidXML\rapidxml_utils.hpp
+		Engine\TMXLoader\TMXLoader.cpp = Engine\TMXLoader\TMXLoader.cpp
+		Engine\TMXLoader\TMXLoader.h = Engine\TMXLoader\TMXLoader.h
+		Engine\TMXLoader\TMXMap.cpp = Engine\TMXLoader\TMXMap.cpp
+		Engine\TMXLoader\TMXMap.h = Engine\TMXLoader\TMXMap.h
+		Engine\TMXLoader\TMXTile.cpp = Engine\TMXLoader\TMXTile.cpp
+		Engine\TMXLoader\TMXTile.h = Engine\TMXLoader\TMXTile.h
+		Engine\TMXLoader\TMXTileLayer.cpp = Engine\TMXLoader\TMXTileLayer.cpp
+		Engine\TMXLoader\TMXTileLayer.h = Engine\TMXLoader\TMXTileLayer.h
+		Engine\TMXLoader\TMXTileSet.cpp = Engine\TMXLoader\TMXTileSet.cpp
+		Engine\TMXLoader\TMXTileSet.h = Engine\TMXLoader\TMXTileSet.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RapidXML", "RapidXML", "{78F408BA-C84C-4493-8115-CF5D4941E6F3}"
+	ProjectSection(SolutionItems) = preProject
+		Engine\TMXLoader\RapidXML\rapidxml.hpp = Engine\TMXLoader\RapidXML\rapidxml.hpp
+		Engine\TMXLoader\RapidXML\rapidxml_iterators.hpp = Engine\TMXLoader\RapidXML\rapidxml_iterators.hpp
+		Engine\TMXLoader\RapidXML\rapidxml_print.hpp = Engine\TMXLoader\RapidXML\rapidxml_print.hpp
+		Engine\TMXLoader\RapidXML\rapidxml_utils.hpp = Engine\TMXLoader\RapidXML\rapidxml_utils.hpp
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -48,6 +74,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{78F408BA-C84C-4493-8115-CF5D4941E6F3} = {FA9D0F06-DF4B-40E9-AE84-64FD2EBFAFC1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4B65DE23-A07D-45E7-98BE-0A1309777A94}
