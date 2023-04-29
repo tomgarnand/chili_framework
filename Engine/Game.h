@@ -33,6 +33,7 @@
 #include <functional>
 #include <map>
 #include <unordered_map>
+#include "World.h"
 
 class Game
 {
@@ -66,7 +67,7 @@ private:
 	GUI gui;
 	MenuProcessing menu;
 
-	
+	World world;
 
 	std::vector<SelectionMenu*> Stack;
 

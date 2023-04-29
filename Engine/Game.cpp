@@ -22,6 +22,7 @@
 #include "Game.h"
 
 
+
 Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
@@ -98,6 +99,9 @@ void Game::UpdateModel()
 	link.Update(ft.Mark());
 
 	
+	
+
+
 	while (!wnd.mouse.IsEmpty())
 	{
 		const auto e = wnd.mouse.Read();
