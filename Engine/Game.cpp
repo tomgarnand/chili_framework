@@ -28,7 +28,8 @@ Game::Game(MainWindow& wnd)
 	wnd(wnd),
 	gfx(wnd),
 	gui(),
-	menu()
+	menu(),
+	world()
 	
 
 {
@@ -114,7 +115,7 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	
+	world.DrawWorld(gfx);
 	link.Draw(gfx);
 	if (state == State::Menu)
 	{
