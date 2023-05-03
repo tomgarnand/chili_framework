@@ -164,9 +164,9 @@ public:
 		}
 		!input.empty() ? pLast = &entries.back() : pLast = nullptr;
 	}
-	SelectionMenu(const RectI rect, std::vector<std::string> input)
+	SelectionMenu(const RectI MenuRect, std::vector<std::string> input)
 		:
-		SelectionMenu(rect, input, 1)
+		SelectionMenu(MenuRect, input, 1)
 	{}
 	
 	void Draw(Graphics& gfx) const;

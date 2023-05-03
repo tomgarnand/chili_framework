@@ -26,7 +26,7 @@ public:
 		:
 		character(character)
 	{
-		Storage.emplace("Inventory", gui.GetInv());
+		Storage.emplace("Inventory", gui.Inventory);
 	}
 	void func()
 	{

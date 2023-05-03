@@ -101,6 +101,7 @@ SelectionMenu::Entry* SelectionMenu::ProcessMouse(const Mouse::Event& e)
 
 void SelectionMenu::Draw(Graphics& gfx) const
 {
+	
 	for (const auto n : entries)
 	{
 		n.Draw(gfx, font);
