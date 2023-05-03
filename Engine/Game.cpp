@@ -83,16 +83,16 @@ void Game::UpdateModel()
 			link.effectActivate();
 			if (true) //(Items[0].size() < 2)
 			{
-				gui.GetEqu().UpdateSelectionMenu("Sword of Cunning", gui.GetSubMenuRect());
+				gui.Inventory.UpdateSelectionMenu("Sword of Cunning", gui.GetSubMenuRect());
+				
+				gui.Inventory.UpdateSelectionMenu("Health Potion", gui.GetSubMenuRect());
+				gui.Inventory.UpdateSelectionMenu("Teleport Crystal", gui.GetSubMenuRect());
+				gui.Inventory.UpdateSelectionMenu("Scroll of Revival", gui.GetSubMenuRect());
 
-				gui.GetInv().UpdateSelectionMenu("Health Potion", gui.GetSubMenuRect());
-				gui.GetInv().UpdateSelectionMenu("Teleport Crystal", gui.GetSubMenuRect());
-				gui.GetInv().UpdateSelectionMenu("Scroll of Revival", gui.GetSubMenuRect());
+				gui.Skills.UpdateSelectionMenu("Attack", gui.GetSubMenuRect());
+				gui.Skills.UpdateSelectionMenu("Heal", gui.GetSubMenuRect());
 
-				gui.GetSki().UpdateSelectionMenu("Attack", gui.GetSubMenuRect());
-				gui.GetSki().UpdateSelectionMenu("Heal", gui.GetSubMenuRect());
-
-				gui.GetImp().UpdateSelectionMenu("Notebook", gui.GetSubMenuRect());
+				gui.Important.UpdateSelectionMenu("Notebook", gui.GetSubMenuRect());
 			}
 		}
 	}

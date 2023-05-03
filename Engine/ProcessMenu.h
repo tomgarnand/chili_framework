@@ -60,6 +60,7 @@ class MenuProcessing
 {
 public:
 	MenuProcessing() = default;
+	//process the MenuStack
 	std::vector<SelectionMenu*> ProcessMenu(const Mouse::Event& e, std::vector<SelectionMenu*> Stack, MainWindow& wnd)
 	{
 		int it = 1;

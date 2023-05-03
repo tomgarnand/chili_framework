@@ -54,7 +54,7 @@ public:
 			for (unsigned int i = 0; i < loader->getMap("testmap")->getWidth(); ++i)
 			{
 				// get the tile at current position
-				tileID = loader->getMap("testmap")->getLayer("Tile Layer 1")->getTiles()[j][i];
+				tileID = loader->getMap("testmap")->getLayer("layer2")->getTiles()[j][i];
 
 				// only render if it is an actual tile (tileID = 0 means no tile / don't render anything here)
 				if (tileID > 0)

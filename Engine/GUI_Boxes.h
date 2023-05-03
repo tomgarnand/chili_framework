@@ -9,19 +9,21 @@ class GUI
 public:
 	GUI()
 		:
-		Inventory    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Item{ GetInv() })),
-		Equipment    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Equip{ GetEqu(), GetWorn() })),
-		Worn         (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Equip{ GetWorn(), GetEqu() })),
-		Skills       (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Use{ GetSki() })),
-		Important    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Use{ GetImp() })),
+		Inventory    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Item{ Inventory })),
+		Equipment    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Equip{ Equipment, Worn })),
+		Worn         (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Equip{ Worn, Equipment })),
+		Skills       (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Use{ Skills })),
+		Important    (SelectionMenu(GetSubMenuRect()    , {}                                   , 2, false, MenuElements::Use{ Important })),
 		EquipmentTabs(SelectionMenu(GetSubMenuTabsRect(), { "Worn", "Inventory" }              , 3, true , { &Worn, &Equipment })),
 		InventoryTabs(SelectionMenu(GetSubMenuTabsRect(), { "Items", "Equipment", "Important" }, 3, true , { &Inventory, &Equipment, &Important })),
 		AbilitiesTabs(SelectionMenu(GetSubMenuTabsRect(), { "Skills", "Spells", "Passives" }   , 3, true , { &Skills, nullptr, nullptr })),
 		//Menu
 		MainMenu(SelectionMenu(GetMenuRect(), { "Inventory","Equipment","Abilities","Save","Load","Game End" }, 1, false, 
-			{ &InventoryTabs, &EquipmentTabs, &AbilitiesTabs }
-		))
-		
+			{ &InventoryTabs, &EquipmentTabs, &AbilitiesTabs }))
+
+		//Combat Menu
+		//CombatMenu(SelectionMenu(GetCombatMenuRect(), { "Abilities", "Items", "Move" }, 1, false, {&AbilitiesCmbtTabs, &Inventory}))
+
 	{
 		InventoryTabs.SetDefaultEntry(0);
 		EquipmentTabs.SetDefaultEntry(1);
@@ -44,30 +46,7 @@ public:
 	{
 		return &MainMenu;
 	}
-	SelectionMenu& GetInv()
-	{
-		return Inventory;
-	}
-	SelectionMenu* pGetInv()
-	{
-		return &Inventory;
-	}
-	SelectionMenu& GetEqu()
-	{
-		return Equipment;
-	}
-	SelectionMenu& GetSki()
-	{
-		return Skills;
-	}
-	SelectionMenu& GetImp()
-	{
-		return Important;
-	}
-	SelectionMenu& GetWorn()
-	{
-		return Worn;
-	}
+	
 private:
 
 public:
@@ -96,6 +75,15 @@ public:
 		return { 244,800,40,120 };
 	}
 	
+};
+
+class Combat_GUI
+{
+	Combat_GUI()
+	{
+
+	}
+
 };
 
 

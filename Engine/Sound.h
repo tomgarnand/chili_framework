@@ -83,13 +83,13 @@ private:
 		std::wstring GetDllPath( LoadType type );
 	private:
 		HMODULE hModule = 0;
-		std::wstring systemPath = L"XAudio2_7.dll";
+		const std::wstring systemPath = L"XAudio2_7.dll";
 #ifdef _M_X64
-		std::wstring folderPath = L"XAudio\\XAudio2_7_64.dll";
-		std::wstring localPath = L"XAudio2_7_64.dll";
+		const std::wstring folderPath = L"XAudio\\XAudio2_7_64.dll";
+		const std::wstring localPath = L"XAudio2_7_64.dll";
 #else
-		std::wstring folderPath = L"XAudio\\XAudio2_7_32.dll";
-		std::wstring localPath = L"XAudio2_7_32.dll";
+		const std::wstring folderPath = L"XAudio\\XAudio2_7_32.dll";
+		const std::wstring localPath = L"XAudio2_7_32.dll";
 #endif
 	};
 public:
