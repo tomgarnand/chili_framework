@@ -7,49 +7,44 @@
 #include "Font.h"
 #include <vector>
 #include <functional>
+#include "BoxMenu.h"
+#include "GameContainer.h"
 
 
 
 class SelectionMenu
 {
 public:
-	class Entry
+	class SelectionItem
 	{
+	using Element = Collection::Element;
 	public:
-
-		Entry(std::string s, const RectI& rect)
+		SelectionItem(std::string s, int iter)
 			:
 			s(s),
-			rect(rect)
+			iter(iter)
 		{}
-		~Entry() = default;
-		Entry operator=(const Entry& other)
+		SelectionItem(Element element, int iter)
+			:
+			element(element),
+			iter(iter)
 		{
-			rect = other.rect;
+			s = element.GetString();
+		}
+		~SelectionItem() = default;
+		SelectionItem operator=(const SelectionItem& other)
+		{
 			s = other.s;
-			Centered = other.Centered;
 			return *this;
 		}
-		bool operator==(const Entry& other) const
+		bool operator==(const SelectionItem& other) const
 		{
-			return (s == other.s && rect == other.rect);
+			return (s == other.s);
 		}
-		bool operator!=(const Entry& other) const
+		bool operator!=(const SelectionItem& other) const
 		{
-			return (s != other.s && rect != other.rect);
+			return (s != other.s);
 		}
-
-		void Draw(Graphics& gfx, Font& font) const;
-
-		void SetSelectedTab() {SelectedTab = true;}
-		void ResetSelectedTab() {SelectedTab = false;}
-		bool IsSelectedTab() const {return SelectedTab;}
-
-		bool IsHit(const Vei2& pt) const{return rect.left < pt.x&& rect.right > pt.x && rect.top < pt.y&& rect.bottom > pt.y;}
-
-		void ResetHighlight(){highlighted = false;}
-		void SetHighlight(){highlighted = true;}
-		bool IsHighlighted() const {return highlighted;}
 
 		std::string GetStr() const
 		{
@@ -59,12 +54,8 @@ public:
 			}
 			return s;
 		}
+		int GetIter() const { return iter; }
 
-		RectI GetRect() const {return rect;}
-		
-		void SetCentered() {Centered = true;}
-
-		RectI SwapRects(RectI temp);
 		void InitInnerMenu(SelectionMenu* inner)
 		{
 			NextMenu = inner;
@@ -81,47 +72,40 @@ public:
 		{
 			return ParentMenu;
 		}
-		void SetProcess(std::function<void(Entry* entry)> Func)
+		void Process()
 		{
-			ProcessFunc = Func;
-		}
-		void Process(Entry* entry)
-		{
-			ProcessFunc(entry);
+			element.Use();
 		}
 
 	private:
-		static constexpr Color highlightColor = Colors::Yellow;
-
-		RectI rect;
-		bool Centered = false;
-		bool highlighted = false;
-		bool SelectedTab = false;
-
 		std::string s;
+		int iter;
 		
-		SelectionMenu* NextMenu = nullptr; //SelectionMenu that *this entry leads to
-		SelectionMenu* ParentMenu = nullptr; //SelectionMenu that *this entry is contained in
+		SelectionMenu* NextMenu = nullptr; //SelectionMenu that *this item leads to
+		SelectionMenu* ParentMenu = nullptr; //SelectionMenu that *this item is contained in
 
-		std::function<void(Entry* entry)> ProcessFunc = nullptr;
+		Element element;
 	};
 public:
-	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows, bool center, std::function<void(Entry* entry)> Func)
+	SelectionMenu(BoxMenu box, Collection collection)
 		:
-		SelectionMenu(MenuRect, input, rows, center)
-	{
-		ProcessFunc = Func;
-		for (auto& e : entries)
-		{
-			e.SetProcess(Func);
-		}
-	}
-	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows, bool center, std::vector<SelectionMenu*> NextMenu)
-		:
-		SelectionMenu(MenuRect, input, rows, center)
+		boxmenu(box)
 	{
 		int i = 0;
-		for (auto& e : entries)
+		for (auto& s : collection.GetElements())
+		{
+			items.emplace_back(s, i);
+			i++;
+		}
+		!collection.GetElements().empty() ? pLast = &items.back() : pLast = nullptr;
+
+	}
+	SelectionMenu(BoxMenu box, std::vector<std::string> input, std::vector<SelectionMenu*> NextMenu)
+		:
+		SelectionMenu(box, input)
+	{
+		int i = 0;
+		for (auto& e : items)
 		{
 			if (i >= NextMenu.size())
 			{
@@ -136,87 +120,106 @@ public:
 		}
 		//we only ever need to init one layer of selectionMenu's, because they are reverse-initialized, starting with a empty (front level, intended to be modified in game) selectionmenu
 	}
-	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows, bool center)
+	SelectionMenu(BoxMenu box, std::vector<std::string> input)
 		:
-		SelectionMenu(MenuRect, input, rows)
+		boxmenu(box)
 	{
-		if (center)
-		{
-			for (auto& e : entries)
-			{
-				e.SetCentered();
-			}
-		}
-	}
-	SelectionMenu(const RectI MenuRect, std::vector<std::string> input, int rows)
-		:
-		rows(rows),
-		MenuRect(MenuRect)
-	{
-		assert(rows > 0);
-		RectI adjustedRect = RectI(Vei2(MenuRect.left, MenuRect.top) + GetTopOffsetMenu(), (Vei2(MenuRect.right, MenuRect.bottom) - GetTopOffsetMenu()));
-		std::vector<RectI> MenuRects = SelectionRects(adjustedRect, int(input.size()));
 		int i = 0;
 		for (auto& s : input)
 		{
-			entries.emplace_back(s, MenuRects[i]);
+			items.emplace_back(s, i);
 			i++;
 		}
-		!input.empty() ? pLast = &entries.back() : pLast = nullptr;
+		!input.empty() ? pLast = &items.back() : pLast = nullptr;
 	}
-	SelectionMenu(const RectI MenuRect, std::vector<std::string> input)
-		:
-		SelectionMenu(MenuRect, input, 1)
-	{}
-	
-	void Draw(Graphics& gfx) const;
 
-	RectI GetMenuRect() const { return MenuRect; }
-	Entry* GetOpenDefault() const { return openDefaultEntry; }
-	std::vector<Entry> GetEntries() { return entries; }
+	SelectionItem* GetOpenDefault() const 
+	{
+		if (this == nullptr)
+		{
+			return nullptr;
+		}
+		return openDefaultEntry; 
+	}
+	std::vector<SelectionItem> GetSelectionItems() { return items; }
+	SelectionItem* pGetSelectionItems() { return items.data(); }
+	BoxMenu GetBoxMenu() { return boxmenu; }
+	BoxMenu* pGetBoxMenu() { return &boxmenu; }
+	int GetScrollOffset() { return ScrollOffset; }
 
-	void UpdateSelectionMenu(std::string input, RectI guiRect);
-	void UpdateSelectionMenu(Entry* entry);
 
-	Entry* ProcessMouse(const Mouse::Event& e);
+	void UpdateScrollOffset(int dir)
+	{
+		if (items.size() > boxmenu.GetBoxItemRects().size())
+		{
+			ScrollOffset += dir;
+			if (ScrollOffset < 0)
+			{
+				ScrollOffset = 0;
+			}
+			else if (ScrollOffset > (items.size() / boxmenu.GetNumRows()))
+			{
+				ScrollOffset = (items.size() / boxmenu.GetNumRows()) - 1;
+			}
+			//update SelectedTab
+			for (int i = 0; i < boxmenu.GetBoxItems().size(); i++)
+			{
+				if (boxmenu.GetBoxItems()[i].IsSelectedTab())
+				{
+					boxmenu.ResetSelectedTab();
+					boxmenu.GetBoxItems()[i + (ScrollOffset * boxmenu.GetNumRows())].IsSelectedTab();
+					break;
+				}
+			}
+			
+		}
+	}
+	//expand when I decide the update processing
+	void UpdateSelectionMenu(std::string input)
+	{
+		if (pLast == nullptr)
+		{
+			items.emplace_back(input, 0);
+		}
+		else
+		{
+			items.emplace_back(input, pLast->GetIter() + 1);
+		}
+		pLast = &items.back();
+	}
+	void UpdateSelectionMenu(Collection::Element element)
+	{
+		if (pLast == nullptr)
+		{
+			items.emplace_back(element, 0);
+		}
+		else
+		{
+			items.emplace_back(element, pLast->GetIter() + 1);
+		}
+		pLast = &items.back();
+	}
 
-	void SetDefaultEntry(int i); 
-	void RememberDefaultEntry(Entry* sel);
-	
+
+
+	void SetDefaultEntry(int i) 
+	{
+		openDefaultEntry = &items[i];
+		boxmenu.GetBoxItems()[i + (ScrollOffset * boxmenu.GetNumRows())].SetSelectedTab();
+	}
+
+	void RememberDefaultEntry(SelectionItem* sel)
+	{
+		openDefaultEntry = sel;
+	}
 
 private:
+	std::vector<SelectionItem> items;
+	BoxMenu boxmenu;
 
-	bool MenuIsHit(const Vei2& pt) const
-	{
-		return MenuRect.left + GetTopOffsetMenu().x < pt.x&& MenuRect.right - GetTopOffsetMenu().x > pt.x && MenuRect.top + GetTopOffsetMenu().y < pt.y&& MenuRect.bottom - GetTopOffsetMenu().y > pt.y;
-	}
-	void ResetHighlights();
-	std::vector<RectI> SelectionRects(RectI space, int numSquares);
-	RectI GetNewRect();
-private:
-	//Spacing between top corner of GUI Rect and Text
-	static Vei2 GetTopOffsetMenu() 
-	{
-		return { 20, 20 };
-	}
-	static constexpr int verticalSpacing = 4;
-	Sound hover = { L"Sounds//menu_boop.wav" };
-	Font fontV = Font("Images//Fixedsys16x28.bmp", Colors::White);
-	Font& font = fontV;
-	int font_height = fontV.GetGlyphHeight();
+	SelectionItem* pLast = nullptr; //Pointer to last item element, used to efficiently add on additional entries
+	SelectionMenu::SelectionItem* openDefaultEntry = nullptr; //For when a 'Tab' menu should be paired with another menu. Could be used in longer chains too
 
-	std::vector<Entry> entries; 
-	
-	Entry* pLast = nullptr; //Pointer to last entry element, used to efficiently add on additional entries
-	
-	RectI MenuRect;
-	int rows;
-	int xOff = 0;
-	int yOff = 0;
-	bool Centered = false;
-	
-	SelectionMenu::Entry* openDefaultEntry = nullptr; //For when a 'Tab' menu should be paired with another menu. Could be used in longer chains too
-
-	std::function<void(Entry* entry)> ProcessFunc = nullptr;
+	int ScrollOffset = 0; //1 = 1 row down
 };
 

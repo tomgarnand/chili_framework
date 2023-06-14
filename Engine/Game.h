@@ -28,12 +28,13 @@
 #include "Character.h"
 #include "Font.h"
 #include "Sound.h"
-#include "GUI_Boxes.h"
+#include "GUI.h"
 #include <utility>
 #include <functional>
 #include <map>
 #include <unordered_map>
 #include "World.h"
+#include "ProcessMenu.h"
 
 class Game
 {
@@ -42,13 +43,15 @@ public:
 	Game( const Game& ) = delete;
 	Game& operator=( const Game& ) = delete;
 	void Go();
-private:
-	enum class State
+
+	enum GameState
 	{
 		Menu,
-		World,
+		Moving,
 		Combat
 	};
+
+private:
 	void ComposeFrame();
 	void UpdateModel();
 	/********************************/
@@ -63,7 +66,7 @@ private:
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Character link = Character({ 100,100 });
 	Sound hover = { L"Sounds//menu_boop.wav" };
-	State state = State::World;
+	GameState state = GameState::Moving;
 	GUI gui;
 	MenuProcessing menu;
 

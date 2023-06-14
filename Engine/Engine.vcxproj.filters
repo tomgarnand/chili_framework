@@ -84,7 +84,7 @@
     <ClInclude Include="SpriteEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GUI_Boxes.h">
+    <ClInclude Include="BoxMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SelectionMenu.h">
@@ -124,6 +124,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TMXLoader\TMXTileSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -183,9 +189,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TMXLoader\TMXTileSet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SelectionMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

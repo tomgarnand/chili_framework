@@ -55,7 +55,7 @@ void Game::UpdateModel()
 		switch(e.GetCode())
 		case (27) : //escape
 		{
-			state == State::Menu ? state = State::World : state = State::Menu;
+			state == GameState::Menu ? state = GameState::Moving : state = GameState::Menu;
 			break;
 		}
 		
@@ -83,16 +83,17 @@ void Game::UpdateModel()
 			link.effectActivate();
 			if (true) //(Items[0].size() < 2)
 			{
-				gui.Inventory.UpdateSelectionMenu("Sword of Cunning", gui.GetSubMenuRect());
+				gui.Collection_Equipment.AddElement()
+				gui.Equipment.UpdateSelectionMenu("Sword of Cunning");
 				
-				gui.Inventory.UpdateSelectionMenu("Health Potion", gui.GetSubMenuRect());
-				gui.Inventory.UpdateSelectionMenu("Teleport Crystal", gui.GetSubMenuRect());
-				gui.Inventory.UpdateSelectionMenu("Scroll of Revival", gui.GetSubMenuRect());
+				gui.Inventory.UpdateSelectionMenu("Health Potion");
+				gui.Inventory.UpdateSelectionMenu("Teleport Crystal");
+				gui.Inventory.UpdateSelectionMenu("Scroll of Revival");
 
-				gui.Skills.UpdateSelectionMenu("Attack", gui.GetSubMenuRect());
-				gui.Skills.UpdateSelectionMenu("Heal", gui.GetSubMenuRect());
+				gui.Spells.UpdateSelectionMenu("Attack");
+				gui.Spells.UpdateSelectionMenu("Heal");
 
-				gui.Important.UpdateSelectionMenu("Notebook", gui.GetSubMenuRect());
+				gui.Important.UpdateSelectionMenu("Notebook");
 			}
 		}
 	}
@@ -106,7 +107,7 @@ void Game::UpdateModel()
 	while (!wnd.mouse.IsEmpty())
 	{
 		const auto e = wnd.mouse.Read();
-		if (state == State::Menu)
+		if (state == GameState::Menu)
 		{
 			Stack = menu.ProcessMenu(e, Stack, wnd);
 		}
@@ -117,9 +118,9 @@ void Game::ComposeFrame()
 {
 	world.DrawWorld(gfx);
 	link.Draw(gfx);
-	if (state == State::Menu)
+	if (state == GameState::Menu)
 	{
- 		gui.DrawGUI(gfx, Stack);
+ 		menu.DrawGUI(Stack, gfx, gui.GetFont());
 	}
 
 }
