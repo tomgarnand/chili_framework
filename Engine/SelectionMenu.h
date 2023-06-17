@@ -24,12 +24,12 @@ public:
 			s(s),
 			iter(iter)
 		{}
-		SelectionItem(Element element, int iter)
+		SelectionItem(Element* element, int iter)
 			:
 			element(element),
 			iter(iter)
 		{
-			s = element.GetString();
+			s = element->GetString();
 		}
 		~SelectionItem() = default;
 		SelectionItem operator=(const SelectionItem& other)
@@ -55,6 +55,14 @@ public:
 			return s;
 		}
 		int GetIter() const { return iter; }
+		Element* pGetEle() 
+		{
+			if (this == nullptr)
+			{
+				return nullptr;
+			}
+			return element; 
+		}
 
 		void InitInnerMenu(SelectionMenu* inner)
 		{
@@ -72,10 +80,6 @@ public:
 		{
 			return ParentMenu;
 		}
-		void Process()
-		{
-			element.Use();
-		}
 
 	private:
 		std::string s;
@@ -84,7 +88,7 @@ public:
 		SelectionMenu* NextMenu = nullptr; //SelectionMenu that *this item leads to
 		SelectionMenu* ParentMenu = nullptr; //SelectionMenu that *this item is contained in
 
-		Element element;
+		Element* element = nullptr;
 	};
 public:
 	SelectionMenu(BoxMenu box, Collection collection)
@@ -92,12 +96,12 @@ public:
 		boxmenu(box)
 	{
 		int i = 0;
-		for (auto& s : collection.GetElements())
+		for (auto& e : collection.pGetCollection())
 		{
-			items.emplace_back(s, i);
+			items.emplace_back(e, i);
 			i++;
 		}
-		!collection.GetElements().empty() ? pLast = &items.back() : pLast = nullptr;
+		!collection.pGetCollection().empty() ? pLast = &items.back() : pLast = nullptr;
 
 	}
 	SelectionMenu(BoxMenu box, std::vector<std::string> input, std::vector<SelectionMenu*> NextMenu)
@@ -187,7 +191,7 @@ public:
 		}
 		pLast = &items.back();
 	}
-	void UpdateSelectionMenu(Collection::Element element)
+	void UpdateSelectionMenu(Collection::Element* element)
 	{
 		if (pLast == nullptr)
 		{

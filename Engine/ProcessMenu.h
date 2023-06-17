@@ -1,6 +1,6 @@
 #pragma once
 #include "SelectionMenu.h"
-#include "BoxMenu.h"
+#include "GameContainer.h"
 #include "GUI.h"
 #include "MainWindow.h"
 #include <cmath>
@@ -12,7 +12,7 @@ public:
 
 	void DrawGUI(std::vector<SelectionMenu*> stack, Graphics& gfx, Font* font)
 	{
-		if (suspend)
+		if (!stored_stack.empty()) //if processing is suspended for a stack of menus
 		{
 			for (auto sm : stored_stack)
 			{
@@ -52,12 +52,27 @@ public:
 	std::vector<SelectionMenu*> ProcessMenu(const Mouse::Event& e, std::vector<SelectionMenu*> Stack, MainWindow& wnd)
 	{
 		int it = 1;
+
 		for (SelectionMenu* sm : Stack)
 		{
 			SelectionMenu::SelectionItem* select = ProcessMouse(e, sm);
 
+			
+
 			if (e.GetType() == Mouse::Event::Type::LPress && select != nullptr)
 			{
+				if (select->pGetEle() != nullptr)
+				{
+					SuspendProcess(Stack); //design choice to make menu untargetable when an item is clicked. Could be changed to avoid (hitting Escape?) to cancel
+					//if I wanted to make the menu still interactable, I would just need to remove the Element from storage in *this when the 'confirmation menu' is unselected below
+					//of course, it would be tough (atm) to implement suspending for select menus/elements
+					Stack = {};
+					Stack.emplace_back(select->pGetNextMenu());
+					element = select->pGetEle();
+					return Stack;
+				}
+				
+
 				if (select->GetStr() == "Game End")
 				{
 					wnd.Kill();
@@ -94,9 +109,14 @@ public:
 							}
 							sm->RememberDefaultEntry(select);
 						}
-						else //Use items, etc. If there's no NextMenu, that means it should be Processed
+						else //this occurs when the stack has been suspended, but now a menu has been selected that doesnt lead anywhere
 						{
-							//select->Process(select); old code- need new way to process a GameObject
+							
+							//element->Use(target);
+							//delete element;
+							element = nullptr;
+							Stack = ResolveProcess();
+							return Stack;
 						}
 					}
 				}
@@ -205,16 +225,18 @@ public:
 	}
 	void SuspendProcess(std::vector<SelectionMenu*> Stack)
 	{
-		suspend = true;
 		stored_stack = Stack;
 	}
 	std::vector<SelectionMenu*> ResolveProcess()
 	{
-		suspend = false;
-		return stored_stack;
+		auto temp = stored_stack;
+		
+		stored_stack.clear();
+		return temp;
 	}
 
 private:
-	bool suspend = false;
 	std::vector<SelectionMenu*> stored_stack;
+	Collection::Element* element = nullptr;
+
 };

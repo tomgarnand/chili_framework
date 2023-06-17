@@ -83,17 +83,19 @@ void Game::UpdateModel()
 			link.effectActivate();
 			if (true) //(Items[0].size() < 2)
 			{
-				gui.Collection_Equipment.AddElement()
-				gui.Equipment.UpdateSelectionMenu("Sword of Cunning");
+				Collection::Item item = Collection::Item("Health Potion");
+				gui.Collection_Inventory.AddElement(&item);
+				gui.Inventory.UpdateSelectionMenu(gui.Collection_Inventory.pGetElement(0));
+				gui.Inventory.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
 				
-				gui.Inventory.UpdateSelectionMenu("Health Potion");
-				gui.Inventory.UpdateSelectionMenu("Teleport Crystal");
-				gui.Inventory.UpdateSelectionMenu("Scroll of Revival");
-
-				gui.Spells.UpdateSelectionMenu("Attack");
-				gui.Spells.UpdateSelectionMenu("Heal");
-
-				gui.Important.UpdateSelectionMenu("Notebook");
+				//gui.Inventory.UpdateSelectionMenu("Teleport Crystal");
+				//gui.Inventory.UpdateSelectionMenu("Scroll of Revival");
+				//
+				//gui.Equipment.UpdateSelectionMenu("Sword of Cunning");
+				//gui.Spells.UpdateSelectionMenu("Attack");
+				//gui.Spells.UpdateSelectionMenu("Heal");
+				//
+				//gui.Important.UpdateSelectionMenu("Notebook");
 			}
 		}
 	}
