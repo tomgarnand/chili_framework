@@ -136,6 +136,10 @@ public:
 		}
 		!input.empty() ? pLast = &items.back() : pLast = nullptr;
 	}
+	SelectionMenu* pGetSelectionMenu()
+	{
+		return this;
+	}
 
 	SelectionItem* GetOpenDefault() const 
 	{
@@ -215,6 +219,10 @@ public:
 	void RememberDefaultEntry(SelectionItem* sel)
 	{
 		openDefaultEntry = sel;
+	}
+	void ResetDefaultEntry()
+	{
+		openDefaultEntry = nullptr;
 	}
 
 private:

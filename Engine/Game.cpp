@@ -87,6 +87,7 @@ void Game::UpdateModel()
 				gui.Collection_Inventory.AddElement(&item);
 				gui.Inventory.UpdateSelectionMenu(gui.Collection_Inventory.pGetElement(0));
 				gui.Inventory.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
+				gui.Inventory.pGetSelectionItems()[0].InitParentMenu(gui.Inventory.pGetSelectionMenu());
 				
 				//gui.Inventory.UpdateSelectionMenu("Teleport Crystal");
 				//gui.Inventory.UpdateSelectionMenu("Scroll of Revival");

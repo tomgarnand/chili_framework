@@ -115,7 +115,13 @@ public:
 							//element->Use(target);
 							//delete element;
 							element = nullptr;
+							Stack[0]->pGetBoxMenu()->ResetSelectedTab();
+							Stack[0]->ResetDefaultEntry();
+							Stack[0]->pGetBoxMenu()->ResetHighlights();
 							Stack = ResolveProcess();
+							element_box->ResetSelectedTab();
+							element_box->ResetHighlight();
+							element_box = nullptr;
 							return Stack;
 						}
 					}
@@ -184,6 +190,11 @@ public:
 					check->pGetBoxMenu()->ResetSelectedTab();
 					bm[i].SetSelectedTab();
 
+					if (sm[iOffset].pGetEle() != nullptr)
+					{
+						element_box = &bm[i];
+					}
+
 					SelectionMenu::SelectionItem* NextOpenDefault = sm[iOffset].pGetNextMenu()->GetOpenDefault();
 					if (NextOpenDefault != nullptr)
 					{
@@ -237,6 +248,8 @@ public:
 
 private:
 	std::vector<SelectionMenu*> stored_stack;
+
 	Collection::Element* element = nullptr;
+	BoxMenu::BoxItem* element_box = nullptr;
 
 };
