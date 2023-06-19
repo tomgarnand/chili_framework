@@ -24,11 +24,11 @@ public:
 		Collection_Worn(),
 		Collection_Important(),
 
-		Inventory(SelectionMenu(BoxMenu_SubMenu, Collection_Inventory)),
-		Equipment(SelectionMenu(BoxMenu_SubMenu, Collection_Equipment)),
-		Worn(SelectionMenu(BoxMenu_SubMenu, Collection_Worn)),
-		Spells(SelectionMenu(BoxMenu_SubMenu, Collection_Spells)),
-		Important(SelectionMenu(BoxMenu_SubMenu, Collection_Important)),
+		Inventory(SelectionMenu(BoxMenu_SubMenu, &Collection_Inventory)),
+		Equipment(SelectionMenu(BoxMenu_SubMenu, &Collection_Equipment)),
+		Worn(SelectionMenu(BoxMenu_SubMenu, &Collection_Worn)),
+		Spells(SelectionMenu(BoxMenu_SubMenu, &Collection_Spells)),
+		Important(SelectionMenu(BoxMenu_SubMenu, &Collection_Important)),
 		EquipmentTabs(SelectionMenu(BoxMenu_SubMenuTabs2, { "Worn", "Inventory" }, { &Worn, &Equipment })),
 		InventoryTabs(SelectionMenu(BoxMenu_SubMenuTabs3, { "Items", "Equipment", "Important" }, { &Inventory, &Equipment, &Important })),
 		AbilitiesTabs(SelectionMenu(BoxMenu_SubMenuTabs3, { "Skills", "Spells", "Passives" }, { &Spells, nullptr, nullptr })),
@@ -41,6 +41,9 @@ public:
 		InventoryTabs.SetDefaultEntry(0);
 		EquipmentTabs.SetDefaultEntry(1);
 		AbilitiesTabs.SetDefaultEntry(0);
+		Collection_Equipment.InitPairedCollection(&Collection_Worn);
+		Collection_Worn.InitPairedCollection(&Collection_Equipment);
+
 
 	}
 
@@ -82,6 +85,10 @@ public:
 	Collection Collection_Spells;
 	Collection Collection_Worn;
 	Collection Collection_Important;
+
+	//items - maybe a container container down the line
+	Collection::Item item = Collection::Item("Health Potion", pGetConfirmMenu());
+	Collection::Equipment armor = Collection::Equipment("Armour", pGetConfirmMenu());
 
 	//SelectionMenus
 	SelectionMenu Inventory;

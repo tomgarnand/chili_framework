@@ -1,6 +1,6 @@
 #pragma once
 #include "Character.h"
-#include "GUI_Boxes.h"
+#include "GUI.h"
 #include <unordered_map>
 
 class Attributes //move to character?

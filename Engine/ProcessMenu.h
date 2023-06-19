@@ -16,11 +16,21 @@ public:
 		{
 			for (auto sm : stored_stack)
 			{
+				//everytime we draw a menu, we should make sure none of the SelectionItems need to be updated
+				//pretty lightweight, just looks at a boolean in the selectionMenu's associated collection
+				if (sm->NeedsUpdate())
+				{
+					sm->UpdateFromCollection();
+				}
 				DrawMenu(sm, gfx, font);
 			}
 		}
 		for (auto sm : stack)
 		{
+			if (sm->NeedsUpdate()) //as above, so below
+			{
+				sm->UpdateFromCollection();
+			}
 			DrawMenu(sm, gfx, font);
 		}
 	}
@@ -45,9 +55,6 @@ public:
 			r++;
 		}
 	}
-
-
-
 	//process the MenuStack
 	std::vector<SelectionMenu*> ProcessMenu(const Mouse::Event& e, std::vector<SelectionMenu*> Stack, MainWindow& wnd)
 	{
@@ -69,6 +76,7 @@ public:
 					Stack = {};
 					Stack.emplace_back(select->pGetNextMenu());
 					element = select->pGetEle();
+					collection = select->pGetParentMenu()->pGetCollection();
 					return Stack;
 				}
 				
@@ -112,9 +120,15 @@ public:
 						else //this occurs when the stack has been suspended, but now a menu has been selected that doesnt lead anywhere
 						{
 							
-							//element->Use(target);
+							element->Use();
+							
+							// Translator class Target
+							// Takes overloaded inputs, converts it to the input needed by the derived element in a container
+							// 
 							//delete element;
+							collection->RemoveElement(element);
 							element = nullptr;
+							collection = nullptr;
 							Stack[0]->pGetBoxMenu()->ResetSelectedTab();
 							Stack[0]->ResetDefaultEntry();
 							Stack[0]->pGetBoxMenu()->ResetHighlights();
@@ -251,5 +265,6 @@ private:
 
 	Collection::Element* element = nullptr;
 	BoxMenu::BoxItem* element_box = nullptr;
+	Collection* collection = nullptr;
 
 };

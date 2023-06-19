@@ -7,6 +7,7 @@
 #include "Font.h"
 #include <vector>
 #include <functional>
+#include <cmath>
 #include "BoxMenu.h"
 #include "GameContainer.h"
 
@@ -19,15 +20,13 @@ public:
 	{
 	using Element = Collection::Element;
 	public:
-		SelectionItem(std::string s, int iter)
+		SelectionItem(std::string s)
 			:
-			s(s),
-			iter(iter)
+			s(s)
 		{}
-		SelectionItem(Element* element, int iter)
+		SelectionItem(Element* element)
 			:
-			element(element),
-			iter(iter)
+			element(element)
 		{
 			s = element->GetString();
 		}
@@ -54,7 +53,6 @@ public:
 			}
 			return s;
 		}
-		int GetIter() const { return iter; }
 		Element* pGetEle() 
 		{
 			if (this == nullptr)
@@ -83,7 +81,6 @@ public:
 
 	private:
 		std::string s;
-		int iter;
 		
 		SelectionMenu* NextMenu = nullptr; //SelectionMenu that *this item leads to
 		SelectionMenu* ParentMenu = nullptr; //SelectionMenu that *this item is contained in
@@ -91,17 +88,16 @@ public:
 		Element* element = nullptr;
 	};
 public:
-	SelectionMenu(BoxMenu box, Collection collection)
+	SelectionMenu(BoxMenu box, Collection* collection)
 		:
-		boxmenu(box)
+		boxmenu(box),
+		collection(collection)
 	{
-		int i = 0;
-		for (auto& e : collection.pGetCollection())
+		for (auto& e : collection->pGetpElements())
 		{
-			items.emplace_back(e, i);
-			i++;
+			items.emplace_back(e);
 		}
-		!collection.pGetCollection().empty() ? pLast = &items.back() : pLast = nullptr;
+
 
 	}
 	SelectionMenu(BoxMenu box, std::vector<std::string> input, std::vector<SelectionMenu*> NextMenu)
@@ -128,19 +124,19 @@ public:
 		:
 		boxmenu(box)
 	{
-		int i = 0;
 		for (auto& s : input)
 		{
-			items.emplace_back(s, i);
-			i++;
+			items.emplace_back(s);
 		}
-		!input.empty() ? pLast = &items.back() : pLast = nullptr;
 	}
 	SelectionMenu* pGetSelectionMenu()
 	{
 		return this;
 	}
-
+	Collection* pGetCollection()
+	{
+		return collection;
+	}
 	SelectionItem* GetOpenDefault() const 
 	{
 		if (this == nullptr)
@@ -182,34 +178,46 @@ public:
 			
 		}
 	}
-	//expand when I decide the update processing
-	void UpdateSelectionMenu(std::string input)
+	bool NeedsUpdate()
 	{
-		if (pLast == nullptr)
+		if (this == nullptr)
 		{
-			items.emplace_back(input, 0);
+			return false;
+		}
+		if (collection == nullptr)
+		{
+			return false;
 		}
 		else
 		{
-			items.emplace_back(input, pLast->GetIter() + 1);
+			return collection->IsQueueUpdate();
 		}
-		pLast = &items.back();
 	}
-	void UpdateSelectionMenu(Collection::Element* element)
+	void UpdateFromCollection()
 	{
-		if (pLast == nullptr)
+
+		auto ele = collection->pGetpElements();
+		
+		for (int i = ele.size() - 1; i >=0 ; i--)
 		{
-			items.emplace_back(element, 0);
+			if (items.size() < ele.size())
+			{
+				items.emplace(items.begin(), ele[i]);
+				items.front().InitParentMenu(this);
+				items.front().InitInnerMenu(ele[i]->pGetMenu());
+			}
+			else if (ele.size() < items.size())
+			{
+				items.pop_back();
+			}
+			else if (items[i].pGetEle() != ele[i])
+			{
+				items[i] = SelectionItem(ele[i]);
+				items[i].InitParentMenu(this);
+				items[i].InitInnerMenu(ele[i]->pGetMenu());
+			}
 		}
-		else
-		{
-			items.emplace_back(element, pLast->GetIter() + 1);
-		}
-		pLast = &items.back();
 	}
-
-
-
 	void SetDefaultEntry(int i) 
 	{
 		openDefaultEntry = &items[i];
@@ -228,10 +236,11 @@ public:
 private:
 	std::vector<SelectionItem> items;
 	BoxMenu boxmenu;
+	Collection* collection = nullptr;
 
-	SelectionItem* pLast = nullptr; //Pointer to last item element, used to efficiently add on additional entries
 	SelectionMenu::SelectionItem* openDefaultEntry = nullptr; //For when a 'Tab' menu should be paired with another menu. Could be used in longer chains too
 
 	int ScrollOffset = 0; //1 = 1 row down
+	bool QueueUpdate = false;
 };
 

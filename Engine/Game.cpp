@@ -83,12 +83,18 @@ void Game::UpdateModel()
 			link.effectActivate();
 			if (true) //(Items[0].size() < 2)
 			{
-				Collection::Item item = Collection::Item("Health Potion");
-				gui.Collection_Inventory.AddElement(&item);
-				gui.Inventory.UpdateSelectionMenu(gui.Collection_Inventory.pGetElement(0));
-				gui.Inventory.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
-				gui.Inventory.pGetSelectionItems()[0].InitParentMenu(gui.Inventory.pGetSelectionMenu());
+				Collection::Item* new_item = new Collection::Item(gui.item);
+				gui.Collection_Inventory.AddElement(new_item);
 				
+				//gui.Inventory.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
+				//gui.Inventory.pGetSelectionItems()[0].InitParentMenu(gui.Inventory.pGetSelectionMenu());
+
+				
+				gui.Collection_Equipment.AddElement(&gui.armor);
+			
+				//gui.Equipment.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
+				//gui.Equipment.pGetSelectionItems()[0].InitParentMenu(gui.Equipment.pGetSelectionMenu());
+				// 
 				//gui.Inventory.UpdateSelectionMenu("Teleport Crystal");
 				//gui.Inventory.UpdateSelectionMenu("Scroll of Revival");
 				//
