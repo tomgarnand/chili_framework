@@ -107,7 +107,10 @@ void Game::UpdateModel()
 		}
 	}
 	link.SetDirection(dir);
-	link.Update(ft.Mark());
+	if (!world.TestCollision(link.GetPos() + dir))
+	{
+		link.Update(ft.Mark());
+	}
 
 	
 	

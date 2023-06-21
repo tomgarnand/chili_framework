@@ -22,6 +22,7 @@ private:
 public:
 	Character(const Vec2& pos);
 	void Draw(Graphics& gfx) const;
+	Vec2 GetPos() const { return pos; }
 	void SetDirection(const Vec2& dir);
 	void Update(float dt);
 	void effectActivate();

@@ -32,7 +32,8 @@ public:
 		int tileWidth = loader->getMap("testmap")->getTileWidth();
 		int tileHeight = loader->getMap("testmap")->getTileHeight();
 
-		
+		InitCollTest();
+
 		for (int row = 0; row < sheetHeight / tileHeight; row++) //TODO: create loader->getMap("testmap")->getTileSet("defaulttileset")->getNumTiles()
 		{
 			for (int col = 0; col < sheetWidth / tileWidth; col++)
@@ -65,12 +66,52 @@ public:
 					//SDL_RenderCopy(renderer, texture, &srcrect, &dstrect);
 					gfx.DrawSprite((int)i * tileWidth, (int)j * tileHeight, tiles[tileID - 1], spritesheet, SpriteEffect::Chroma{ Colors::Magenta });
 				}
+				if (tileID == 9)
+				{
+					coll_test.emplace_back(RectI((int)i * tileWidth, tileWidth, (int)j * tileHeight, tileHeight));
+				}
 			}
 		}
+	}
+	void InitCollTest()
+	{
+		char tileID = 0;
+
+		int tileWidth = loader->getMap("testmap")->getTileWidth();
+		int tileHeight = loader->getMap("testmap")->getTileHeight();
+
+		for (unsigned int j = 0; j < loader->getMap("testmap")->getHeight(); ++j)
+		{
+
+			for (unsigned int i = 0; i < loader->getMap("testmap")->getWidth(); ++i)
+			{
+				// get the tile at current position
+				tileID = loader->getMap("testmap")->getLayer("layer2")->getTiles()[j][i];
+				if (tileID == 9)
+				{
+					int left = (int)i * tileWidth;
+					int top = (int)j * tileHeight;
+					coll_test.emplace_back(RectI(left, tileWidth + left, top, tileHeight + top));
+				}
+			}
+		}
+	}
+	bool TestCollision(Vec2 pt)
+	{
+		for (auto rec : coll_test)
+		{
+			if (rec.IsOverlappingWith(RectI(pt, pt + Vei2(1,1))))
+			{
+				return true;
+			}
+			
+		}
+		return false;
 	}
 
 private:
 	TMXLoader* loader;
 	Surface spritesheet;
 	std::vector<RectI> tiles;
+	std::vector<RectI> coll_test;
 };

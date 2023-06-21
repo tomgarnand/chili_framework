@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vec2.h"
+#include "Line.h"
 
 template<typename T>class Rect
 {
@@ -12,7 +13,13 @@ public:
 		right(right_in),
 		top(top_in),
 		bottom(bottom_in)
-	{}
+	{
+		Line_left = Line_<T>(Vec2_<T>(left, top) , Vec2_<T>(left, bottom ) );
+		Line_right = Line_<T>(Vec2_<T>(right, top ), Vec2_<T>(right, bottom ));
+		Line_top = Line_<T>(Vec2_<T>(left, top ), Vec2_<T>(right, top ));
+		Line_bottom = Line_<T>(Vec2_<T>(left, bottom ), Vec2_<T>(right, bottom ));
+
+	}
 	bool operator ==(const Rect& rhs) const
 	{
 		return (left == rhs.left && right == rhs.right && top == rhs.top && bottom == rhs.bottom);
@@ -72,6 +79,10 @@ public:
 	T right;
 	T top;
 	T bottom;
+	Line_<T> Line_left;
+	Line_<T> Line_right;
+	Line_<T> Line_top;
+	Line_<T> Line_bottom;
 };
 
 typedef Rect<int> RectI;

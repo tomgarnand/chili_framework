@@ -64,7 +64,7 @@ private:
 	/*  User Variables              */
 	FrameTimer ft;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
-	Character link = Character({ 100,100 });
+	Character link = Character({ 80,80 });
 	Sound hover = { L"Sounds//menu_boop.wav" };
 	GameState state = GameState::Moving;
 	GUI gui;

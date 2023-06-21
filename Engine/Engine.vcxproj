@@ -159,6 +159,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="BoxMenu.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Player.h" />
