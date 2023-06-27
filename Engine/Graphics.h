@@ -65,23 +65,45 @@ public:
 	void DrawRect(RectI rect, Color c);
 	void DrawLine(Line line)
 	{
-		Vec2 High;
-		Vec2 Low;
-		if (line.A.y > line.B.y)
+		//weird case at pure horizontal
+		if (line.A.x == line.B.x)
 		{
-			High = line.A;
-			Low = line.B;
+			if (line.A.y > line.B.y)
+			{
+				std::swap(line.B, line.A);
+			}
+			for (int y = (int)line.A.y; y < (int)line.B.y; y++)
+			{
+				PutPixel(line.A.x, (int)y, Colors::Blue);
+			}
+		}
+		else if (std::abs(line.slope) <= 1.0f)
+		{
+			if (line.A.x > line.B.x)
+			{
+				std::swap(line.B, line.A);
+			}
+
+			for (int x = (int)line.A.x; x < (int)line.B.x; x++)
+			{
+				float y = line.slope * (float)x + line.y_intercept;
+				PutPixel(x, (int)y, Colors::Blue);
+			}
 		}
 		else
 		{
-			Low = line.A;
-			High = line.B;
+			if (line.A.y > line.B.y)
+			{
+				std::swap(line.A, line.B);
+			}
+			for (int y = (int)line.A.y; y < (int)line.B.y; y++)
+			{
+				float x = (1 / line.slope) * (float)y + (-line.y_intercept / line.slope);
+				PutPixel((int)x, y, Colors::Blue);
+			}
+
 		}
 
-		for (int i = Low.y; i < High.y; i++)
-		{
-			PutPixel(i, int((i * line.slope) + line.y_intercept), Colors::Blue);
-		}
 	}
 	Color GetPixel(int x, int y);
 	~Graphics();

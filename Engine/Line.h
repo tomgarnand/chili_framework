@@ -18,8 +18,10 @@ public:
 		}
 		else
 		{
-			slope = 0;
+			slope = 0.0f;
 		}
+
+
 
 		y_intercept = b.y - (slope * b.x);
 		lengthSq = GetLengthSq();
@@ -122,8 +124,8 @@ public:
 public:
 	Vec2_<T> A;
 	Vec2_<T> B;
-	T slope;
-	T y_intercept;
+	float slope;
+	float y_intercept;
 	float lengthSq;
 };
 
