@@ -71,6 +71,10 @@ public:
 		}
 		return *this;
 	}
+	float GetDistanceSq(const Vec2_& pt) const
+	{
+		return ((pt.x - x) * (pt.x - x)) + ((pt.y - y) * (pt.y - y));
+	}
 
 
 public:

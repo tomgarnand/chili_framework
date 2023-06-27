@@ -1,6 +1,7 @@
 #pragma once
 #include "Vec2.h"
 
+
 template<typename T>
 class Line_
 {
@@ -21,8 +22,20 @@ public:
 		}
 
 		y_intercept = b.y - (slope * b.x);
+		lengthSq = GetLengthSq();
 		
 
+	}
+	Line_(T x1, T x2, T y1, T y2)
+		:
+		Line_(Vec2_(x1, y1) , Vec2_(x2, y2))
+	{
+
+	}
+	//potentially performance bad if used beyond intializing (changing line lengths)
+	float GetLengthSq()
+	{
+		return float((A.x - B.x) * (A.x - B.x)) + ((A.y - B.y) * (A.y - B.y));
 	}
 	//strict inequality for bounds check
 	bool PointIsInLineSegment(Vec2_<T> pt, Line_ L)
@@ -40,6 +53,16 @@ public:
 			return true;
 		}
 	}
+	bool GetNearbyLinesByDistance(Vec2 pos, float distSq)
+	{
+		if (A.GetDistanceSq(pos) <= (lengthSq / 2) + distSq || B.GetDistanceSq(pos) <= (lengthSq / 2) + distSq)
+		{
+			return true;
+		}
+
+	}
+
+
 	//returns an empty Vec2 if no intercept
 	Vec2_<T> Intercept(Line_ AB, Line_ CD)
 	{
@@ -101,6 +124,7 @@ public:
 	Vec2_<T> B;
 	T slope;
 	T y_intercept;
+	float lengthSq;
 };
 
 typedef Line_<int> LineI;

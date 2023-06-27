@@ -35,6 +35,7 @@ Game::Game(MainWindow& wnd)
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
 	Stack.emplace_back(gui.pGetMainMenu());
+	
 }
 
 void Game::Go()
@@ -47,6 +48,7 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	
 	Vec2 dir = { 0.0f, 0.0f };
 
 	const auto e = wnd.kbd.ReadKey();
@@ -106,33 +108,37 @@ void Game::UpdateModel()
 			}
 		}
 	}
+	
 	link.SetDirection(dir);
-	if (!world.TestCollision(link.GetPos() + dir))
-	{
-		link.Update(ft.Mark());
-	}
+	link.Update(ft.Mark());
 
 	
 	
 
+	//
+	//while (!wnd.mouse.IsEmpty())
+	//{
+	//	const auto e = wnd.mouse.Read();
+	//	if (state == GameState::Menu)
+	//	{
+	//		Stack = menu.ProcessMenu(e, Stack, wnd);
+	//	}
+	//}
 
-	while (!wnd.mouse.IsEmpty())
+	if (!wnd.mouse.IsEmpty())
 	{
-		const auto e = wnd.mouse.Read();
-		if (state == GameState::Menu)
-		{
-			Stack = menu.ProcessMenu(e, Stack, wnd);
-		}
+		line = Line(Vei2(200, 200), wnd.mouse.GetPos());
 	}
 }
 
 void Game::ComposeFrame()
 {
-	world.DrawWorld(gfx);
-	link.Draw(gfx);
+	//world.DrawWorld(gfx);
+	//link.Draw(gfx);
 	if (state == GameState::Menu)
 	{
  		menu.DrawGUI(Stack, gfx, gui.GetFont());
 	}
+	gfx.DrawLine(line);
 
 }

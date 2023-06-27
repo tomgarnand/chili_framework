@@ -1,6 +1,8 @@
 #pragma once
 #include "Surface.h"
 #include "SpriteEffect.h"
+#include <set>
+#include "Line.h"
 #include "TMXLoader/TMXLoader.h"
 
 class World
@@ -96,22 +98,55 @@ public:
 			}
 		}
 	}
-	bool TestCollision(Vec2 pt)
-	{
-		for (auto rec : coll_test)
-		{
-			if (rec.IsOverlappingWith(RectI(pt, pt + Vei2(1,1))))
-			{
-				return true;
-			}
-			
-		}
-		return false;
-	}
+	//bool GetNearbyLinesByBounds(Vec2 Opt, Vec2 Mpt, float radius)
+	//{
+	//
+	//	bool y_bound = false;
+	//	bool x_bound = false;
+	//
+	//		//if mpt is between line.a.y and line.b.y
+	//		// and if mpt is between line.a.x and line.b.x
+	//
+	//		//or, same check but for opt (only necessary for diagonal movement)
+	//
+	//	if ((line.A.y < Mpt.y - radius && line.B.y > Mpt.y + radius) ||
+	//		(line.A.y > Mpt.y + radius && line.B.y < Mpt.y - radius))
+	//	{
+	//		y_bound = true;
+	//	}
+	//	else if ((line.A.y < Opt.y - radius && line.B.y > Opt.y + radius) ||
+	//			(line.A.y > Opt.y + radius && line.B.y < Opt.y - radius))
+	//	{
+	//		y_bound = true;
+	//	}
+	//	else
+	//	{
+	//		continue;
+	//	}
+	//	if ((line.A.x < Mpt.x - radius && line.B.x > Mpt.x + radius) ||
+	//		(line.A.x > Mpt.x + radius && line.B.x < Mpt.x - radius))
+	//	{
+	//		x_bound = true;
+	//	}
+	//	else if ((line.A.x < Opt.x - radius && line.B.x > Opt.x + radius) ||
+	//		(line.A.x > Opt.x + radius && line.B.x < Opt.x - radius))
+	//	{
+	//		x_bound = true;
+	//	}
+	//
+	//
+	//	if (x_bound && y_bound)
+	//	{
+	//		nearby.emplace(line);
+	//	}
+	//
+	//}
+
 
 private:
 	TMXLoader* loader;
 	Surface spritesheet;
 	std::vector<RectI> tiles;
 	std::vector<RectI> coll_test;
+
 };

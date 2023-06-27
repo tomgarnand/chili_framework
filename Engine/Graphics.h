@@ -26,6 +26,7 @@
 #include "Colors.h"
 #include "Surface.h"
 #include "Rect.h"
+#include "Line.h"
 #include <cassert>
 
 class Graphics
@@ -62,6 +63,26 @@ public:
 	void PutPixel( int x,int y,Color c );
 	void DrawRect(int x0, int x1, int y0, int y1, Color c);
 	void DrawRect(RectI rect, Color c);
+	void DrawLine(Line line)
+	{
+		Vec2 High;
+		Vec2 Low;
+		if (line.A.y > line.B.y)
+		{
+			High = line.A;
+			Low = line.B;
+		}
+		else
+		{
+			Low = line.A;
+			High = line.B;
+		}
+
+		for (int i = Low.y; i < High.y; i++)
+		{
+			PutPixel(i, int((i * line.slope) + line.y_intercept), Colors::Blue);
+		}
+	}
 	Color GetPixel(int x, int y);
 	~Graphics();
 

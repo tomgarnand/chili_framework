@@ -161,12 +161,12 @@ public:
 			{
 				ScrollOffset = 0;
 			}
-			else if (ScrollOffset > (items.size() / boxmenu.GetNumRows()))
+			else if (ScrollOffset > (int(items.size()) / boxmenu.GetNumRows()))
 			{
-				ScrollOffset = (items.size() / boxmenu.GetNumRows()) - 1;
+				ScrollOffset = (int(items.size()) / boxmenu.GetNumRows()) - 1;
 			}
 			//update SelectedTab
-			for (int i = 0; i < boxmenu.GetBoxItems().size(); i++)
+			for (int i = 0; i < int(boxmenu.GetBoxItems().size()); i++)
 			{
 				if (boxmenu.GetBoxItems()[i].IsSelectedTab())
 				{
@@ -198,7 +198,7 @@ public:
 
 		auto ele = collection->pGetpElements();
 		
-		for (int i = ele.size() - 1; i >=0 ; i--)
+		for (int i = int(ele.size()) - 1; i >=0 ; i--)
 		{
 			if (items.size() < ele.size())
 			{

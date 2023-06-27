@@ -12,13 +12,13 @@ public:
 		left(left_in),
 		right(right_in),
 		top(top_in),
-		bottom(bottom_in)
+		bottom(bottom_in),
+		lLeft( left_in, right_in, top_in, bottom_in),
+		lRight(left_in, right_in, top_in, bottom_in),
+		lTop(left_in, right_in, top_in, bottom_in),
+		lBottom(left_in, right_in, top_in, bottom_in)
 	{
-		Line_left = Line_<T>(Vec2_<T>(left, top) , Vec2_<T>(left, bottom ) );
-		Line_right = Line_<T>(Vec2_<T>(right, top ), Vec2_<T>(right, bottom ));
-		Line_top = Line_<T>(Vec2_<T>(left, top ), Vec2_<T>(right, top ));
-		Line_bottom = Line_<T>(Vec2_<T>(left, bottom ), Vec2_<T>(right, bottom ));
-
+		
 	}
 	bool operator ==(const Rect& rhs) const
 	{
@@ -79,10 +79,10 @@ public:
 	T right;
 	T top;
 	T bottom;
-	Line_<T> Line_left;
-	Line_<T> Line_right;
-	Line_<T> Line_top;
-	Line_<T> Line_bottom;
+	Line_<T> lLeft;
+	Line_<T> lRight;
+	Line_<T> lTop;
+	Line_<T> lBottom;
 };
 
 typedef Rect<int> RectI;
