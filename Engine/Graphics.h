@@ -67,39 +67,41 @@ public:
 	void DrawLine(LineI line)
 	{
 		//weird case at pure horizontal
-		if (line.A.x == line.B.x)
+		float slope = -((float)line.a / (float)line.b);
+		float y_intercept = (float)line.c / (-(float)line.b);
+		if (line.P.x == line.Q.x)
 		{
-			if (line.A.y > line.B.y)
+			if (line.P.y > line.Q.y)
 			{
-				std::swap(line.B, line.A);
+				std::swap(line.Q, line.P);
 			}
-			for (int y = line.A.y; y < line.B.y; y++)
+			for (int y = line.P.y; y < line.Q.y; y++)
 			{
-				PutPixel(line.A.x, y, Colors::Blue);
+				PutPixel(line.P.x, y, Colors::Blue);
 			}
 		}
-		else if (std::abs(line.slope) <= 1.0f)
+		else if (std::abs(slope) <= 1.0f)
 		{
-			if (line.A.x > line.B.x)
+			if (line.P.x > line.Q.x)
 			{
-				std::swap(line.B, line.A);
+				std::swap(line.Q, line.P);
 			}
 
-			for (int x = line.A.x; x < line.B.x; x++)
+			for (int x = line.P.x; x < line.Q.x; x++)
 			{
-				float y = line.slope * (float)x + line.y_intercept;
+				float y = slope * (float)x + y_intercept;
 				PutPixel(x, (int)y, Colors::Blue);
 			}
 		}
 		else
 		{
-			if (line.A.y > line.B.y)
+			if (line.P.y > line.Q.y)
 			{
-				std::swap(line.A, line.B);
+				std::swap(line.P, line.Q);
 			}
-			for (int y = line.A.y; y < line.B.y; y++)
+			for (int y = line.P.y; y < line.Q.y; y++)
 			{
-				float x = (1 / line.slope) * (float)y + (-line.y_intercept / line.slope);
+				float x = (1 / slope) * (float)y + (-y_intercept / slope);
 				PutPixel((int)x, y, Colors::Blue);
 			}
 

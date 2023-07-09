@@ -144,6 +144,6 @@ void Game::ComposeFrame()
 	{
  		menu.DrawGUI(Stack, gfx, gui.GetFont());
 	}
-	gfx.DrawLine(line);
+	//gfx.DrawLine(line);
 
 }

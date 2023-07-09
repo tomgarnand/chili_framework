@@ -180,6 +180,7 @@
     <ClInclude Include="TMXLoader\TMXTile.h" />
     <ClInclude Include="TMXLoader\TMXTileLayer.h" />
     <ClInclude Include="TMXLoader\TMXTileSet.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

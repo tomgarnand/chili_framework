@@ -1,6 +1,7 @@
 #pragma once
 #include "Vec2.h"
 #include <assert.h>
+#include "Util.h"
 
 
 template<typename T>
@@ -8,24 +9,20 @@ class Line
 {
 public:
 	Line() = default;
-	Line(Vec2_<T> a, Vec2_<T> b)
+	Line(Vec2_<T> A, Vec2_<T> B)
 		:
-		A(a),
-		B(b)
+		P(A),
+		Q(B)
 	{
-		if (b.x - a.x != 0)
-		{
-			slope = (((float)b.y - (float)a.y) / ((float)b.x - (float)a.x));
-		}
-		else
-		{
-			slope = 0.0f;
-		}
+		//aproach is for a equation in the form ax + by + c = 0
+		//method: https://bobobobo.wordpress.com/2008/01/07/solving-linear-equations-ax-by-c-0/
 
-		y_intercept = (float)b.y - (slope * (float)b.x);
+		a = Q.y - P.y;
+		b = Q.x - P.x;
+		c = (P.x * Q.y) - (Q.x * P.y);
+		
 		lengthSq = GetLengthSq();
 		
-
 	}
 	Line(T x1, T x2, T y1, T y2)
 		:
@@ -36,16 +33,16 @@ public:
 	//potentially performance bad if used beyond intializing (changing line lengths)
 	float GetLengthSq() const
 	{
-		return float((A.x - B.x) * (A.x - B.x)) + ((A.y - B.y) * (A.y - B.y));
+		return float((P.x - Q.x) * (P.x - Q.x)) + ((P.y - Q.y) * (P.y - Q.y));
 	}
-	//strict inequality for bounds check
+	
 	bool PointIsInLineSegment(const Vec2_<T>& pt) const
 	{
-		if (!((A.x < pt.x && pt.x < B.x) || (A.x > pt.x && pt.x > B.x))) //either A < x < B OR B < x < A
+		if (!(IsBetween(P.x, pt.x, Q.x, 0.1f))) 
 		{
 			return false;
 		}
-		else if (!((A.y < pt.y && pt.y < B.y) || (A.y > pt.y && pt.y > B.y)))
+		else if (!(IsBetween(P.y, pt.y, Q.y, 0.1f)))
 		{
 			return false;
 		}
@@ -56,7 +53,7 @@ public:
 	}
 	bool GetNearbyLinesByDistance(const Vec2_<T>& pos, const float distSq) const
 	{
-		if (A.GetDistanceSq(pos) <= (lengthSq / 2) + distSq || B.GetDistanceSq(pos) <= (lengthSq / 2) + distSq)
+		if (P.GetDistanceSq(pos) <= (lengthSq / 2) + distSq || Q.GetDistanceSq(pos) <= (lengthSq / 2) + distSq)
 		{
 			return true;
 		}
@@ -65,68 +62,39 @@ public:
 
 	//line AB is obj and line CD is arg
 	//returns an empty Vec2 if no intercept
-	std::pair<bool,Vec2> Intercept(const Line& CD) const
+	std::pair<bool,Vec2> Intercept(const Line& that) const
 	{
-		Vec2 intercept;
-		float x;
-		float y;
-		float b_diff = CD.y_intercept - y_intercept;
-		float m_diff = slope - CD.slope;
-		if (b_diff == 0 && m_diff == 0)
-		{
-			//infinite intercepts
-			assert(true);
-			return { true, {} };
-			//probably look at which intercept I need for my use case
-		}
-		if (m_diff == 0) //parallel
+		//https://www.cuemath.com/algebra/simultaneous-linear-equations/
+		// first, check for parallel lines, the only case with non-intersection
+		//also catches the infinitely many solutions case
+		if (that.a * this->b == that.b * this->a)
 		{
 			return { false, {} };
 		}
-		if (b_diff == 0)
-		{
-			x = 0;
-			y = CD.y_intercept;
-			intercept = { x,y };
-			if (!PointIsInLineSegment(intercept)) //called on this
-			{
-				return { false, {} };
-			}
-			if (!CD.PointIsInLineSegment(intercept))
-			{
-				return { false, {} };
-			}
-			else
-			{
-				return { true, intercept };
-			}
-		}
 		else
 		{
-			x = b_diff / m_diff;
-			y = (slope * x) + y_intercept;
-			intercept = { x,y };
-			if (!PointIsInLineSegment(intercept))
+			float x0;
+			float y0;
+			float d = (this->a * that.b - this->b * that.a);
+
+			x0 = -(this->b * that.c - this->c * that.b) / d;
+			y0 = (this->c * that.a - this->a * that.c) / d;
+			if (this->PointIsInLineSegment({ x0,y0 }) && that.PointIsInLineSegment({ x0,y0 }))
 			{
-				return { false, {} };
+				return { true, {x0,y0} };
 			}
-			if (!CD.PointIsInLineSegment(intercept))
-			{
-				return { false, {} };
-			}
-			else
-			{
-				return { true, intercept };
-			}
+			return { false, {} };
+
 		}
 	}
 
 
 public:
-	Vec2_<T> A;
-	Vec2_<T> B;
-	float slope;
-	float y_intercept;
+	Vec2_<T> P;
+	Vec2_<T> Q;
+	T a;
+	T b;
+	T c;
 	float lengthSq;
 };
 
