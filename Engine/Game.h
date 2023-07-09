@@ -73,6 +73,6 @@ private:
 	World world;
 
 	std::vector<SelectionMenu*> Stack;
-	Line line;
+	LineI line;
 	/********************************/
 };

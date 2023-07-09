@@ -110,31 +110,36 @@ void Game::UpdateModel()
 	}
 	
 	link.SetDirection(dir);
-	link.Update(ft.Mark());
+	link.Update(world, ft.Mark());
 
 	
 	
 
-	//
-	//while (!wnd.mouse.IsEmpty())
-	//{
-	//	const auto e = wnd.mouse.Read();
-	//	if (state == GameState::Menu)
-	//	{
-	//		Stack = menu.ProcessMenu(e, Stack, wnd);
-	//	}
-	//}
-
-	if (!wnd.mouse.IsEmpty())
+	
+	while (!wnd.mouse.IsEmpty())
 	{
-		line = Line(Vei2(200, 200), wnd.mouse.GetPos());
+		const auto e = wnd.mouse.Read();
+		if (state == GameState::Menu)
+		{
+			Stack = menu.ProcessMenu(e, Stack, wnd);
+		}
 	}
+
+	// line test
+	//if (!wnd.mouse.IsEmpty())
+	//{
+	//	line = LineI(Vei2(200, 200), wnd.mouse.GetPos());
+	//}
 }
 
 void Game::ComposeFrame()
 {
+
+	world.DrawRects(gfx);
 	//world.DrawWorld(gfx);
-	//link.Draw(gfx);
+	link.Draw(gfx);
+
+
 	if (state == GameState::Menu)
 	{
  		menu.DrawGUI(Stack, gfx, gui.GetFont());

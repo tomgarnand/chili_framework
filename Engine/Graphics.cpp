@@ -341,6 +341,11 @@ void Graphics::DrawRect(RectI rect, Color c)
 	DrawRect(rect.left, rect.right, rect.top,  rect.bottom, c);
 }
 
+void Graphics::DrawRect(RectF rect, Color c)
+{
+	DrawRect((int)rect.left, (int)rect.right, (int)rect.top, (int)rect.bottom, c);
+}
+
 Color Graphics::GetPixel(int x, int y)
 {
 	assert(x >= 0);

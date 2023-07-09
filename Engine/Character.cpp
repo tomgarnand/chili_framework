@@ -69,11 +69,14 @@ void Character::SetDirection(const Vec2& dir)
 
 }
 
-void Character::Update(float dt)
+void Character::Update(const World& world, float dt)
 {
-	pos += vel * dt;
-	animations[int(iCurSequence)].Update(dt);
-
+	if (vel != Vec2(0.0f, 0.0f))
+	{
+		pos = world.CheckAndAdjustMovement(pos, pos + (vel * dt), radius);
+		//pos += vel * dt; old
+		animations[int(iCurSequence)].Update(dt);
+	}
 
 	if (effectActive)
 	{

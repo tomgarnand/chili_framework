@@ -63,7 +63,8 @@ public:
 	void PutPixel( int x,int y,Color c );
 	void DrawRect(int x0, int x1, int y0, int y1, Color c);
 	void DrawRect(RectI rect, Color c);
-	void DrawLine(Line line)
+	void DrawRect(RectF rect, Color c);
+	void DrawLine(LineI line)
 	{
 		//weird case at pure horizontal
 		if (line.A.x == line.B.x)
@@ -72,9 +73,9 @@ public:
 			{
 				std::swap(line.B, line.A);
 			}
-			for (int y = (int)line.A.y; y < (int)line.B.y; y++)
+			for (int y = line.A.y; y < line.B.y; y++)
 			{
-				PutPixel(line.A.x, (int)y, Colors::Blue);
+				PutPixel(line.A.x, y, Colors::Blue);
 			}
 		}
 		else if (std::abs(line.slope) <= 1.0f)
@@ -84,7 +85,7 @@ public:
 				std::swap(line.B, line.A);
 			}
 
-			for (int x = (int)line.A.x; x < (int)line.B.x; x++)
+			for (int x = line.A.x; x < line.B.x; x++)
 			{
 				float y = line.slope * (float)x + line.y_intercept;
 				PutPixel(x, (int)y, Colors::Blue);
@@ -96,7 +97,7 @@ public:
 			{
 				std::swap(line.A, line.B);
 			}
-			for (int y = (int)line.A.y; y < (int)line.B.y; y++)
+			for (int y = line.A.y; y < line.B.y; y++)
 			{
 				float x = (1 / line.slope) * (float)y + (-line.y_intercept / line.slope);
 				PutPixel((int)x, y, Colors::Blue);

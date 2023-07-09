@@ -24,7 +24,7 @@ public:
 	void Draw(Graphics& gfx) const;
 	Vec2 GetPos() const { return pos; }
 	void SetDirection(const Vec2& dir);
-	void Update(float dt);
+	void Update(const World& world, float dt);
 	void effectActivate();
 	Surface GetSurface() const;
 private:
@@ -38,4 +38,6 @@ private:
 	bool effectActive = false;
 	float effectTime = 0.0f;
 	float effectDuration = 0.045f;
+
+	float radius = 25.0f;
 };

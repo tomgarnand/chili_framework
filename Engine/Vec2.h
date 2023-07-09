@@ -48,7 +48,7 @@ public:
 	}
 	bool operator!=(const Vec2_& rhs) const
 	{
-		return (x != rhs.x && y != rhs.y);
+		return (x != rhs.x || y != rhs.y);
 	}
 	T GetLength() const
 	{

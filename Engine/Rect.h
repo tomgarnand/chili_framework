@@ -13,10 +13,10 @@ public:
 		right(right_in),
 		top(top_in),
 		bottom(bottom_in),
-		lLeft( left_in, right_in, top_in, bottom_in),
-		lRight(left_in, right_in, top_in, bottom_in),
-		lTop(left_in, right_in, top_in, bottom_in),
-		lBottom(left_in, right_in, top_in, bottom_in)
+		lLeft( left_in, left_in, top_in, bottom_in),
+		lRight(right_in, right_in, top_in, bottom_in),
+		lTop(left_in, right_in, top_in, top_in),
+		lBottom(left_in, right_in, bottom_in, bottom_in)
 	{
 		
 	}
@@ -79,10 +79,10 @@ public:
 	T right;
 	T top;
 	T bottom;
-	Line_<T> lLeft;
-	Line_<T> lRight;
-	Line_<T> lTop;
-	Line_<T> lBottom;
+	Line<T> lLeft;
+	Line<T> lRight;
+	Line<T> lTop;
+	Line<T> lBottom;
 };
 
 typedef Rect<int> RectI;
