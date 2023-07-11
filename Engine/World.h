@@ -231,7 +231,7 @@ public:
 		}
 
 		//return the shortest move possible, adjusted for the radius of the unit in the direction its moving
-		return shortest_move - (dir * radius);
+		return shortest_move  -(dir * 1.0f);
 	}
 
 

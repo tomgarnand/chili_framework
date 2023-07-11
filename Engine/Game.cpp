@@ -145,5 +145,6 @@ void Game::ComposeFrame()
  		menu.DrawGUI(Stack, gfx, gui.GetFont());
 	}
 	//gfx.DrawLine(line);
+	gfx.DrawCircle(25, link.GetPos().x, link.GetPos().y, Colors::Blue);
 
 }

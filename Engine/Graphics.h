@@ -64,50 +64,8 @@ public:
 	void DrawRect(int x0, int x1, int y0, int y1, Color c);
 	void DrawRect(RectI rect, Color c);
 	void DrawRect(RectF rect, Color c);
-	void DrawLine(LineI line)
-	{
-		//weird case at pure horizontal
-		float slope = -((float)line.a / (float)line.b);
-		float y_intercept = (float)line.c / (-(float)line.b);
-		if (line.P.x == line.Q.x)
-		{
-			if (line.P.y > line.Q.y)
-			{
-				std::swap(line.Q, line.P);
-			}
-			for (int y = line.P.y; y < line.Q.y; y++)
-			{
-				PutPixel(line.P.x, y, Colors::Blue);
-			}
-		}
-		else if (std::abs(slope) <= 1.0f)
-		{
-			if (line.P.x > line.Q.x)
-			{
-				std::swap(line.Q, line.P);
-			}
-
-			for (int x = line.P.x; x < line.Q.x; x++)
-			{
-				float y = slope * (float)x + y_intercept;
-				PutPixel(x, (int)y, Colors::Blue);
-			}
-		}
-		else
-		{
-			if (line.P.y > line.Q.y)
-			{
-				std::swap(line.P, line.Q);
-			}
-			for (int y = line.P.y; y < line.Q.y; y++)
-			{
-				float x = (1 / slope) * (float)y + (-y_intercept / slope);
-				PutPixel((int)x, y, Colors::Blue);
-			}
-
-		}
-
-	}
+	void DrawLine(LineI line);
+	void DrawCircle(int r0, int x0, int y0, Color c);
 	Color GetPixel(int x, int y);
 	~Graphics();
 

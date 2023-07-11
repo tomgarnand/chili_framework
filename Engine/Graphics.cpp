@@ -314,11 +314,18 @@ void Graphics::BeginFrame()
 
 void Graphics::PutPixel( int x,int y,Color c )
 {
-	assert( x >= 0 );
-	assert( x < int( Graphics::ScreenWidth ) );
-	assert( y >= 0 );
-	assert( y < int( Graphics::ScreenHeight ) );
-	pSysBuffer[Graphics::ScreenWidth * y + x] = c;
+	//assert( x >= 0 );
+	//assert( x < int( Graphics::ScreenWidth ) );
+	//assert( y >= 0 );
+	//assert( y < int( Graphics::ScreenHeight ) );
+	if (
+		x >= 0 &&
+		x < int(Graphics::ScreenWidth) &&
+		y >= 0 &&
+		y < int(Graphics::ScreenHeight))
+	{
+		pSysBuffer[Graphics::ScreenWidth * y + x] = c;
+	}
 }
 
 void Graphics::DrawRect(int x0, int x1, int y0, int y1, Color c)
@@ -344,6 +351,61 @@ void Graphics::DrawRect(RectI rect, Color c)
 void Graphics::DrawRect(RectF rect, Color c)
 {
 	DrawRect((int)rect.left, (int)rect.right, (int)rect.top, (int)rect.bottom, c);
+}
+void Graphics::DrawLine(LineI line)
+{
+	//weird case at pure horizontal
+	float slope = -((float)line.a / (float)line.b);
+	float y_intercept = (float)line.c / (-(float)line.b);
+	if (line.P.x == line.Q.x)
+	{
+		if (line.P.y > line.Q.y)
+		{
+			std::swap(line.Q, line.P);
+		}
+		for (int y = line.P.y; y < line.Q.y; y++)
+		{
+			PutPixel(line.P.x, y, Colors::Blue);
+		}
+	}
+	else if (std::abs(slope) <= 1.0f)
+	{
+		if (line.P.x > line.Q.x)
+		{
+			std::swap(line.Q, line.P);
+		}
+		for (int x = line.P.x; x < line.Q.x; x++)
+		{
+			float y = slope * (float)x + y_intercept;
+			PutPixel(x, (int)y, Colors::Blue);
+		}
+	}
+	else
+	{
+		if (line.P.y > line.Q.y)
+		{
+			std::swap(line.P, line.Q);
+		}
+		for (int y = line.P.y; y < line.Q.y; y++)
+		{
+			float x = (1 / slope) * (float)y + (-y_intercept / slope);
+			PutPixel((int)x, y, Colors::Blue);
+		}
+	}
+}
+void Graphics::DrawCircle(int r0, int x0, int y0, Color c)
+{
+	for (int b0 = r0; b0 >= 0; b0--)
+	{
+		int a_max = (r0 * r0) - (b0 * b0);
+		for (int a = 0; (a * a) < a_max; a++)
+		{
+			PutPixel(x0 + b0, y0 + a, c);
+			PutPixel(x0 + b0, y0 - a, c);
+			PutPixel(x0 - b0, y0 + a, c);
+			PutPixel(x0 - b0, y0 - a, c);
+		}
+	}
 }
 
 Color Graphics::GetPixel(int x, int y)
