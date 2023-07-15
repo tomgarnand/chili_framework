@@ -28,6 +28,7 @@
 #include "Rect.h"
 #include "Line.h"
 #include <cassert>
+#include "Mat3.h"
 
 class Graphics
 {
@@ -69,6 +70,16 @@ public:
 	Color GetPixel(int x, int y);
 	~Graphics();
 
+	template<typename E>
+	void DrawSprite(Mat3 ma, const Surface& s, E effect)
+	{
+		DrawSprite(GetVec2(ma),  s, effect);
+	}
+	template<typename E>
+	void DrawSprite(Vec2 pos, const Surface& s, E effect)
+	{
+		DrawSprite((int)pos.x, (int)pos.y, s.GetRect(), s, effect);
+	}
 	template<typename E>
 	void DrawSprite(int x, int y, const Surface& s, E effect)
 	{

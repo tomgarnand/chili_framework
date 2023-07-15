@@ -145,12 +145,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="ChiliWin.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="COMInitializer.h" />
+    <ClInclude Include="Drawable.h" />
     <ClInclude Include="DXErr.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FrameTimer.h" />
     <ClInclude Include="Game.h" />
@@ -161,6 +164,7 @@
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="Mat3.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="ProcessMenu.h" />
@@ -182,6 +186,7 @@
     <ClInclude Include="TMXLoader\TMXTileSet.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Vec2.h" />
+    <ClInclude Include="Vec3.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>

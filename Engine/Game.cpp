@@ -23,14 +23,15 @@
 
 
 
+
 Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
 	gfx(wnd),
 	gui(),
 	menu(),
-	world()
-	
+	world(),
+	cam(gfx)
 
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
@@ -91,7 +92,7 @@ void Game::UpdateModel()
 				//gui.Inventory.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
 				//gui.Inventory.pGetSelectionItems()[0].InitParentMenu(gui.Inventory.pGetSelectionMenu());
 
-				
+				cam.MoveTo({ 50,50 });
 				gui.Collection_Equipment.AddElement(&gui.armor);
 			
 				//gui.Equipment.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
@@ -146,5 +147,8 @@ void Game::ComposeFrame()
 	}
 	//gfx.DrawLine(line);
 	gfx.DrawCircle(25, link.GetPos().x, link.GetPos().y, Colors::Blue);
+
+	cam.Draw(guy.GetDrawable());
+	
 
 }
