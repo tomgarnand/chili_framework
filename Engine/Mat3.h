@@ -86,4 +86,4 @@ public:
 };
 
 using Mat3 = _Mat3<float>;
-using Mad2 = _Mat3<double>;
+using Mad3 = _Mat3<double>;
