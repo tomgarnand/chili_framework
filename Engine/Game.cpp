@@ -113,7 +113,38 @@ void Game::UpdateModel()
 	link.SetDirection(dir);
 	link.Update(world, ft.Mark());
 
-	
+	TickTimer += ft.Mark();
+	if (TickLive)
+	{
+		if (TickTimer > maxTickDuration)
+		{
+			TickLive = false;
+			TickTimer = TickTimer - maxTickDuration; // ~0.0f
+			player.EndTick(); //don't check for idleness because idle is default next_action
+			for (Entity& unit : entities)
+			{
+				unit.EndTick();
+			}
+		}
+	}
+	if (!TickLive)
+	{
+		if (player.IsActionEnded() == true)
+		{
+			player.StartAction(player.GetQueuedAction(), );
+		}
+		player.StartTick();
+		for (Entity& unit : entities)
+		{
+			if (unit.IsActionEnded() == true)
+			{
+				unit.Update(&current_map, &player); //hmmm
+				
+			}
+			unit.StartTick();
+		}
+		TickLive = true;
+	}
 	
 
 	

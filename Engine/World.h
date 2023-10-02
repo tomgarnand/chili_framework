@@ -233,12 +233,22 @@ public:
 		//return the shortest move possible, adjusted for the radius of the unit in the direction its moving
 		return shortest_move  -(dir * 1.0f);
 	}
-
+	void Update(std::vector<std::string> TriggeredScenarios)
+	{
+		for (auto& scenario : TriggeredScenarios)
+		{
+			if (scenario == "level_1")
+			{
+				//entity modifications go here
+			}
+		}
+	}
 
 private:
 	TMXLoader* loader;
 	Surface spritesheet;
 	std::vector<RectI> tiles;
+
 	std::vector<RectF> coll_test;
 
 };

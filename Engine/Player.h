@@ -1,47 +1,25 @@
 #pragma once
-#include "Character.h"
-#include "GUI.h"
-#include <unordered_map>
 
-class Attributes //move to character?
+#include "Entity.h"
+
+
+class Player : public Entity
 {
 public:
-	Attributes()
-	{
+	Player() = default;
 
+	void QueueAction(const Action& action, const std::vector<Entity&> targets)
+	{
+		QueuedAction = action;
+		QueuedTargets = targets;
 	}
-private:
-	int Strength;
-	int Dexterity;
-	int Constitution;
-	int Intelligence;
-	int Intuition;
-	int Charisma;
-};
+	Action& GetQueuedAction() const
+	{
+		return QueuedAction;
+	}
 
-class Player
-{
-public:
-	Player(Character character, Attributes attributes, GUI gui)
-		:
-		character(character)
-	{
-		Storage.emplace("Inventory", gui.Inventory);
-	}
-	void func()
-	{
-		
-	}
 
 private:
-	std::string name;
-	Character character;
-	Attributes attributes;
-
-	std::unordered_map<std::string, SelectionMenu*> Storage;
-
-	SelectionMenu* Inventory;
-	SelectionMenu* Equipment;
-	SelectionMenu* Abilities;
-	SelectionMenu* Worn;
+	Action& QueuedAction;
+	std::vector<Entity&> QueuedTargets;
 };

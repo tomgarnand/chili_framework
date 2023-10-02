@@ -37,6 +37,7 @@
 #include "ProcessMenu.h"
 #include "Camera.h"
 #include "Entity.h"
+#include "Player.h"
 
 class Game
 {
@@ -67,10 +68,12 @@ private:
 	FrameTimer ft;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Character link = Character({ 80,80 });
+	Player player;
+	std::vector<Entity> entities; //going to need to rework this...
 	Sound hover = { L"Sounds//menu_boop.wav" };
-	GameState state = GameState::Moving;
 	GUI gui;
 	MenuProcessing menu;
+	GameState state = Moving;
 
 	World world;
 	Surface dude = Surface("Images//link90x90.bmp");
@@ -78,5 +81,9 @@ private:
 	std::vector<SelectionMenu*> Stack;
 	LineI line;
 	Camera cam;
+
+	bool TickLive = false;
+	float TickTimer = 0.0f;
+	float maxTickDuration = 250.0f;
 	/********************************/
 };

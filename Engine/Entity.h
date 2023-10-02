@@ -1,8 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include "Vec2.h"
 #include "Drawable.h"
+#include "Action.h"
+#include "Animation.h"
 
 class Entity
 {
@@ -10,8 +13,11 @@ public:
 	Entity( Surface& src ,const Vec2& pos = { 0.0f,0.0f })
 		:
 		pos( pos ),
-		src( src )
-	{}
+		src( src ),
+		current_action(Idle)
+	{
+		 
+	}
 	const Vec2& GetPos() const
 	{
 		return pos;
@@ -51,9 +57,35 @@ public:
 		);
 		return d;
 	}
+
+	void EndTick();
+	void StartTick();
+	void StartAction(const Action& action, const std::vector<Entity&> targets_in);
+	bool IsActionEnded();
+	void Apply(ApplicationType type, int value);
+
+	void Update(const Map& current_map, const Entity& player);
+
 private:
 	float angle = 0.0f;
 	float scale = 1.0f;
-	Vec2 pos = {0.0f,0.0f};
+	Vec2 pos = {0.0f,0.0f}; //convert to a map point vector
 	Surface& src;
+
+
+	//Behaviour& script;
+	Action& current_action;
+	std::vector<Entity&> targets;
+	std::vector<Action&> past_actions;
+	std::vector<Action&> action_pool;
+	int tick;
+
+
+
+	std::map<Action&, Animation&> animations;
+	float Health;
+
+	//Trigger triggerType
+	bool trigger_check;
+	std::string scenario_keyword;
 };
