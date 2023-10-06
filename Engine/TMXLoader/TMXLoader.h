@@ -17,6 +17,10 @@
 //  http://bitbucket.org/martingrant/tmxloader
 //
 
+//TSG Notes:
+//XML is depreciated
+//Use CSV format, better anyway. Spritesheets MUST be embedded into map, or else ya gotta dive into rapidxml again...
+
 #pragma once
 
 #include <vector>
@@ -55,6 +59,7 @@ private:
     void loadMapSettings(std::unique_ptr<TMXMap> const &map, rapidxml::xml_node<> *parentNode);
 	void loadTileSets(std::unique_ptr<TMXMap> const &map, rapidxml::xml_node<> *parentNode);
 	void loadLayers(std::unique_ptr<TMXMap> const &map, rapidxml::xml_node<> *parentNode);
+    void loadObjectLayers(std::unique_ptr<TMXMap> const& map, rapidxml::xml_node<>* parentNode);
    void loadProperties(std::unordered_map<std::string, std::string>& propertiesMap, rapidxml::xml_node<> *parentNode);
 
     /* File loading helper functions */

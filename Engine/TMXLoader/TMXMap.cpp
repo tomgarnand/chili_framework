@@ -88,6 +88,17 @@ TMXTileLayer *TMXMap::getLayer(std::string const &layerName) noexcept
     return nullptr;
 }
 
+void TMXMap::addObjectLayer(TMXObjectLayer const& newObjectLayer) noexcept { m_objectlayerVector.push_back(newObjectLayer); }
+
+TMXObjectLayer* TMXMap::getObjectLayer(std::string const& objectlayerName) noexcept
+{
+    for (unsigned idx{ 0 }; idx < m_objectlayerVector.size(); ++idx)
+        if (m_objectlayerVector[idx].getName() == objectlayerName)
+            return &m_objectlayerVector[idx];
+    std::cout << "TMXLoader: object layer '" << objectlayerName << "' could not be found." << std::endl;
+    return nullptr;
+}
+
 void TMXMap::printData()
 {
     std::cout << "\nVersion: " << m_version
@@ -115,5 +126,10 @@ void TMXMap::printData()
     for (unsigned int index = 0; index < m_layerVector.size(); ++index)
     {
         m_layerVector[index].printData();
+    }
+    std::cout << "\n\nTest map object layers:\n";
+    for (unsigned int index = 0; index < m_objectlayerVector.size(); ++index)
+    {
+        m_objectlayerVector[index].printData();
     }
 }

@@ -153,6 +153,12 @@
     <ClInclude Include="Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TMXLoader\TMXObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TMXLoader\TMXObjectLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXErr.cpp">
@@ -212,6 +218,12 @@
     <ClCompile Include="TMXLoader\TMXTileSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TMXLoader\TMXObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TMXLoader\TMXObjectLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FramebufferPS.hlsl">
@@ -254,5 +266,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="TMXLoader\RapidXML\manual.html" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

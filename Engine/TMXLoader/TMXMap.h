@@ -21,6 +21,7 @@
 
 #include "TMXTileSet.h"
 #include "TMXTileLayer.h"
+#include "TMXObjectLayer.h"
 
 class TMXMap final
 {
@@ -52,6 +53,10 @@ public:
     void addLayer(TMXTileLayer const &newLayer) noexcept;
     TMXTileLayer *getLayer(std::string const &layerName) noexcept;
 
+    /* Object Layers */
+    void addObjectLayer(TMXObjectLayer const& newObjectLayer) noexcept;
+    TMXObjectLayer* getObjectLayer(std::string const& objectlayerName) noexcept;
+
     /* Debug functions */
     void printData();
 
@@ -68,5 +73,6 @@ private:
     std::unordered_map<std::string, std::string> m_propertiesMap;
 
     std::vector<TMXTileLayer> m_layerVector;
+    std::vector<TMXObjectLayer> m_objectlayerVector;
     std::vector<TMXTileSet> m_tileVector;
 };

@@ -26,7 +26,7 @@ public:
 		spritesheet("Assets\\spritesheet.bmp")
 	{
 		loader = new TMXLoader();
-		loader->loadMap("testmap", "Assets\\testmap.tmx");
+		loader->loadMap("testmap", "Assets\\testingformats.tmx");
 		loader->printMapData("testmap");
 
 		int sheetWidth = spritesheet.GetWidth();

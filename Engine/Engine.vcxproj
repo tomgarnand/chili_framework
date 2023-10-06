@@ -184,6 +184,8 @@
     <ClInclude Include="TMXLoader\RapidXML\rapidxml_utils.hpp" />
     <ClInclude Include="TMXLoader\TMXLoader.h" />
     <ClInclude Include="TMXLoader\TMXMap.h" />
+    <ClInclude Include="TMXLoader\TMXObject.h" />
+    <ClInclude Include="TMXLoader\TMXObjectLayer.h" />
     <ClInclude Include="TMXLoader\TMXTile.h" />
     <ClInclude Include="TMXLoader\TMXTileLayer.h" />
     <ClInclude Include="TMXLoader\TMXTileSet.h" />
@@ -209,6 +211,8 @@
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="TMXLoader\TMXLoader.cpp" />
     <ClCompile Include="TMXLoader\TMXMap.cpp" />
+    <ClCompile Include="TMXLoader\TMXObject.cpp" />
+    <ClCompile Include="TMXLoader\TMXObjectLayer.cpp" />
     <ClCompile Include="TMXLoader\TMXTile.cpp" />
     <ClCompile Include="TMXLoader\TMXTileLayer.cpp" />
     <ClCompile Include="TMXLoader\TMXTileSet.cpp" />
@@ -289,6 +293,7 @@
     <Image Include="Images\rgb.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="TMXLoader\RapidXML\manual.html" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
