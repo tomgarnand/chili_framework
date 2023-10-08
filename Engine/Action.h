@@ -28,8 +28,9 @@ private:
 
 class Action
 {
+public:
 	//Action() = default;
-	Action(std::vector<Application> ApplicationVector, int maxTicks)
+	Action(int maxTicks, std::vector<Application> ApplicationVector)
 		:
 		ApplicationVector(ApplicationVector),
 		maxTicks(maxTicks)

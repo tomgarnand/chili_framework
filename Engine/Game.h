@@ -38,6 +38,7 @@
 #include "Camera.h"
 #include "Entity.h"
 #include "Player.h"
+#include "Action.h"
 
 class Game
 {
@@ -81,6 +82,8 @@ private:
 	std::vector<SelectionMenu*> Stack;
 	LineI line;
 	Camera cam;
+
+	
 
 	bool TickLive = false;
 	float TickTimer = 0.0f;

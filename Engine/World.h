@@ -254,11 +254,11 @@ private:
 
 
 	//data
-	Action Slash 
-		= Action( std::vector<Application>(
-			{3, ApplicationType::Physical, 10 },
-			{ 4, ApplicationType::Stun, 1 }
-			), 5 );
+	Action Slash = Action( 5,
+		{
+			{3, ApplicationType::Physical, 10},
+			{4, ApplicationType::Stun, 1}
+		});
 	
 
 };
