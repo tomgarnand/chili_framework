@@ -4,6 +4,7 @@
 #include <set>
 #include "Line.h"
 #include "TMXLoader/TMXLoader.h"
+#include "Action.h"
 
 class World
 {
@@ -250,5 +251,14 @@ private:
 	std::vector<RectI> tiles;
 
 	std::vector<RectF> coll_test;
+
+
+	//data
+	Action Slash 
+		= Action( std::vector<Application>(
+			{3, ApplicationType::Physical, 10 },
+			{ 4, ApplicationType::Stun, 1 }
+			), 5 );
+	
 
 };

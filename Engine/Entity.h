@@ -2,10 +2,12 @@
 
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include "Vec2.h"
 #include "Drawable.h"
 #include "Action.h"
 #include "Animation.h"
+#include "Action.h"
 
 class Entity
 {
@@ -82,7 +84,7 @@ private:
 
 
 
-	std::map<Action&, Animation&> animations;
+	std::unordered_map<Action&, Animation&> animations; //player_animations[Slash] = Slash_Animation;
 	float Health;
 
 	//Trigger triggerType

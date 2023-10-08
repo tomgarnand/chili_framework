@@ -23,5 +23,4 @@ private:
 	float holdTime;
 	float curFrameTime = 0.0f;
 	
-
 };

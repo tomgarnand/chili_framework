@@ -1,38 +1,60 @@
 #pragma once
-#include <tuple>
+#include <map>
 
 enum class ApplicationType
 {
-	PhysicalDamage,
-	Burn
+	Physical,
+	Burn,
+	Stun
+};
+
+class Application
+{
+public:
+	Application(int tick, ApplicationType type, int effectiveness)
+		:
+		tick(tick),
+		type(type),
+		effectiveness(effectiveness)
+	{}
+	int GetTick() { return tick; }
+	ApplicationType GetApplicationType() { return type; }
+	int GetEffectiveness() { return effectiveness; }
+private:
+	int tick;
+	ApplicationType type;
+	int effectiveness; //damage
 };
 
 class Action
 {
-	Action() = default;
-
-	int GetMaxTicks() { return maxTicks; }
-	std::vector<std::pair<ApplicationType, int>> GetApplicationByTick(int tick)
+	//Action() = default;
+	Action(std::vector<Application> ApplicationVector, int maxTicks)
+		:
+		ApplicationVector(ApplicationVector),
+		maxTicks(maxTicks)
 	{
-		std::vector<std::pair<ApplicationType, int>> tempVec;
-		for (auto& apply : Applications)
-		{
-			if (std::get<0>(apply) == tick)
-			{
-				tempVec.emplace_back(std::get<1>(apply), std::get<2>(apply));
-			}
-		}
-		return tempVec;
+
 	}
 
-	
+	int GetMaxTicks() { return maxTicks; }
+
+	std::vector<Application> GetApplicationByTick(int tick)
+	{
+		std::vector<Application> temp;
+		for (auto& apply : ApplicationVector)
+		{
+			if (apply.GetTick() == tick)
+			{
+				temp.emplace_back(apply);
+			}
+		}
+		return temp;
+	}
 
 private:
 	int maxTicks;
-	std::vector<std::tuple<int, ApplicationType, int>> Applications;
-
-
-
+	std::vector<Application> ApplicationVector;
 };
 
 static Action Idle;
