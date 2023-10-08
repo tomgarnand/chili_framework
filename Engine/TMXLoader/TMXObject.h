@@ -25,6 +25,7 @@ struct TMXObject_TypeFunc {
         case TMXObject_Type::None:
             return "None";
         }
+        return "";
     }
 };
 
@@ -35,12 +36,12 @@ public:
     TMXObject(std::string const& name, 
         unsigned x, unsigned y, 
         std::unordered_map<std::string, std::string> const& propertiesMap);
-    ~TMXObject() noexcept;
+    
 
     /* Getter functions */
-    unsigned getX() const noexcept;
-    unsigned getY() const noexcept;
-    std::string getProperty(std::string const& propertyName) noexcept;
+    unsigned getX() const ;
+    unsigned getY() const ;
+    std::string getProperty(std::string const& propertyName) ;
 
     /* Debug functions */
     void printData();
@@ -56,19 +57,45 @@ protected:
     std::unordered_map<std::string, std::string> m_propertiesMap;
 };
 
-class TMXObject_Rect : TMXObject
+class TMXObject_Rectangle : public TMXObject
 {
 public:
-    TMXObject_Rect(std::string const& name,
+    TMXObject_Rectangle(std::string const& name,
         unsigned x, unsigned y,
         unsigned width, unsigned height,
         std::unordered_map<std::string, std::string> const& propertiesMap);
 
-    unsigned getWidth() const noexcept;
-    unsigned getHeight() const noexcept;
+    unsigned getWidth() const ;
+    unsigned getHeight() const ;
     void printData();
 
 private:
     unsigned m_width, m_height;
 
+};
+
+class TMXObject_Ellipse : public TMXObject
+{
+public:
+    TMXObject_Ellipse(std::string const& name,
+        unsigned x, unsigned y,
+        unsigned width, unsigned height,
+        std::unordered_map<std::string, std::string> const& propertiesMap);
+
+    unsigned getWidth() const;
+    unsigned getHeight() const;
+    void printData();
+
+private:
+    unsigned m_width, m_height;
+
+};
+
+class TMXObject_Point : public TMXObject
+{
+public:
+    TMXObject_Point() = default;
+
+private:
+    TMXObject_Type m_object_type = TMXObject_Type::Point;
 };

@@ -28,34 +28,34 @@ class TMXMap final
 public:
     /* Class constructors & destructors */
     TMXMap();
-    ~TMXMap() noexcept;
+    ~TMXMap();
 
     /* Setter functions for map settings */
     void setMapSettings(
         std::unordered_map<std::string, std::string> const &mapData,
-        std::unordered_map<std::string, std::string> const &mapProps) noexcept;
+        std::unordered_map<std::string, std::string> const &mapProps);
 
     /* Getter functions for map settings */
-    float getVersion() const noexcept;
-    unsigned getWidth() const noexcept;
-    unsigned getHeight() const noexcept;
-    unsigned getTileWidth() const noexcept;
-    unsigned getTileHeight() const noexcept;
-    std::array<unsigned, 3> getBackgroundColor() const noexcept;
-    std::string getOrientation() const noexcept;
-    std::string getRenderOrder() const noexcept;
+    float getVersion() const;
+    unsigned getWidth() const;
+    unsigned getHeight() const;
+    unsigned getTileWidth() const;
+    unsigned getTileHeight() const;
+    std::array<unsigned, 3> getBackgroundColor() const;
+    std::string getOrientation() const;
+    std::string getRenderOrder() const;
 
     /* TileSets */
-    void addTileSet(TMXTileSet const &newTileSet) noexcept;
-    TMXTileSet *getTileset(std::string const &tileSetName) noexcept;
+    void addTileSet(TMXTileSet const &newTileSet);
+    TMXTileSet *getTileset(std::string const &tileSetName);
 
     /* Layers */
-    void addLayer(TMXTileLayer const &newLayer) noexcept;
-    TMXTileLayer *getLayer(std::string const &layerName) noexcept;
+    void addLayer(TMXTileLayer const &newLayer) ;
+    TMXTileLayer *getLayer(std::string const &layerName) ;
 
     /* Object Layers */
-    void addObjectLayer(TMXObjectLayer const& newObjectLayer) noexcept;
-    TMXObjectLayer* getObjectLayer(std::string const& objectlayerName) noexcept;
+    void addObjectLayer(std::unique_ptr<TMXObjectLayer> newObjectLayer) ;
+    //TMXObjectLayer* getObjectLayer(std::string const& objectlayerName) ;
 
     /* Debug functions */
     void printData();
@@ -73,6 +73,6 @@ private:
     std::unordered_map<std::string, std::string> m_propertiesMap;
 
     std::vector<TMXTileLayer> m_layerVector;
-    std::vector<TMXObjectLayer> m_objectlayerVector;
+    std::vector<std::unique_ptr<TMXObjectLayer>> m_objectlayerVector;
     std::vector<TMXTileSet> m_tileVector;
 };

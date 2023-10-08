@@ -23,15 +23,15 @@
 TMXTile::TMXTile(unsigned TileID, std::unordered_map<std::string, std::string> const &propertiesMap)
     : m_TileID{ TileID }, m_propertiesMap{propertiesMap} {}
 
-TMXTile::~TMXTile() noexcept
+TMXTile::~TMXTile() 
 {
     m_propertiesMap.clear();
     std::unordered_map<std::string, std::string>{}.swap(m_propertiesMap);
 }
 
-unsigned TMXTile::getTileID() const noexcept { return m_TileID; }
+unsigned TMXTile::getTileID() const  { return m_TileID; }
 
-std::string TMXTile::getProperty(std::string const &propertyName) noexcept
+std::string TMXTile::getProperty(std::string const &propertyName) 
 {
     if (auto it{m_propertiesMap.find(propertyName)}; it != m_propertiesMap.end())
         return it->second;

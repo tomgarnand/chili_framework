@@ -27,11 +27,11 @@ class TMXTile final
 public:
     /* Class constructors & destructors */
     TMXTile(unsigned TileID, std::unordered_map<std::string, std::string> const &propertiesMap);
-    ~TMXTile() noexcept;
+    ~TMXTile() ;
 
     /* Getter functions */
-    unsigned getTileID() const noexcept;
-    std::string getProperty(std::string const &propertyName) noexcept;
+    unsigned getTileID() const ;
+    std::string getProperty(std::string const &propertyName) ;
 
     /* Debug functions */
     void printData();

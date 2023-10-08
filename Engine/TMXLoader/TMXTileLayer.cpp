@@ -33,7 +33,7 @@ TMXTileLayer::TMXTileLayer(
     m_tileVector{tileVector} 
 {}
 
-TMXTileLayer::~TMXTileLayer() noexcept
+TMXTileLayer::~TMXTileLayer() 
 {
     m_tileVector.clear();
     std::vector<std::vector<unsigned>>{}.swap(m_tileVector);
@@ -42,13 +42,13 @@ TMXTileLayer::~TMXTileLayer() noexcept
     std::unordered_map<std::string, std::string>{}.swap(m_layerProperties);
 }
 
-unsigned TMXTileLayer::getWidth() const noexcept { return m_width; }
-unsigned TMXTileLayer::getHeight() const noexcept { return m_height; }
+unsigned TMXTileLayer::getWidth() const  { return m_width; }
+unsigned TMXTileLayer::getHeight() const  { return m_height; }
 
-std::string TMXTileLayer::getName() const noexcept { return m_name; }
-std::vector<std::vector<unsigned>> TMXTileLayer::getTiles() const noexcept { return m_tileVector; }
+std::string TMXTileLayer::getName() const  { return m_name; }
+std::vector<std::vector<unsigned>> TMXTileLayer::getTiles() const  { return m_tileVector; }
 
-std::string TMXTileLayer::getProperty(std::string const &propertyName) noexcept
+std::string TMXTileLayer::getProperty(std::string const &propertyName) 
 {
     
     if (std::unordered_map<std::string, std::string>::const_iterator

@@ -31,24 +31,24 @@ public:
 		std::unordered_map<std::string, std::string> const&tileSetData,
 		std::unordered_map<std::string, std::string> const &propertiesMap,
 		std::vector<TMXTile> const &tileVector);
-	~TMXTileSet() noexcept;
+	~TMXTileSet() ;
 
 	/* Getter functions */
-	unsigned getFirstGID() const noexcept;
-	unsigned getImageWidth() const noexcept;
-	unsigned getImageHeight() const noexcept;
-	unsigned getTileWidth() const noexcept;
-	unsigned getTileHeight() const noexcept;
-	unsigned getSpacing() const noexcept;
-	unsigned getMargin() const noexcept;
-	unsigned getOffsetX() const noexcept;
-	unsigned getOffsetY() const noexcept;
-	unsigned getTileCount() const noexcept;
-	std::array<unsigned, 3> getTransparentColour() const noexcept; // (maybe) return a SDL_Color ??
-	std::string getName() const noexcept;
-	std::string getSource() const noexcept;
-	std::string getProperty(std::string const &propertyName) noexcept;
-	TMXTile *getTile(unsigned tileID) noexcept;
+	unsigned getFirstGID() const ;
+	unsigned getImageWidth() const ;
+	unsigned getImageHeight() const ;
+	unsigned getTileWidth() const ;
+	unsigned getTileHeight() const ;
+	unsigned getSpacing() const ;
+	unsigned getMargin() const ;
+	unsigned getOffsetX() const ;
+	unsigned getOffsetY() const ;
+	unsigned getTileCount() const ;
+	std::array<unsigned, 3> getTransparentColour() const ; // (maybe) return a SDL_Color ??
+	std::string getName() const ;
+	std::string getSource() const ;
+	std::string getProperty(std::string const &propertyName) ;
+	TMXTile *getTile(unsigned tileID) ;
 
 	/* Debug functions */
 	void printData();

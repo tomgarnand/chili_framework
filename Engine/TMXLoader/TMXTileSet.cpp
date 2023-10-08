@@ -49,7 +49,7 @@ TMXTileSet::TMXTileSet(
 
 
 
-TMXTileSet::~TMXTileSet() noexcept
+TMXTileSet::~TMXTileSet() 
 {
 	m_propertiesMap.clear();
 	std::unordered_map<std::string, std::string>{}.swap(m_propertiesMap);
@@ -58,28 +58,28 @@ TMXTileSet::~TMXTileSet() noexcept
 	std::vector<TMXTile>{}.swap(m_tileVector);
 }
 
-unsigned TMXTileSet::getFirstGID() const noexcept { return m_firstGID; }
+unsigned TMXTileSet::getFirstGID() const  { return m_firstGID; }
 
-unsigned TMXTileSet::getImageWidth() const noexcept { return m_imageWidth; }
-unsigned TMXTileSet::getImageHeight() const noexcept { return m_imageHeight; }
+unsigned TMXTileSet::getImageWidth() const  { return m_imageWidth; }
+unsigned TMXTileSet::getImageHeight() const  { return m_imageHeight; }
 
-unsigned TMXTileSet::getTileWidth() const noexcept { return m_tileWidth; }
-unsigned TMXTileSet::getTileHeight() const noexcept { return m_tileHeight; }
+unsigned TMXTileSet::getTileWidth() const  { return m_tileWidth; }
+unsigned TMXTileSet::getTileHeight() const  { return m_tileHeight; }
 
-unsigned TMXTileSet::getSpacing() const noexcept { return m_spacing; }
-unsigned TMXTileSet::getMargin() const noexcept { return m_margin; }
+unsigned TMXTileSet::getSpacing() const  { return m_spacing; }
+unsigned TMXTileSet::getMargin() const  { return m_margin; }
 
-unsigned TMXTileSet::getOffsetX() const noexcept { return m_offsetX; }
-unsigned TMXTileSet::getOffsetY() const noexcept { return m_offsetY; }
+unsigned TMXTileSet::getOffsetX() const  { return m_offsetX; }
+unsigned TMXTileSet::getOffsetY() const  { return m_offsetY; }
 
-unsigned TMXTileSet::getTileCount() const noexcept { return m_tileCount; }
+unsigned TMXTileSet::getTileCount() const  { return m_tileCount; }
 
-std::array<unsigned, 3> TMXTileSet::getTransparentColour() const noexcept { return m_transparentColour; }
+std::array<unsigned, 3> TMXTileSet::getTransparentColour() const  { return m_transparentColour; }
 
-std::string TMXTileSet::getName() const noexcept { return m_name; }
-std::string TMXTileSet::getSource() const noexcept { return m_source; }
+std::string TMXTileSet::getName() const  { return m_name; }
+std::string TMXTileSet::getSource() const  { return m_source; }
 
-std::string TMXTileSet::getProperty(std::string const &propertyName) noexcept
+std::string TMXTileSet::getProperty(std::string const &propertyName) 
 {
 	if (std::unordered_map<std::string, std::string>::const_iterator it{m_propertiesMap.find(propertyName)};
 		it != m_propertiesMap.end())
@@ -88,7 +88,7 @@ std::string TMXTileSet::getProperty(std::string const &propertyName) noexcept
 	return "";
 }
 
-TMXTile *TMXTileSet::getTile(unsigned id) noexcept
+TMXTile *TMXTileSet::getTile(unsigned id) 
 {
 	for (unsigned idx{0}; idx < m_tileVector.size(); ++idx)
 		if (id == m_tileVector[id].getTileID())

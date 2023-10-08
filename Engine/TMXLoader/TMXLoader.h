@@ -43,7 +43,7 @@ class TMXLoader
     /* Class constructors & destructors */
 public:
 	TMXLoader();
-	~TMXLoader();
+	//~TMXLoader();
 
     /* Map methods */
 public:

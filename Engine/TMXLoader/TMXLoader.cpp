@@ -25,11 +25,11 @@ TMXLoader::TMXLoader()
 }
 
 
-TMXLoader::~TMXLoader()
-{
-    m_mapContainer.clear();
-    std::unordered_map<std::string, std::unique_ptr<TMXMap>>().swap(m_mapContainer);
-}
+//TMXLoader::~TMXLoader()
+//{
+//    m_mapContainer.clear();
+//    std::unordered_map<std::string, std::unique_ptr<TMXMap>>().swap(m_mapContainer);
+//}
 
 
 void TMXLoader::loadMap(std::string mapName, std::string filePath)
@@ -48,11 +48,13 @@ void TMXLoader::loadMap(std::string mapName, std::string filePath)
         rapidxml::xml_node<> *parentNode = m_currentMap.first_node("map");
         
         // Add new TMXMap to m_mapContainer
-        m_mapContainer[mapName] = std::unique_ptr<TMXMap>(new TMXMap());
+		std::unique_ptr<TMXMap> map = std::make_unique<TMXMap>();
+		m_mapContainer[mapName] = std::move(map);
         
         // Load the map settings, tilesets and layers
         loadMapSettings(m_mapContainer[mapName], parentNode);
         loadTileSets(m_mapContainer[mapName], parentNode);
+		loadObjectLayers(m_mapContainer[mapName], parentNode);
         loadLayers(m_mapContainer[mapName], parentNode);
         
         std::cout << "TMXLoader: loaded map '" << mapName << "' from: '" << filePath << "' successfully" << std::endl;
@@ -363,11 +365,10 @@ void TMXLoader::loadObjectLayers(std::unique_ptr<TMXMap> const& map, rapidxml::x
 	// Create a new node based on the parent node
 	rapidxml::xml_node<>* currentNode = parentNode;
 
-	// Move to first layer node
-	currentNode = currentNode->first_node("objectgroup");
-
-	while (currentNode != nullptr)
+	//iterating through all object layers/"object groups"
+	for (rapidxml::xml_node<char>* node = currentNode->first_node("objectgroup"); node; node = node->next_sibling("objectgroup"))
 	{
+		currentNode = node;
 		unsigned int ObjectGroup_ID = 0;
 		std::string ObjectGroup_Name;
 		std::unordered_map<std::string, std::string> ObjectGroupProperties;
@@ -394,7 +395,8 @@ void TMXLoader::loadObjectLayers(std::unique_ptr<TMXMap> const& map, rapidxml::x
 
 		//the vector used to build the Object Layer
 		std::vector< std::unique_ptr<TMXObject> > objectVector;
-		TMXObject_Type type;
+		TMXObject_Type type = TMXObject_Type::None;
+		
 
 		//elements of a Object
 		unsigned int Object_ID = 0;
@@ -404,18 +406,14 @@ void TMXLoader::loadObjectLayers(std::unique_ptr<TMXMap> const& map, rapidxml::x
 		unsigned int Object_X;
 		unsigned int Object_Y;
 
-		while (currentNode != nullptr)
+		//start at 1st object, moving through each next object
+		for (rapidxml::xml_node<char>* node = currentNode->first_node("object"); node; node = node->next_sibling("object"))
 		{
-			//start at 1st object
-			if (currentNode->first_node("object") != nullptr)
+			currentNode = node;
+			//work through all object nodes, eg x,y,width,height,etc
+			for (rapidxml::xml_attribute<char>* attr = currentNode->first_attribute(); attr; attr = attr->next_attribute())
 			{
-				currentNode = currentNode->first_node("object");
-				//work through all object nodes, eg x,y,width,height,etc
-				while (currentNode != nullptr)
-				{
-					objectMap[currentNode->first_attribute()->value()] = currentNode->first_attribute()->next_attribute()->value();
-					currentNode = currentNode->next_sibling("object");
-				}
+				objectMap[attr->name()] = attr->value();
 			}
 			//if object has properties
 			if (currentNode->first_node("properties") != nullptr)
@@ -424,58 +422,79 @@ void TMXLoader::loadObjectLayers(std::unique_ptr<TMXMap> const& map, rapidxml::x
 				currentNode = currentNode->first_node("properties");
 				// Move to the first property node
 				currentNode = currentNode->first_node("property");
-				while (currentNode != nullptr)
+				for (rapidxml::xml_attribute<char>* attr = currentNode->first_attribute(); attr; attr = attr->next_attribute())
 				{
-					objectPropertiesMap[currentNode->first_attribute()->value()] = currentNode->first_attribute()->next_attribute()->value();
-					currentNode = currentNode->next_sibling("property");
+					objectPropertiesMap[attr->name()] = attr->value();
 				}
+				//leave property node subset (important to back up a node when there are properties because not every node will have properties)
+				currentNode = currentNode->parent()->parent(); //back to object
 			}
 
+			
 			//check for special object types
-			if (currentNode->first_node("ellipse") != nullptr)
+			bool found_type = false;
+			for (rapidxml::xml_node<char>* child = currentNode->first_node(); child; child = child->next_sibling())
 			{
-				type = TMXObject_Type::Ellipse;
+				if (std::string(child->name()) == "ellipse")
+				{
+					found_type = true;
+					type = TMXObject_Type::Ellipse;
+				}
 			}
-			if (type == TMXObject_Type::None &&
-				objectMap.contains("x") && objectMap.contains("y")
-				&& objectMap.contains("width") && objectMap.contains("height"))
+			if (!found_type)
 			{
-				type = TMXObject_Type::Rectangle;
+				if (type == TMXObject_Type::None &&
+					objectMap.contains("width") && objectMap.contains("height"))
+				{
+					type = TMXObject_Type::Rectangle;
+				}
 			}
 
 			//move object details from a map to a TMXObject
 			//these elements are true for any object type
 			objectMap.contains("id") ? Object_ID = std::stoi(objectMap.at("id")) : Object_ID = 0;
 			objectMap.contains("name") ? Object_Name = objectMap.at("name") : Object_Name;
+			objectMap.contains("x") ? Object_X = std::stoi(objectMap.at("x")) : Object_X = 0;
+			objectMap.contains("y") ? Object_Y = std::stoi(objectMap.at("y")) : Object_Y = 0;
+			objectMap.contains("width") ? Object_Width = std::stoi(objectMap.at("width")) : Object_Width = 0;
+			objectMap.contains("height") ? Object_Height = std::stoi(objectMap.at("height")) : Object_Height = 0;
 
 			//make object element assignments based on type & emplace object into vector
+			std::unique_ptr<TMXObject_Rectangle> obj;
 			switch (type)
 			{
 			case TMXObject_Type::Rectangle:
-				objectMap.contains("width") ? Object_Width = std::stoi(objectMap.at("width")) : Object_Width = 0;
-				objectMap.contains("height") ? Object_Height = std::stoi(objectMap.at("height")) : Object_Height = 0;
-				objectMap.contains("x") ? Object_X = std::stoi(objectMap.at("x")) : Object_X = 0;
-				objectMap.contains("y") ? Object_Y = std::stoi(objectMap.at("y")) : Object_Y = 0;
+			{
+				obj = std::make_unique<TMXObject_Rectangle>(
+					Object_Name,
+					Object_X, Object_Y,
+					Object_Width, Object_Height,
+					objectPropertiesMap);
 
-				objectVector.emplace_back(
-					std::make_unique<TMXObject_Rect>(Object_Name, 
-						Object_X, Object_Y, 
-						Object_Width, Object_Height, 
-						objectPropertiesMap));
+				objectVector.push_back(std::move(obj));
+			}
+			case TMXObject_Type::Ellipse:
+			{
+				obj = std::make_unique<TMXObject_Ellipse>(
+					Object_Name,
+					Object_X, Object_Y,
+					Object_Width, Object_Height,
+					objectPropertiesMap);
+
+				objectVector.push_back(std::move(obj));
 			}
 
+			}
 
-			
-
-			// Move to the next layer
-			currentNode = currentNode->parent()->next_sibling("object");
-			objectVector.clear();
-			type == TMXObject_Type::None;
+			objectMap.clear();
+			objectPropertiesMap.clear();
+			found_type = false;
+			type = TMXObject_Type::None;
 		}
 		// Add the newly read layer to the map
-		map->addObjectLayer(TMXObjectLayer(ObjectGroup_Name, ObjectGroupProperties, objectVector));
+		map->addObjectLayer(std::make_unique<TMXObjectLayer>(ObjectGroup_Name, ObjectGroupProperties, std::move(objectVector)));
+	} 
 
-	}
 }
 
 void TMXLoader::loadProperties(std::unordered_map<std::string, std::string>& propertiesMap, rapidxml::xml_node<> *parentNode)

@@ -21,7 +21,7 @@
 
 TMXMap::TMXMap() : m_version(0.0f), m_width(0), m_height(0), m_tileWidth(0), m_tileHeight(0), m_backgroundColour({}) {}
 
-TMXMap::~TMXMap() noexcept
+TMXMap::~TMXMap() 
 {
     m_propertiesMap.clear();
     std::unordered_map<std::string, std::string>{}.swap(m_propertiesMap);
@@ -33,7 +33,7 @@ TMXMap::~TMXMap() noexcept
     std::vector<TMXTileLayer>{}.swap(m_layerVector);
 }
 
-void TMXMap::setMapSettings(std::unordered_map<std::string, std::string> const &mapData, std::unordered_map<std::string, std::string> const &mapProps) noexcept
+void TMXMap::setMapSettings(std::unordered_map<std::string, std::string> const &mapData, std::unordered_map<std::string, std::string> const &mapProps) 
 {
     mapData.contains("version") ? m_version = std::stof(mapData.at("version")) : m_version = 0.0f;
     m_orientation = mapData.at("orientation");
@@ -54,21 +54,21 @@ void TMXMap::setMapSettings(std::unordered_map<std::string, std::string> const &
     m_propertiesMap = mapProps;
 }
 
-float TMXMap::getVersion() const noexcept { return m_version; }
+float TMXMap::getVersion() const  { return m_version; }
 
-unsigned TMXMap::getWidth() const noexcept { return m_width; }
-unsigned TMXMap::getHeight() const noexcept { return m_height; }
-unsigned TMXMap::getTileWidth() const noexcept { return m_tileWidth; }
-unsigned TMXMap::getTileHeight() const noexcept { return m_tileHeight; }
+unsigned TMXMap::getWidth() const  { return m_width; }
+unsigned TMXMap::getHeight() const  { return m_height; }
+unsigned TMXMap::getTileWidth() const  { return m_tileWidth; }
+unsigned TMXMap::getTileHeight() const  { return m_tileHeight; }
 
-std::array<unsigned, 3> TMXMap::getBackgroundColor() const noexcept { return m_backgroundColour; }
+std::array<unsigned, 3> TMXMap::getBackgroundColor() const  { return m_backgroundColour; }
 
-std::string TMXMap::getOrientation() const noexcept { return m_orientation; }
-std::string TMXMap::getRenderOrder() const noexcept { return m_renderOrder; }
+std::string TMXMap::getOrientation() const  { return m_orientation; }
+std::string TMXMap::getRenderOrder() const  { return m_renderOrder; }
 
-void TMXMap::addTileSet(TMXTileSet const &newTileSet) noexcept { m_tileVector.push_back(newTileSet); }
+void TMXMap::addTileSet(TMXTileSet const &newTileSet)  { m_tileVector.push_back(newTileSet); }
 
-TMXTileSet *TMXMap::getTileset(std::string const &tileSetName) noexcept
+TMXTileSet *TMXMap::getTileset(std::string const &tileSetName) 
 {
     for (unsigned idx{0}; idx < m_tileVector.size(); ++idx)
         if (m_tileVector[idx].getName() == tileSetName)
@@ -77,9 +77,9 @@ TMXTileSet *TMXMap::getTileset(std::string const &tileSetName) noexcept
     return nullptr;
 }
 
-void TMXMap::addLayer(TMXTileLayer const &newLayer) noexcept { m_layerVector.push_back(newLayer); }
+void TMXMap::addLayer(TMXTileLayer const &newLayer)  { m_layerVector.push_back(newLayer); }
 
-TMXTileLayer *TMXMap::getLayer(std::string const &layerName) noexcept
+TMXTileLayer *TMXMap::getLayer(std::string const &layerName) 
 {
     for (unsigned idx{0}; idx < m_layerVector.size(); ++idx)
         if (m_layerVector[idx].getName() == layerName)
@@ -88,16 +88,19 @@ TMXTileLayer *TMXMap::getLayer(std::string const &layerName) noexcept
     return nullptr;
 }
 
-void TMXMap::addObjectLayer(TMXObjectLayer const& newObjectLayer) noexcept { m_objectlayerVector.push_back(newObjectLayer); }
-
-TMXObjectLayer* TMXMap::getObjectLayer(std::string const& objectlayerName) noexcept
-{
-    for (unsigned idx{ 0 }; idx < m_objectlayerVector.size(); ++idx)
-        if (m_objectlayerVector[idx].getName() == objectlayerName)
-            return &m_objectlayerVector[idx];
-    std::cout << "TMXLoader: object layer '" << objectlayerName << "' could not be found." << std::endl;
-    return nullptr;
+void TMXMap::addObjectLayer(std::unique_ptr<TMXObjectLayer> newObjectLayer)  
+{ 
+    m_objectlayerVector.push_back(std::move(newObjectLayer)); 
 }
+
+//TMXObjectLayer* TMXMap::getObjectLayer(std::string const& objectlayerName) 
+//{
+//    for (unsigned idx{ 0 }; idx < m_objectlayerVector.size(); ++idx)
+//        if (m_objectlayerVector[idx].getName() == objectlayerName)
+//            return &m_objectlayerVector[idx];
+//    std::cout << "TMXLoader: object layer '" << objectlayerName << "' could not be found." << std::endl;
+//    return nullptr;
+//}
 
 void TMXMap::printData()
 {
@@ -130,6 +133,6 @@ void TMXMap::printData()
     std::cout << "\n\nTest map object layers:\n";
     for (unsigned int index = 0; index < m_objectlayerVector.size(); ++index)
     {
-        m_objectlayerVector[index].printData();
+        //m_objectlayerVector[index].printData();
     }
 }

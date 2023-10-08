@@ -10,13 +10,13 @@ public:
     /* Class constructors & destructors */
     TMXObjectLayer(std::string const& name, 
         std::unordered_map<std::string, std::string> const& layerProperties,
-        std::vector<TMXObject> const& objectVector);
-    ~TMXObjectLayer() noexcept;
+        std::vector< std::unique_ptr<TMXObject> >&& objectVector);
+
 
     /* Getter functions  */
-    std::string getName() const noexcept;
-    std::string getProperty(std::string const& propertyName) noexcept;
-    std::vector<TMXObject> getObjects() noexcept;
+    std::string getName() const ;
+    std::string getProperty(std::string const& propertyName) ;
+    //std::vector< std::unique_ptr<TMXObject> > getObjects() ;
 
     /* Debug functions */
     void printData();
@@ -24,6 +24,6 @@ public:
 private:
     /* Layer variables */
     std::string m_name;
-    std::vector<TMXObject> m_objectVector;
+    std::vector< std::unique_ptr<TMXObject> > m_objectVector;
     std::unordered_map<std::string, std::string> m_layerProperties;
 };

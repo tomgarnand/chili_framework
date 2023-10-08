@@ -4,27 +4,21 @@
 TMXObjectLayer::TMXObjectLayer(
 	std::string const& name, 
 	std::unordered_map<std::string, std::string> const& layerProperties, 
-	std::vector<TMXObject> const& objectVector)
+	std::vector< std::unique_ptr<TMXObject> >&& objectVector)
 	:
 	m_name{ name },
 	m_layerProperties{ layerProperties },
-	m_objectVector{ objectVector }
+	m_objectVector( std::move(objectVector) )
 {}
 
-TMXObjectLayer::~TMXObjectLayer() noexcept
-{
-	m_objectVector.clear();
-	std::vector<TMXObject>{}.swap(m_objectVector);
-	m_layerProperties.clear();
-	std::unordered_map<std::string, std::string>{}.swap(m_layerProperties);
-}
 
-std::string TMXObjectLayer::getName() const noexcept
+
+std::string TMXObjectLayer::getName() const 
 {
 	return m_name;
 }
 
-std::string TMXObjectLayer::getProperty(std::string const& propertyName) noexcept
+std::string TMXObjectLayer::getProperty(std::string const& propertyName) 
 {
 	if (std::unordered_map<std::string, std::string>::const_iterator
 		it{ m_layerProperties.find(propertyName) };
@@ -35,7 +29,7 @@ std::string TMXObjectLayer::getProperty(std::string const& propertyName) noexcep
 	return {};
 }
 
-std::vector<TMXObject> TMXObjectLayer::getObjects() noexcept { return m_objectVector; }
+//std::vector< std::unique_ptr<TMXObject> > TMXObjectLayer::getObjects()  { return m_objectVector; }
 
 void TMXObjectLayer::printData()
 {
@@ -49,8 +43,8 @@ void TMXObjectLayer::printData()
 	}
 
 	std::cout << "\nObjects:";
-	for (auto& object : m_objectVector)
+	for (const auto& object : m_objectVector)
 	{
-		object.printData();
+		object->printData();
 	}
 }
