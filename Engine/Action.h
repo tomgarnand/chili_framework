@@ -2,7 +2,10 @@
 #include <map>
 #include <random>
 #include "Util.h"
+
 #include <memory>
+#include <stdexcept>
+#include <algorithm>
 
 //after pretty much finishing this, a question popped in my mind: What if I had just used maps instead of a million vector iterating sub functions?
 //but I'm not knowledgeable enough (yet) to know if what would be the better HitMethod
@@ -60,11 +63,18 @@ enum class EffectType
 	//Anchor - movement tied to location
 };
 
+enum class EffectCategory
+{
+	Active,
+	Passive
+};
+
 class Effect
 {
 public:
-	Effect(const EffectType& type, const int& duration, const float& effectiveness)
+	Effect(const EffectCategory& cat, const EffectType& type, const int& duration, const float& effectiveness)
 		:
+		cat(cat),
 		type(type),
 		duration(duration),
 		effectiveness(effectiveness)
@@ -75,124 +85,96 @@ public:
 	void SetDuration(const int& newDuration) { duration = newDuration; }
 	void IncreaseEffectiveness(const float& effectivenessIncrease) { effectiveness += effectivenessIncrease; }
 private:
+	EffectCategory cat;
 	EffectType type;
 	int duration;
 	float effectiveness;
 };
 
+
+
 class Status //container for current effects
 {
 public:
 	Status() = default;
-	void AddActiveEffect(const Effect& effect)
+	void AddEffect(const EffectCategory& cat, const Effect& effect)
 	{
 	
 		bool preexisting = false;
-		for (auto& e : AllEffects )
-		{
-			if (e.GetType() == effect.GetType())
+		for (auto& categoryPair : effects) {
+			auto& effectVector = categoryPair.second;
+			for (auto& e : effectVector)
 			{
-				if (e.GetDuration() < effect.GetDuration())
+				if (e.GetType() == effect.GetType())
 				{
-					e.SetDuration(effect.GetDuration());
-					e.IncreaseEffectiveness(effect.GetEffectiveness()); //design choice... maybe not for the best
+					if (e.GetDuration() < effect.GetDuration())
+					{
+						e.SetDuration(effect.GetDuration());
+						e.IncreaseEffectiveness(effect.GetEffectiveness()); //design choice... maybe not for the best
+					}
+					preexisting = true;
 				}
-				preexisting = true;
 			}
 		}
 		if (!preexisting)
 		{
-			AllEffects.emplace_back(effect);
-			Active.emplace_back(&AllEffects.back());
+			effects[cat].emplace_back(effect);
 		}
 	}
-	void AddPassiveEffect(const Effect& effect)
+	
+	void RemoveEffect(const EffectType& check) //removes effect if it shares the same type
 	{
-		bool preexisting = false;
-		for (auto& e : AllEffects)
-		{
-			if (e.GetType() == effect.GetType())
-			{
-				if (e.GetDuration() < effect.GetDuration())
+		for (auto& categoryPair : effects) {
+			auto& effectVector = categoryPair.second;
+			effectVector.erase(std::remove_if(effectVector.begin(), effectVector.end(), 
+				[check](const Effect& effect)
 				{
-					e.SetDuration(effect.GetDuration());
-					e.IncreaseEffectiveness(effect.GetEffectiveness()); //design choice... maybe not for the best
-				}
-				preexisting = true;
-			}
-		}
-		if (!preexisting)
-		{
-			AllEffects.emplace_back(effect);
-			Passive.emplace_back(&AllEffects.back());
+					return check == effect.GetType();
+				}),
+				effectVector.end());
 		}
 	}
-	void RemoveEffect(const Effect& effect)
-	{
-		bool found = false;
-		int i = 0;
-		for (auto it = Active.begin(); it != Active.end(); ++it) {
-			if (Active[i].GetType() == effect.GetType())
-			{
-				Active.erase(it);
-				found = true;
-				break;
-			}
-			i++;
+
+	const std::vector<Effect>& getAllEffects() const {
+		std::vector<Effect> allEffects;
+
+		for (const auto& pair : effects) { // Iterate over each key-value pair in the map
+			const std::vector<Effect>& categoryEffects = pair.second;
+			allEffects.insert(allEffects.end(), categoryEffects.begin(), categoryEffects.end());
 		}
-		if (!found) 
-		{
-			for (auto it = Passive.begin(); it != Passive.end(); ++it) {
-				if (Passive[i].GetType() == effect.GetType())
-				{
-					Passive.erase(it);
-					found = true;
-					break;
-				}
-				i++;
-			}
-			i = 0;
-		}
-		if (found)
-		{
-			for (auto it = AllEffects.begin(); it != AllEffects.end(); ++it) {
-				if (AllEffects[i].GetType() == effect.GetType())
-				{
-					AllEffects.erase(it);
-					break;
-				}
-				i++;
-			}
-		}
-		else
-		{
-			assert(true); //why are we removing something that doesn't exist??
-		}
+
+		return allEffects;
 	}
-	const std::vector<Effect>& getEffects() const 
+
+	const std::vector<Effect>& getEffectsByType(const EffectCategory& cat) const 
 	{
-		return AllEffects;
+		static const std::vector<Effect> emptyVector;  // Static empty vector to return in case of error
+
+		try {
+			return effects.at(cat);
+		}
+		catch (const std::out_of_range& e) {
+			assert(true);
+			std::cerr << e.what() <<"\nEffect type not found in the map!\n";
+			return emptyVector;
+		}
 	}
 	bool CheckForEffect(const EffectType& check) const
 	{
-		for (auto& effect : AllEffects)
-		{
-			if (effect.GetType() == check)
+		for (auto& categoryPair : effects) {
+			auto& effectVector = categoryPair.second;
+			for (auto& e : effectVector)
 			{
-				return true;
+				if (e.GetType() == check)
+				{
+					return true;
+				}
 			}
 		}
-		return false;
 	}
 
 private:
-	std::vector<Effect> AllEffects;
-
-	//way to sort for menus... maybe change approach
-	std::vector<Effect&> Active;
-	std::vector<Effect&> Passive;
-	
-
+	std::map< EffectCategory, std::vector<Effect>> effects;
 };
 
 enum class Method
@@ -277,7 +259,7 @@ public:
 		action_name(action_name),
 		difficulty(difficulty)
 	{
-		code = dice.Roll99999();
+		code = d99999.roll();
 	}
 
 	Outcome CheckSuccess(const std::vector<std::string>& stateStack) const override
@@ -431,4 +413,4 @@ private:
 	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
 };
 
-static Action Idle;
+static Action* Idle;

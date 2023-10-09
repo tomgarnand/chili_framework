@@ -65,25 +65,25 @@ public:
 	bool IsActionEnded();
 	void Apply(const Application& app, const Outcome& out);
 
-	void Update(std::string current_map, const Entity& player);
+	//void Update(std::string current_map, const Entity& player);
 
 private:
 	float angle = 0.0f;
 	float scale = 1.0f;
-	std::unordered_map<std::string, Vec2> pos = {0.0f,0.0f}; //convert to a map point vector
+	std::unordered_map<std::string, Vec2> pos; //convert to a map point vector
 	Surface& src;
 
 
 	//Behaviour& script;
-	Action& current_action;
-	std::vector<Entity&> targets;
-	std::vector<Action&> past_actions;
-	std::vector<Action&> action_pool;
+	Action* current_action;
+	std::vector<Entity*> targets;
+	std::vector<Action*> past_actions;
+	std::vector<Action*> action_pool;
 	int tick;
 
 
 
-	std::unordered_map<Action&, Animation&> animations; //player_animations[Slash] = Slash_Animation;
+	//std::unordered_map<Action&, Animation&> animations; //player_animations[Slash] = Slash_Animation;
 
 	Attributes stats;
 	Status statuses;

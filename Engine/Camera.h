@@ -7,6 +7,14 @@
 #include "Drawable.h"
 #include "Mat3.h"
 
+
+//useage:
+// cam.Draw(entity.GetDrawable());
+
+
+
+
+
 class Camera
 {
 public:

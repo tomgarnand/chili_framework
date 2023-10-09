@@ -66,17 +66,18 @@ private:
 	/*  User Variables              */
 	FrameTimer ft;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
-	Character link = Character({ 80,80 });
+	
+
 	Sound hover = { L"Sounds//menu_boop.wav" };
 	GameState state = GameState::Moving;
 	GUI gui;
 	MenuProcessing menu;
 
-	World world;
-	Surface dude = Surface("Images//link90x90.bmp");
-	Entity guy = Entity(dude, Vec2( 400.0f,400.0f ));
+	
+	
+	
 	std::vector<SelectionMenu*> Stack;
-	LineI line;
+
 	Camera cam;
 	/********************************/
 };

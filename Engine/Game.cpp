@@ -30,7 +30,6 @@ Game::Game(MainWindow& wnd)
 	gfx(wnd),
 	gui(),
 	menu(),
-	world(),
 	cam(gfx)
 
 {
@@ -82,36 +81,12 @@ void Game::UpdateModel()
 			dir.y -= 1.0f;
 		}
 		if (wnd.kbd.KeyIsPressed(VK_SPACE))
-		{
-			link.effectActivate();
-			if (true) //(Items[0].size() < 2)
-			{
-				Collection::Item* new_item = new Collection::Item(gui.item);
-				gui.Collection_Inventory.AddElement(new_item);
-				
-				//gui.Inventory.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
-				//gui.Inventory.pGetSelectionItems()[0].InitParentMenu(gui.Inventory.pGetSelectionMenu());
-
-				cam.MoveTo({ 50,50 });
-				gui.Collection_Equipment.AddElement(&gui.armor);
-			
-				//gui.Equipment.pGetSelectionItems()[0].InitInnerMenu(gui.pGetConfirmMenu());
-				//gui.Equipment.pGetSelectionItems()[0].InitParentMenu(gui.Equipment.pGetSelectionMenu());
-				// 
-				//gui.Inventory.UpdateSelectionMenu("Teleport Crystal");
-				//gui.Inventory.UpdateSelectionMenu("Scroll of Revival");
-				//
-				//gui.Equipment.UpdateSelectionMenu("Sword of Cunning");
-				//gui.Spells.UpdateSelectionMenu("Attack");
-				//gui.Spells.UpdateSelectionMenu("Heal");
-				//
-				//gui.Important.UpdateSelectionMenu("Notebook");
-			}
+		{	
 		}
 	}
 	
-	link.SetDirection(dir);
-	link.Update(world, ft.Mark());
+	
+	
 
 	
 	
@@ -126,29 +101,14 @@ void Game::UpdateModel()
 		}
 	}
 
-	// line test
-	//if (!wnd.mouse.IsEmpty())
-	//{
-	//	line = LineI(Vei2(200, 200), wnd.mouse.GetPos());
-	//}
 }
-
 void Game::ComposeFrame()
 {
-
-	world.DrawRects(gfx);
-	//world.DrawWorld(gfx);
-	link.Draw(gfx);
-
-
 	if (state == GameState::Menu)
 	{
  		menu.DrawGUI(Stack, gfx, gui.GetFont());
 	}
-	//gfx.DrawLine(line);
-	gfx.DrawCircle(25, (int)link.GetPos().x, (int)link.GetPos().y, Colors::Blue);
-
-	cam.Draw(guy.GetDrawable());
+	
 	
 
 }

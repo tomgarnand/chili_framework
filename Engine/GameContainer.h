@@ -2,6 +2,12 @@
 #include <vector>
 #include <string>
 
+//useage:
+//Collection::Item* new_item = new Collection::Item(gui.item);
+//gui.Collection_Inventory.AddElement(new_item);
+//gui.Collection_Equipment.AddElement(&gui.armor);
+
+
 class SelectionMenu; //forward declaration
 
 class Collection //game container

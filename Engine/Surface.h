@@ -4,6 +4,7 @@
 #include <string>
 #include "Rect.h"
 
+//Surface dude = Surface("Images//link90x90.bmp");
 
 class Surface
 {

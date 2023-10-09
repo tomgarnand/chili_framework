@@ -460,12 +460,12 @@ void TMXLoader::loadObjectLayers(std::unique_ptr<TMXMap> const& map, rapidxml::x
 			objectMap.contains("height") ? Object_Height = std::stoi(objectMap.at("height")) : Object_Height = 0;
 
 			//make object element assignments based on type & emplace object into vector
-			std::unique_ptr<TMXObject_Rectangle> obj;
+			 
 			switch (type)
 			{
 			case TMXObject_Type::Rectangle:
 			{
-				obj = std::make_unique<TMXObject_Rectangle>(
+				std::unique_ptr<TMXObject_Rectangle> obj = std::make_unique<TMXObject_Rectangle>(
 					Object_Name,
 					Object_X, Object_Y,
 					Object_Width, Object_Height,
@@ -475,7 +475,7 @@ void TMXLoader::loadObjectLayers(std::unique_ptr<TMXMap> const& map, rapidxml::x
 			}
 			case TMXObject_Type::Ellipse:
 			{
-				obj = std::make_unique<TMXObject_Ellipse>(
+				std::unique_ptr<TMXObject_Ellipse> obj = std::make_unique<TMXObject_Ellipse>(
 					Object_Name,
 					Object_X, Object_Y,
 					Object_Width, Object_Height,

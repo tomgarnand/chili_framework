@@ -19,7 +19,8 @@ void Entity::EndTick(std::vector<std::string>& stateStack)
 		{
 			case(Method::DiceThrow):
 			{
-				int roll = dice.Roll20();
+
+				int roll = d20.roll();
 				if (roll == 1) { out.emplace_back(Outcome::CriticalMiss); break; }
 				for (Entity& target : targets)
 				{
