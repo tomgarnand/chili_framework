@@ -54,8 +54,8 @@ void Game::UpdateModel()
 	const auto e = wnd.kbd.ReadKey();
 	if (e.IsPress())
 	{
-		switch(e.GetCode())
-		case (27) : //escape
+		switch(config.GetCommand(e.GetCode()))
+			case (Command::MAIN_MENU) :
 		{
 			state == GameState::Menu ? state = GameState::Moving : state = GameState::Menu;
 			break;

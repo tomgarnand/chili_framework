@@ -37,6 +37,7 @@
 #include "ProcessMenu.h"
 #include "Camera.h"
 #include "Entity.h"
+#include "ControlConfig.h"
 
 class Game
 {
@@ -64,6 +65,7 @@ private:
 	Graphics gfx;
 	/********************************/
 	/*  User Variables              */
+	ControlConfig config;
 	FrameTimer ft;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	

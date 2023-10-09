@@ -155,6 +155,7 @@
     <ClInclude Include="ChiliWin.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="COMInitializer.h" />
+    <ClInclude Include="ControlConfig.h" />
     <ClInclude Include="Dice.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="DXErr.h" />
