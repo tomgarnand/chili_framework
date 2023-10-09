@@ -12,7 +12,7 @@ void Entity::EndTick(std::vector<std::string>& stateStack)
 	
 	else
 	{
-		HitMethod& HitMethod = current_action.GetApplicationByTick(tick).GetHitMethod();
+		HitMethod HitMethod = current_action.GetApplicationByTick(tick).GetHitMethod();
 		std::vector<Outcome> out(targets.size());
 		Outcome i_out;
 		switch (HitMethod.GetMethod())

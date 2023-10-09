@@ -63,7 +63,7 @@ enum class EffectType
 class Effect
 {
 public:
-	Effect(EffectType type, int duration, float effectiveness)
+	Effect(const EffectType& type, const int& duration, const float& effectiveness)
 		:
 		type(type),
 		duration(duration),
@@ -84,8 +84,7 @@ class Status //container for current effects
 {
 public:
 	Status() = default;
-
-	void AddActiveEffect(Effect effect)
+	void AddActiveEffect(const Effect& effect)
 	{
 	
 		bool preexisting = false;
@@ -107,7 +106,7 @@ public:
 			Active.emplace_back(&AllEffects.back());
 		}
 	}
-	void AddPassiveEffect(Effect effect)
+	void AddPassiveEffect(const Effect& effect)
 	{
 		bool preexisting = false;
 		for (auto& e : AllEffects)
@@ -170,7 +169,7 @@ public:
 			assert(true); //why are we removing something that doesn't exist??
 		}
 	}
-	std::vector<Effect> getEffects() const 
+	const std::vector<Effect>& getEffects() const 
 	{
 		return AllEffects;
 	}
@@ -216,7 +215,7 @@ public:
 	 virtual void InitiateCheck(std::vector<std::string>& stateStack) const {}
 
 	 bool returnAtTickEnd() const { return returnAtTickEndFlag; }
-	 Method& GetMethod() { return method; }
+	 const Method& GetMethod() { return method; }
 protected:
 	bool returnAtTickEndFlag = false;
 	Method method = Method::None;
@@ -225,7 +224,7 @@ protected:
 class DiceThrow : public HitMethod
 {
 public:
-	DiceThrow(Stat bonus)
+	DiceThrow(const Stat& bonus)
 		:
 		bonus(bonus)
 	{}
@@ -249,7 +248,7 @@ public:
 			return Outcome::Miss;
 		}
 	}
-	const Stat GetBonusStat() const { return bonus; }
+	const Stat& GetBonusStat() const { return bonus; }
 private:
 	Method method = Method::DiceThrow;
 	Stat bonus;
@@ -258,7 +257,7 @@ private:
 class Guaranteed : public HitMethod
 {
 public:
-	Guaranteed(Outcome outcome)
+	Guaranteed(const Outcome& outcome)
 		:
 		outcome(outcome)
 	{}
@@ -273,7 +272,7 @@ private:
 class QTE : public HitMethod
 {
 public:
-	QTE(int difficulty, std::string action_name)
+	QTE(const int& difficulty, const std::string& action_name)
 		:
 		action_name(action_name),
 		difficulty(difficulty)
@@ -314,7 +313,7 @@ public:
 		stateStack.emplace_back("QTE" + std::to_string(difficulty));
 	}
 private:
-	std::string action_name;
+	std::string action_name; //should get automatically written down the line
 	int code; //code to determine uniqueness for stateStack strings. An unlikely disaster (hopefully minor) waiting to happen
 	bool returnAtTickEndFlag = true;
 	int difficulty; //1-10
@@ -324,6 +323,7 @@ private:
 class Criteria
 {
 public:
+	Criteria() = default;
 	Criteria(const std::vector<EffectType>& required, const std::vector<EffectType>& prohibited)
 		:
 		Required(required),
@@ -358,20 +358,20 @@ private:
 class Application
 {
 public:
-	Application(int tick, std::vector<Effect> effects, std::unique_ptr<HitMethod> HitMethod)
+	Application(const int& tick, const std::vector<Effect>& effects, const HitMethod& hitMethod)
 		:
 		tick(tick),
 		effects(effects),
-		HitMethod(std::move(HitMethod))
+		HitMethod(hitMethod)
 	{}
 
 	int GetTick() const { return tick; }
 	std::vector<Effect> GetEffects() const { return effects; }
-	HitMethod& GetHitMethod() const { return *HitMethod; }
+	const HitMethod& GetHitMethod() const { return HitMethod; }
 private:
 	int tick;
 	std::vector<Effect> effects;
-	std::unique_ptr<HitMethod> HitMethod;
+	HitMethod HitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
 	
 };
 
@@ -379,7 +379,7 @@ class Action
 {
 public:
 	Action() = default;
-	Action(int maxTicks, std::vector<Application> ApplicationVector, Criteria criteria, float range)
+	Action(const int& maxTicks, const std::vector<Application>& ApplicationVector, const Criteria& criteria, const float& range)
 		:
 		ApplicationVector(ApplicationVector),
 		maxTicks(maxTicks),
@@ -389,12 +389,12 @@ public:
 
 	int GetMaxTicks() const { return maxTicks; }
 
-	Application& GetApplicationByTick(int tick) //could be multiple applications per tick
+	Application& GetApplicationByTick(const int& tick) //could be multiple applications per tick
 	{
 		return ApplicationVector[tick];	
 	}
 
-	bool CheckCriteria(Status& status)
+	bool CheckCriteria(const Status& status)
 	{
 		bool failed = false;
 		if (criteria.HasProhibitions())
@@ -425,11 +425,10 @@ public:
 	
 
 private:
-	int maxTicks;
+	int maxTicks = -1;
 	std::vector<Application> ApplicationVector;
 	Criteria criteria;
-	float range; //I wanted to put this in criteria, but criteria is only dealing with effects rn
+	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
 };
 
 static Action Idle;
-

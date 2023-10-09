@@ -78,7 +78,7 @@ private:
 
 	World world;
 	Surface dude = Surface("Images//link90x90.bmp");
-	Entity guy = Entity(dude, Vec2( 400.0f,400.0f ));
+	Entity guy = Entity(dude); // , Vec2(400.0f, 400.0f));
 	std::vector<SelectionMenu*> Stack;
 	LineI line;
 	Camera cam;
