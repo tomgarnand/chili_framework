@@ -254,11 +254,7 @@ private:
 
 
 	//data
-	Action Slash = Action( 5,
-		{
-			{3, ApplicationType::Physical, 10},
-			{4, ApplicationType::Stun, 1}
-		});
+	
 	
 
 };

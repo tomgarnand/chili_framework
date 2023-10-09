@@ -178,7 +178,6 @@
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SpriteEffect.h" />
-    <ClInclude Include="Status.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="TMXLoader\RapidXML\rapidxml.hpp" />
     <ClInclude Include="TMXLoader\RapidXML\rapidxml_iterators.hpp" />

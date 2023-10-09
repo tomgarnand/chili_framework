@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include "Mat3.h"
+#include <random>
 
 constexpr double PI_D = 3.141592653589793238462643383279;
 constexpr float PI = (float)PI_D;
@@ -40,3 +41,43 @@ T DistancePointLine(const Vec2_<T>& p0, const Vec2_<T>& p1, const Vec2_<T>& q)
 	return false;
 }
 
+ class Dice
+ {
+ public:
+	 Dice()
+		 :
+		 rng(rd)
+	 {}
+
+	 int Roll20() const
+	 {
+		 std::uniform_int_distribution<int> distribution(1, 20);
+		 return distribution(rng);
+	 }
+	 int Roll20()
+	 {
+		 std::uniform_int_distribution<int> distribution(1, 20);
+		 return distribution(rng);
+	 }
+	 int Roll99999()
+	 {
+		 std::uniform_int_distribution<int> distribution(10000, 99999);
+		 return distribution(rng);
+	 }
+
+ private:
+	 std::random_device rd;
+	 std::mt19937 rng;
+
+ };
+
+ static Dice dice;
+
+ enum class Outcome : int
+ {
+	 CriticalHit = 2,
+	 CriticalMiss = 0,
+	 Hit = 1,
+	 Miss = 0,
+	 NotApplicable = 0
+ };
