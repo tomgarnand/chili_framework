@@ -26,13 +26,11 @@ public:
 	{
 		if (vel != Vec2(0.0f, 0.0f))
 		{
-			pos[current_map] = world.CheckAndAdjustMovement(pos[current_map], pos[current_map] + (vel * dt), radius);
-			//animation[current_action].Update(dt);
-			auto it = animation.find(current_action);
-			if (it != animation.end()) {
-				it->second.Update(dt);
-			}
-			
+			pos[current_map] = world.CheckAndAdjustMovement(pos[current_map], pos[current_map] + (vel * dt), radius);		
+		}
+		auto it = animation.find(current_action);
+		if (it != animation.end()) {
+			it->second.Update(dt);
 		}
 
 		if (effectActive)
