@@ -76,6 +76,11 @@ public:
 		DrawSprite(GetVec2(ma),  s, effect);
 	}
 	template<typename E>
+	void DrawSprite(Mat3 ma, RectI srcRect, const Surface& s, E effect)
+	{
+		DrawSprite((int)GetVec2(ma).x, (int)GetVec2(ma).y, srcRect, GetScreenRect(), s, effect);
+	}
+	template<typename E>
 	void DrawSprite(Vec2 pos, const Surface& s, E effect)
 	{
 		DrawSprite((int)pos.x, (int)pos.y, s.GetRect(), s, effect);

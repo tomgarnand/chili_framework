@@ -32,6 +32,7 @@ public:
 		stats(stats)
 		
 	{
+
 		current_map = starting_pos.first;
 		pos[current_map] = starting_pos.second;
 		//defaults
@@ -67,9 +68,24 @@ public:
 
 	Drawable GetDrawable(const std::string& map) const
 	{
-		Drawable d( src );
+		Drawable d(src);
+
+		Vec2 currentPos;
+		auto it = pos.find(current_map);
+		if (it != pos.end())
+		{
+			currentPos = it->second;
+		}
+		RectI currentFrame;
+		auto it2 = animation.find(current_action);
+		if (it2 != animation.end())
+		{
+			currentFrame = it2->second.GetSourceRect();
+			d.AddSourceRect(currentFrame);
+		}
+		
 		d.ApplyTransformation(
-			Mat3::Translation( pos.at(map).x,pos.at(map).y ) *
+			Mat3::Translation(currentPos.x, currentPos.y ) *
 			Mat3::Scale( scale ) *
 			Mat3::Rotation( angle )
 		);
@@ -80,6 +96,7 @@ public:
 	void Update(const World& world, float dt);
 	void effectActivate();
 	void AddAction(Action* action_in, Animation animation_in);
+	
 
 	int GetArmorClass() const { return ArmorClass; }
 	const Attributes& GetStats() const { return stats; }
@@ -127,4 +144,7 @@ protected:
 	//Trigger triggerType
 	bool trigger_check = false;
 	std::string scenario_keyword;
+
+public:
+	static Action* Idle;
 };

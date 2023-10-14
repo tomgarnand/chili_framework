@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-
+Action* Entity::Idle = new Action();
 
 void Entity::Draw(Graphics& gfx) const
 {
@@ -45,6 +45,7 @@ void Entity::AddAction(Action* action_in, Animation animation_in)
 {
 	action_pool.emplace_back(action_in);
 	animation.emplace(action_in, animation_in);
+
 }
 
 void Entity::EndTick(std::vector<std::string>& stateStack)

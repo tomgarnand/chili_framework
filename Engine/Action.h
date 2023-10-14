@@ -184,6 +184,7 @@ public:
 				}
 			}
 		}
+		return false;
 	}
 
 private:
@@ -423,4 +424,4 @@ private:
 	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
 };
 
-static Action* Idle = new Action();
+

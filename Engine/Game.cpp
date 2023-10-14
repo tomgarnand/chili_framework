@@ -66,13 +66,15 @@ Game::Game(MainWindow& wnd)
 	//StandingDown  ;
 
 	player.AddAction(WalkingLeft, link_animations[0]);
-	player.AddAction(WalkingRight, link_animations[1]);
-	player.AddAction(WalkingUp, link_animations[2]);
-	player.AddAction(WalkingDown, link_animations[3]);
-	player.AddAction(StandingLeft, link_animations[4]);
-	player.AddAction(StandingRight, link_animations[5]);
-	player.AddAction(StandingUp, link_animations[6]);
-	player.AddAction(StandingDown, link_animations[7]);
+	//player.AddAction(WalkingRight, link_animations[1]);
+	//player.AddAction(WalkingUp, link_animations[2]);
+	//player.AddAction(WalkingDown, link_animations[3]);
+	//player.AddAction(StandingLeft, link_animations[4]);
+	//player.AddAction(StandingRight, link_animations[5]);
+	//player.AddAction(StandingUp, link_animations[6]);
+	//player.AddAction(StandingDown, link_animations[7]);
+	player.AddAction(Entity::Idle, link_animations[7]);
+
 }
 
 void Game::Go()
@@ -150,7 +152,7 @@ void Game::UpdateModel()
 		}
 		case (Command::SELECT):
 		{
-			player.QueueAction(Idle, {});
+			player.QueueAction(Entity::Idle, {});
 			break;
 		}
 		}

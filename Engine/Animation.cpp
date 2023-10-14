@@ -46,6 +46,11 @@ void Animation::Update(float dt)
 	
 }
 
+RectI Animation::GetSourceRect() const
+{
+	return frames[iCurFrame];
+}
+
 void Animation::Advance()
 {
 	++iCurFrame;
