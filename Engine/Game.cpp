@@ -86,7 +86,9 @@ void Game::Go()
 void Game::UpdateModel()
 {
 	float dt = ft.Mark();
-	Vec2 dir = { 0.0f, 0.0f };
+	TickTimer += dt;
+
+	//Vec2 dir = { 0.0f, 0.0f };
 
 	const auto e = wnd.kbd.ReadKey();
 	if (e.IsPress())
@@ -158,7 +160,39 @@ void Game::UpdateModel()
 	player.Update(world, dt);
 	
 	
+	
+	
+	if (TickLive)
+	{
+		if (TickTimer > maxTickDuration)
+		{
+			TickLive = false;
+			TickTimer = TickTimer - maxTickDuration; // ~0.0f
+			player.EndTick(StateStack); //don't check for idleness because idle is default next_action
+			for (Entity* unit : entities)
+			{
+				unit->EndTick(StateStack);
+			}
+		}
+	}
+	if (!TickLive)
+	{
+		if (player.IsActionEnded() == true && player.IsActionQueued())
+		{
+			player.StartAction(player.GetQueuedAction(), player.GetQueuedTargets() ); 
+		}
+		player.StartTick(StateStack);
+		for (Entity* unit : entities)
+		{
+			if (unit->IsActionEnded() == true)
+			{
+				unit->Update(world, dt); //hmmm
 
+			}
+			unit->StartTick(StateStack);
+		}
+		TickLive = true;
+	}
 	
 	
 
@@ -181,6 +215,6 @@ void Game::ComposeFrame()
 	}
 	
 	cam.Draw(player.GetDrawable(current_map));
-	cam.Draw(npc1.GetDrawable(current_map));
+	//cam.Draw(npc1.GetDrawable(current_map));
 
 }

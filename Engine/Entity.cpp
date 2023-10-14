@@ -59,61 +59,65 @@ void Entity::EndTick(std::vector<std::string>& stateStack)
 	
 	else
 	{
-		HitMethod HitMethod = current_action->GetApplicationByTick(tick).GetHitMethod();
-		std::vector<Outcome> out(targets.size());
-		Outcome i_out;
-		switch (HitMethod.GetMethod())
+		//need behavior if there is no hitmethod or even application
+		if (current_action->GetApplicationByTick(tick) != nullptr)
 		{
-		case(Method::DiceThrow):
-		{
-
-			int roll = d20.roll();
-			if (roll == 1)
+			HitMethod HitMethod = current_action->GetApplicationByTick(tick)->GetHitMethod();
+			std::vector<Outcome> out(targets.size());
+			Outcome i_out;
+			switch (HitMethod.GetMethod())
 			{
-				out.emplace_back(Outcome::CriticalMiss);
+			case(Method::DiceThrow):
+			{
+
+				int roll = d20.roll();
+				if (roll == 1)
+				{
+					out.emplace_back(Outcome::CriticalMiss);
+					break;
+				}
+				else
+				{
+					for (Entity* target : targets)
+					{
+
+						i_out = dynamic_cast<DiceThrow&>(HitMethod).CheckSuccess(roll,
+							stats.getStat(dynamic_cast<DiceThrow&>(HitMethod).GetBonusStat()),
+							target->GetArmorClass(),
+							target->GetStats().getStat(Stat::Dexterity)
+						);
+						out.emplace_back(i_out);
+					}
+				}
 				break;
 			}
-			else
+			case(Method::QTE):
 			{
 				for (Entity* target : targets)
 				{
 
-					i_out = dynamic_cast<DiceThrow&>(HitMethod).CheckSuccess(roll,
-						stats.getStat(dynamic_cast<DiceThrow&>(HitMethod).GetBonusStat()),
-						target->GetArmorClass(),
-						target->GetStats().getStat(Stat::Dexterity)
-					);
+					i_out = dynamic_cast<QTE&>(HitMethod).CheckSuccess(stateStack);
 					out.emplace_back(i_out);
 				}
+				break;
 			}
-			break;
-		}
-		case(Method::QTE):
-		{
+
+			}
+			int i = 0;
+
+			for (auto& o : out)
+			{
+				if (o == Outcome::CriticalMiss)
+				{
+					Apply(current_action->GetApplicationByTick(tick), Outcome::Hit); //design choice, self apply on critical miss
+					goto skip_apply;
+				}
+			}
 			for (Entity* target : targets)
 			{
-
-				i_out = dynamic_cast<QTE&>(HitMethod).CheckSuccess(stateStack);
-				out.emplace_back(i_out);
+				target->Apply(current_action->GetApplicationByTick(tick), out[i]);
+				i++;
 			}
-			break;
-		}
-
-		}
-		int i = 0;
-
-		for (auto& o : out)
-		{
-			if (o == Outcome::CriticalMiss)
-			{
-				Apply(current_action->GetApplicationByTick(tick), Outcome::Hit); //design choice, self apply on critical miss
-				goto skip_apply;
-			}
-		}
-		for (Entity* target : targets)
-		{
-			target->Apply(current_action->GetApplicationByTick(tick), out[i]);
-			i++;
 		}
 	skip_apply:{}
 	}
@@ -127,9 +131,9 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 	if (current_action->CheckCriteria(statuses) ) // && current_action.CheckRange())  and range check?? 
 	{
 		tick++;
-		if (current_action->GetApplicationByTick(tick).GetHitMethod().returnAtTickEnd())
+		if (current_action->GetApplicationByTick(tick)->GetHitMethod().returnAtTickEnd())
 		{
-			current_action->GetApplicationByTick(tick).GetHitMethod().InitiateCheck(stateStack);
+			current_action->GetApplicationByTick(tick)->GetHitMethod().InitiateCheck(stateStack);
 		}
 	}
 	else
@@ -149,16 +153,16 @@ void Entity::StartAction(Action* action, const std::vector<Entity*> targets_in)
 
 bool Entity::IsActionEnded()
 {
-	if (tick == -1)
+	if (tick == 0 || tick == -1)
 	{
 		return true;
 	}
 	return false;
 }
 
-void Entity::Apply(const Application& app, const Outcome& out)
+void Entity::Apply(const Application* app, const Outcome& out)
 {
-	for (auto& effect : app.GetEffects())
+	for (auto& effect : app->GetEffects())
 	{
 		if (out == Outcome::CriticalHit)
 		{

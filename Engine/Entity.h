@@ -88,7 +88,7 @@ public:
 	void StartTick(std::vector<std::string>& stateStack);
 	void StartAction(Action* action, std::vector<Entity*> targets_in);
 	bool IsActionEnded();
-	void Apply(const Application& app, const Outcome& out);
+	void Apply(const Application* app, const Outcome& out);
 
 	//void Update(std::string current_map, const Entity& player);
 
@@ -116,7 +116,7 @@ protected:
 	std::vector<Entity*> targets = {};
 	std::vector<Action*> past_actions = {};
 	std::vector<Action*> action_pool = {};
-	int tick;
+	int tick = -1;
 
 
 	Attributes stats;

@@ -68,6 +68,9 @@ private:
 	/*  User Variables              */
 	ControlConfig config;
 	FrameTimer ft;
+	bool TickLive = false;
+	float TickTimer = 0.0f;
+	float maxTickDuration = 5.0f;
 
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Surface link = Surface("Images//link90x90.bmp");
@@ -75,6 +78,7 @@ private:
 
 	World world;
 	std::string current_map = "testmap";
+	std::vector<std::string> StateStack;
 
 	GameState state = GameState::Moving;
 	GUI gui;
@@ -88,16 +92,18 @@ private:
 	Player player;
 	Entity npc1;
 
+	std::vector<Entity*> entities;
+
 	std::vector<Animation> link_animations;
 
-	Action* WalkingLeft   ;
-	Action* WalkingRight  ;
-	Action* WalkingUp     ;
-	Action* WalkingDown   ;
-	Action* StandingLeft  ;
-	Action* StandingRight ;
-	Action* StandingUp    ;
-	Action* StandingDown  ;
+	Action* WalkingLeft   = new Action();
+	Action* WalkingRight  = new Action();
+	Action* WalkingUp     = new Action();
+	Action* WalkingDown   = new Action();
+	Action* StandingLeft  = new Action();
+	Action* StandingRight = new Action();
+	Action* StandingUp    = new Action();
+	Action* StandingDown  = new Action();
 
 
 	/********************************/

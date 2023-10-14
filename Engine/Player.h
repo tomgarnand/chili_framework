@@ -13,14 +13,30 @@ public:
 	
 	}
 
-	void QueueAction(const Action* action, const std::vector<Entity*> targets)
+	void QueueAction(Action* action, const std::vector<Entity*> targets)
 	{
 		QueuedAction = action;
 		QueuedTargets = targets;
+		ActionIsQueued = true;
 	}
-	const Action* GetQueuedAction() const
+	void StartAction(Action* action, const std::vector<Entity*> targets_in)
+	{
+		ActionIsQueued = false;
+		tick = 0;
+		current_action = action;
+		targets = targets_in;
+	}
+	bool IsActionQueued() const
+	{
+		return ActionIsQueued;
+	}
+	Action* GetQueuedAction() const
 	{
 		return QueuedAction;
+	}
+	std::vector<Entity*> GetQueuedTargets() const
+	{
+		return QueuedTargets;
 	}
 	void Update(const World& world, float dt)
 	{
@@ -46,6 +62,7 @@ public:
 	
 
 private:
-	const Action* QueuedAction = nullptr;
+	Action* QueuedAction = nullptr;
 	std::vector<Entity*> QueuedTargets;
+	bool ActionIsQueued = false;
 };

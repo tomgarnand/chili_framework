@@ -359,7 +359,7 @@ public:
 
 	int GetTick() const { return tick; }
 	std::vector<Effect> GetEffects() const { return effects; }
-	const HitMethod& GetHitMethod() const { return HitMethod; }
+	const HitMethod GetHitMethod() const { return HitMethod; }
 private:
 	int tick;
 	std::vector<Effect> effects;
@@ -371,7 +371,7 @@ class Action
 {
 public:
 	Action() = default;
-	Action(const int& maxTicks, const std::vector<Application>& ApplicationVector, const Criteria& criteria, const float& range)
+	Action(const int& maxTicks, std::vector<Application*> ApplicationVector, const Criteria& criteria, const float& range)
 		:
 		ApplicationVector(ApplicationVector),
 		maxTicks(maxTicks),
@@ -381,7 +381,7 @@ public:
 
 	int GetMaxTicks() const { return maxTicks; }
 
-	Application& GetApplicationByTick(const int& tick) //could be multiple applications per tick
+	Application* GetApplicationByTick(const int& tick) //could be multiple applications per tick
 	{
 		return ApplicationVector[tick];	
 	}
@@ -417,8 +417,8 @@ public:
 	
 
 private:
-	int maxTicks = -1;
-	std::vector<Application> ApplicationVector = {};
+	int maxTicks = -1; //uninitialized value, aka lasts forever
+	std::vector<Application*> ApplicationVector = { nullptr };
 	Criteria criteria;
 	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
 };
