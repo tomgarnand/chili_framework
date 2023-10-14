@@ -1,9 +1,56 @@
 #include "Entity.h"
 
+
+
+void Entity::Draw(Graphics& gfx) const
+{
+	Vec2 currentPos;
+	auto it = pos.find(current_map);
+	if (it != pos.end()) 
+	{
+		currentPos = it->second;
+	}
+	if (effectActive)
+	{
+		auto it = animation.find(current_action);
+		if (it != animation.end()) 
+		{
+			it->second.DrawColor(currentPos, Colors::White, gfx);
+		}
+	}
+	else
+	{
+		auto it = animation.find(current_action);
+		if (it != animation.end()) 
+		{
+			it->second.Draw(currentPos, gfx);
+		}
+	}
+}
+
+void Entity::Update(const World& world, float dt)
+{
+	//run behaviour script
+}
+
+
+
+void Entity::effectActivate()
+{
+	effectActive = true;
+	effectTime = 0.0f;
+}
+
+void Entity::AddAction(Action* action_in, Animation animation_in)
+{
+	action_pool.emplace_back(action_in);
+	animation.emplace(action_in, animation_in);
+}
+
 void Entity::EndTick(std::vector<std::string>& stateStack)
 {
 
-	if (tick == current_action.GetMaxTicks())
+	if (tick == current_action->GetMaxTicks())
 	{
 		tick = -1;
 		past_actions.emplace_back(current_action);
@@ -12,66 +59,77 @@ void Entity::EndTick(std::vector<std::string>& stateStack)
 	
 	else
 	{
-		HitMethod HitMethod = current_action.GetApplicationByTick(tick).GetHitMethod();
+		HitMethod HitMethod = current_action->GetApplicationByTick(tick).GetHitMethod();
 		std::vector<Outcome> out(targets.size());
 		Outcome i_out;
 		switch (HitMethod.GetMethod())
 		{
-			case(Method::DiceThrow):
-			{
+		case(Method::DiceThrow):
+		{
 
-				int roll = d20.roll();
-				if (roll == 1) { out.emplace_back(Outcome::CriticalMiss); break; }
-				for (Entity& target : targets)
+			int roll = d20.roll();
+			if (roll == 1)
+			{
+				out.emplace_back(Outcome::CriticalMiss);
+				break;
+			}
+			else
+			{
+				for (Entity* target : targets)
 				{
 
 					i_out = dynamic_cast<DiceThrow&>(HitMethod).CheckSuccess(roll,
 						stats.getStat(dynamic_cast<DiceThrow&>(HitMethod).GetBonusStat()),
-						target.GetArmorClass(),
-						target.GetStats().getStat(Stat::Dexterity)
+						target->GetArmorClass(),
+						target->GetStats().getStat(Stat::Dexterity)
 					);
 					out.emplace_back(i_out);
 				}
 			}
-			case(Method::QTE):
+			break;
+		}
+		case(Method::QTE):
+		{
+			for (Entity* target : targets)
 			{
-				for (Entity& target : targets)
-				{
 
-					i_out = dynamic_cast<QTE&>(HitMethod).CheckSuccess(stateStack);
-					out.emplace_back(i_out);
-				}
+				i_out = dynamic_cast<QTE&>(HitMethod).CheckSuccess(stateStack);
+				out.emplace_back(i_out);
 			}
+			break;
+		}
+
 		}
 		int i = 0;
-		
+
 		for (auto& o : out)
 		{
 			if (o == Outcome::CriticalMiss)
 			{
-				Apply(current_action.GetApplicationByTick(tick), Outcome::Hit);
+				Apply(current_action->GetApplicationByTick(tick), Outcome::Hit); //design choice, self apply on critical miss
 				goto skip_apply;
 			}
 		}
-		for (Entity& target : targets)
+		for (Entity* target : targets)
 		{
-			target.Apply(current_action.GetApplicationByTick(tick), out[i]);
+			target->Apply(current_action->GetApplicationByTick(tick), out[i]);
 			i++;
 		}
-		skip_apply:
+	skip_apply:{}
 	}
+
 }
 
 void Entity::StartTick(std::vector<std::string>& stateStack)
 {
 	//re check criteria
 	//if you are still able to take the action
-	if (current_action.CheckCriteria(statuses) ) // && current_action.CheckRange())  and range check?? 
+	if (current_action->CheckCriteria(statuses) ) // && current_action.CheckRange())  and range check?? 
 	{
 		tick++;
-		if (current_action.GetApplicationByTick(tick).GetHitMethod().returnAtTickEnd())
+		if (current_action->GetApplicationByTick(tick).GetHitMethod().returnAtTickEnd())
 		{
-			current_action.GetApplicationByTick(tick).GetHitMethod().InitiateCheck(stateStack);
+			current_action->GetApplicationByTick(tick).GetHitMethod().InitiateCheck(stateStack);
 		}
 	}
 	else
@@ -82,7 +140,7 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 	
 }
 
-void Entity::StartAction(const Action& action, const std::vector<Entity&> targets_in)
+void Entity::StartAction(Action* action, const std::vector<Entity*> targets_in)
 {
 	tick = 0;
 	current_action = action;
@@ -106,7 +164,7 @@ void Entity::Apply(const Application& app, const Outcome& out)
 		{
 			effect.IncreaseEffectiveness(effect.GetEffectiveness() * static_cast<int>(out));
 		}
-		statuses.AddActiveEffect(effect);
+		statuses.AddEffect(effect.GetCategory(), effect);
 
 		//queue visual/sound effects
 	}

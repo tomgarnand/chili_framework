@@ -25,7 +25,7 @@
 #include "Graphics.h"
 #include "Surface.h"
 #include "FrameTimer.h"
-#include "Character.h"
+
 #include "Font.h"
 #include "Sound.h"
 #include "GUI.h"
@@ -68,13 +68,18 @@ private:
 	/*  User Variables              */
 	ControlConfig config;
 	FrameTimer ft;
+
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
-	
+	Surface link = Surface("Images//link90x90.bmp");
 	Sound hover = { L"Sounds//menu_boop.wav" };
+
+	World world;
+	std::string current_map = "testmap";
+
 	GameState state = GameState::Moving;
 	GUI gui;
-	MenuProcessing menu;
 
+	MenuProcessing menu;
 	std::vector<SelectionMenu*> Stack;
 
 	Camera cam;
@@ -82,5 +87,18 @@ private:
 
 	Player player;
 	Entity npc1;
+
+	std::vector<Animation> link_animations;
+
+	Action* WalkingLeft   ;
+	Action* WalkingRight  ;
+	Action* WalkingUp     ;
+	Action* WalkingDown   ;
+	Action* StandingLeft  ;
+	Action* StandingRight ;
+	Action* StandingUp    ;
+	Action* StandingDown  ;
+
+
 	/********************************/
 };

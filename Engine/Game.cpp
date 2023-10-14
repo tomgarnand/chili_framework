@@ -30,12 +30,49 @@ Game::Game(MainWindow& wnd)
 	gfx(wnd),
 	gui(),
 	menu(),
-	cam(gfx)
-
+	cam(gfx),
+	player(link, Attributes(), { current_map, {100,100}}),
+	npc1(link, Attributes(), { current_map, {200,200} }),
+	world()
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
 	Stack.emplace_back(gui.pGetMainMenu());
+
 	
+	//WalkingLeft = 0
+	//WalkingRight,
+	//WalkingUp,
+	//WalkingDown,
+	//StandingLeft,
+	//StandingRight,
+	//StandingUp,
+	//StandingDown = 7
+	//Count
+	for (int i = 0; i < 4; i++)
+	{
+		link_animations.emplace_back(Animation(90, 90 * i, 90, 90, 4, link, 0.16f));
+	}
+	for (int i = 4; i < 8; i++)
+	{
+		link_animations.emplace_back(Animation(0, 90 * (i - 4), 90, 90, 1, link, 0.16f));
+	}
+	//WalkingLeft   ;
+	//WalkingRight  ;
+	//WalkingUp     ;
+	//WalkingDown   ;
+	//StandingLeft  ;
+	//StandingRight ;
+	//StandingUp    ;
+	//StandingDown  ;
+
+	player.AddAction(WalkingLeft, link_animations[0]);
+	//player.AddAction(WalkingRight, link_animations[1]);
+	//player.AddAction(WalkingUp, link_animations[2]);
+	//player.AddAction(WalkingDown, link_animations[3]);
+	//player.AddAction(StandingLeft, link_animations[4]);
+	//player.AddAction(StandingRight, link_animations[5]);
+	//player.AddAction(StandingUp, link_animations[6]);
+	//player.AddAction(StandingDown, link_animations[7]);
 }
 
 void Game::Go()
@@ -48,43 +85,72 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	
+	float dt = ft.Mark();
 	Vec2 dir = { 0.0f, 0.0f };
 
 	const auto e = wnd.kbd.ReadKey();
 	if (e.IsPress())
 	{
-		switch(config.GetCommand(e.GetCode()))
-			case (Command::MAIN_MENU) :
+		switch (config.GetCommand(e.GetCode()))
 		{
-			state == GameState::Menu ? state = GameState::Moving : state = GameState::Menu;
+		case (Command::MAIN_MENU):
+		{
+			state = (state == GameState::Menu) ? GameState::Moving : GameState::Menu; //toggle
 			break;
 		}
-		
-	}
-	if (true) //state == State::World)
-	{
-		if (wnd.kbd.KeyIsPressed(VK_RIGHT))
+		case (Command::MOVE_RIGHT):
 		{
-			dir.x += 1.0f;
-		}
-		else if (wnd.kbd.KeyIsPressed(VK_LEFT))
+		if (state == GameState::Moving)
 		{
-			dir.x -= 1.0f;
+			player.QueueAction(WalkingRight, {});
 		}
-		else if (wnd.kbd.KeyIsPressed(VK_DOWN))
+		else if (state == GameState::Menu)
 		{
-			dir.y += 1.0f;
+			//implement keyboard menu controls
 		}
-		else if (wnd.kbd.KeyIsPressed(VK_UP))
+		break;
+		}
+		case (Command::MOVE_LEFT):
 		{
-			dir.y -= 1.0f;
+			if (state == GameState::Moving)
+			{
+				player.QueueAction(WalkingLeft, {});
+			}
+			else if (state == GameState::Menu)
+			{
+				//implement keyboard menu controls
+			}
+			break;
 		}
-		if (wnd.kbd.KeyIsPressed(VK_SPACE))
-		{	
+		case (Command::MOVE_DOWN):
+		{
+			if (state == GameState::Moving)
+			{
+				player.QueueAction(WalkingDown, {});
+			}
+			else if (state == GameState::Menu)
+			{
+				//implement keyboard menu controls
+			}
+			break;
+		}
+		case (Command::MOVE_UP):
+		{
+			if (state == GameState::Moving)
+			{
+				player.QueueAction(WalkingUp, {});
+			}
+			else if (state == GameState::Menu)
+			{
+				//implement keyboard menu controls
+			}
+			break;
+		}
 		}
 	}
 	
+
+	player.Update(world, dt);
 	
 	
 
@@ -109,6 +175,7 @@ void Game::ComposeFrame()
  		menu.DrawGUI(Stack, gfx, gui.GetFont());
 	}
 	
-	
+	cam.Draw(player.GetDrawable(current_map));
+	cam.Draw(npc1.GetDrawable(current_map));
 
 }

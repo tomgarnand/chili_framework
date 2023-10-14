@@ -31,7 +31,7 @@ public:
 		config[VK_DOWN  ] = Command::MOVE_DOWN   ;
 		config[VK_LSHIFT] = Command::ACTION	     ;
 	}
-	Command GetCommand(unsigned char keycode)
+	Command GetCommand(unsigned char keycode) //given a keycode, return a Command
 	{
 		//TODO: work through error handling (as implemented below) or use map[value] method (where a poorly written function could assign unmapped key presses)
 		try 

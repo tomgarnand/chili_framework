@@ -78,7 +78,7 @@ public:
 					//SDL_Rect srcrect = { ((tileID - 1) % 3) * tileWidth, ((tileID - 1) / 3) * tileHeight, tileWidth, tileHeight };
 					//SDL_Rect dstrect = { (int)i * 25, (int)j * 25, 25, 25 };
 					//SDL_RenderCopy(renderer, texture, &srcrect, &dstrect);
-					gfx.DrawSprite((int)i * tileWidth, (int)j * tileHeight, tiles[tileID - 1], spritesheet, SpriteEffect::Chroma{ Colors::Magenta });
+					gfx.DrawSprite((int)i * tileWidth, (int)j * tileHeight, tiles[(int)tileID - 1], spritesheet, SpriteEffect::Chroma{ Colors::Magenta });
 				}
 			}
 		}

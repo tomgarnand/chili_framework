@@ -166,7 +166,7 @@ public:
 						//hover.Play();
 					}
 
-					return &check->GetSelectionItems()[(check->GetScrollOffset() * check->GetBoxMenu().GetNumRows()) + i];
+					return &check->GetSelectionItems()[((int)check->GetScrollOffset() * check->GetBoxMenu().GetNumRows()) + i];
 				}
 			}
 			if (!oneHit && !check->GetBoxMenu().MenuIsHit(e.GetPos()))

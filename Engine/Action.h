@@ -2,7 +2,7 @@
 #include <map>
 #include <random>
 #include "Util.h"
-
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <algorithm>
@@ -92,6 +92,7 @@ public:
 		effectiveness(effectiveness)
 	{}
 	EffectType GetType() const { return type; }
+	EffectCategory GetCategory() const { return cat; }
 	int GetDuration() const { return duration; }
 	float GetEffectiveness() const { return effectiveness; }
 	void SetDuration(const int& newDuration) { duration = newDuration; }
@@ -214,7 +215,6 @@ protected:
 	bool returnAtTickEndFlag = false;
 	Method method = Method::None;
 };
-
 class DiceThrow : public HitMethod
 {
 public:
@@ -247,7 +247,6 @@ private:
 	Method method = Method::DiceThrow;
 	Stat bonus;
 };
-
 class Guaranteed : public HitMethod
 {
 public:
@@ -262,7 +261,6 @@ public:
 private:
 	Outcome outcome;
 };
-
 class QTE : public HitMethod
 {
 public:
@@ -342,8 +340,8 @@ public:
 private:
 	bool requirements = false;
 	bool prohibitions = false;
-	std::vector<EffectType> Required;
-	std::vector<EffectType> Prohibited;
+	std::vector<EffectType> Required = {};
+	std::vector<EffectType> Prohibited = {};
 	//for now, 
 	//if a requirement is missing, hide the action in selection
 	//if a prohibition is missing, cross out the action in selection and make it unselectable
@@ -420,9 +418,9 @@ public:
 
 private:
 	int maxTicks = -1;
-	std::vector<Application> ApplicationVector;
+	std::vector<Application> ApplicationVector = {};
 	Criteria criteria;
 	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
 };
 
-static Action* Idle;
+static Action* Idle = new Action();
