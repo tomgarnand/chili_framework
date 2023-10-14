@@ -37,6 +37,7 @@
 #include "ProcessMenu.h"
 #include "Camera.h"
 #include "Entity.h"
+#include "Player.h"
 #include "ControlConfig.h"
 
 class Game
@@ -69,17 +70,17 @@ private:
 	FrameTimer ft;
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	
-
 	Sound hover = { L"Sounds//menu_boop.wav" };
 	GameState state = GameState::Moving;
 	GUI gui;
 	MenuProcessing menu;
 
-	
-	
-	
 	std::vector<SelectionMenu*> Stack;
 
 	Camera cam;
+
+
+	Player player;
+	Entity npc1;
 	/********************************/
 };

@@ -15,11 +15,9 @@ enum class Stat
 	Charisma,     //social ability
 	Constitution, //special resistance, hitpoints, mental & physical fortitude, endurance
 	Strength,	  //physical strength
-	Fortitude,	  //physical toughness
 	Dexterity,	  //quickness, sleight of hand, agility. Ability to complete complicated tasks and avoid 
 	Intelligence, //knowledge, aptitude
-	Awareness,	  //environmental awareness
-	Willpower	  //mental toughness
+	Wisdom	  //environmental awareness
 };
 
 class Attributes
@@ -29,6 +27,20 @@ public:
 	{
 		//default values
 		stats[Stat::Charisma] = 10;
+		stats[Stat::Constitution] = 10;
+		stats[Stat::Strength] = 10;
+		stats[Stat::Dexterity] = 10;
+		stats[Stat::Intelligence] = 10;
+		stats[Stat::Wisdom] = 10;
+	}
+	Attributes(int cha, int con, int str, int dex, int intel, int wis)
+	{
+		stats[Stat::Charisma] = cha;
+		stats[Stat::Constitution] = con;
+		stats[Stat::Strength] = str;
+		stats[Stat::Dexterity] = dex;
+		stats[Stat::Intelligence] = intel;
+		stats[Stat::Wisdom] = wis;
 	}
 
 	int getStat(Stat statName) const {

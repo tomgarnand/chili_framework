@@ -13,11 +13,25 @@
 class Entity
 {
 public:
-	Entity( Surface& src )
+	Entity( Surface& src ) //maybe it doesn't nec need a surface, if it can be initialized with tiled import
 		:
 		src( src ),
 		current_action(Idle)
 	{
+		//defaults
+		ArmorClass = 10; 
+		Health = 10;
+		tick = 0;
+
+	}
+	Entity(Surface& src, Attributes stats, std::pair<std::string, Vec2> starting_pos)
+		:
+		src(src),
+		current_action(Idle),
+		stats(stats)
+		
+	{
+		pos[starting_pos.first] = starting_pos.second;
 	}
 	const Vec2& GetPos(const std::string& map) const
 	{
@@ -75,10 +89,10 @@ private:
 
 
 	//Behaviour& script;
-	Action* current_action;
-	std::vector<Entity*> targets;
-	std::vector<Action*> past_actions;
-	std::vector<Action*> action_pool;
+	Action* current_action = nullptr;
+	std::vector<Entity*> targets = {};
+	std::vector<Action*> past_actions = {};
+	std::vector<Action*> action_pool = {};
 	int tick;
 
 
@@ -91,6 +105,6 @@ private:
 	int ArmorClass;
 
 	//Trigger triggerType
-	bool trigger_check;
+	bool trigger_check = false;
 	std::string scenario_keyword;
 };

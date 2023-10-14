@@ -3,28 +3,13 @@
 #include "GUI.h"
 #include <unordered_map>
 
-class Attributes //move to character?
+
+class Player : 
 {
 public:
-	Attributes()
-	{
-
-	}
-private:
-	int Strength;
-	int Dexterity;
-	int Constitution;
-	int Intelligence;
-	int Intuition;
-	int Charisma;
-};
-
-class Player
-{
-public:
-	Player(Character character, Attributes attributes, GUI gui)
+	Player(Surface& src, Attributes stats, std::pair<std::string, Vec2> starting_pos)
 		:
-		character(character)
+		Entity(src, stats, starting_pos)
 	{
 		Storage.emplace("Inventory", gui.Inventory);
 	}
@@ -35,8 +20,8 @@ public:
 
 private:
 	std::string name;
-	Character character;
-	Attributes attributes;
+
+	
 
 	std::unordered_map<std::string, SelectionMenu*> Storage;
 
