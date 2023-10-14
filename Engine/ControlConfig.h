@@ -33,7 +33,7 @@ public:
 	}
 	Command GetCommand(unsigned char keycode)
 	{
-		//work through error handling or use map[value] method
+		//TODO: work through error handling (as implemented below) or use map[value] method (where a poorly written function could assign unmapped key presses)
 		try 
 		{
 			return config.at(keycode);
