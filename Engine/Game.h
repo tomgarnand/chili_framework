@@ -70,7 +70,7 @@ private:
 	FrameTimer ft;
 	bool TickLive = false;
 	float TickTimer = 0.0f;
-	float maxTickDuration = 5.0f;
+	float maxTickDuration = 2.0f;
 
 	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Surface link = Surface("Images//link90x90.bmp");

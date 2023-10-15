@@ -41,6 +41,7 @@ public:
 		return hasRect;
 	}
 private:
+	
 	const Surface* src; 
 	RectI srcRect = {};
 	bool hasRect = false;

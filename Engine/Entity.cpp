@@ -2,32 +2,6 @@
 
 Action* Entity::Idle = new Action();
 
-void Entity::Draw(Graphics& gfx) const
-{
-	Vec2 currentPos;
-	auto it = pos.find(current_map);
-	if (it != pos.end()) 
-	{
-		currentPos = it->second;
-	}
-	if (effectActive)
-	{
-		auto it = animation.find(current_action);
-		if (it != animation.end()) 
-		{
-			it->second.DrawColor(currentPos, Colors::White, gfx);
-		}
-	}
-	else
-	{
-		auto it = animation.find(current_action);
-		if (it != animation.end()) 
-		{
-			it->second.Draw(currentPos, gfx);
-		}
-	}
-}
-
 void Entity::Update(const World& world, float dt)
 {
 	//run behaviour script
@@ -129,12 +103,15 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 {
 	//re check criteria
 	//if you are still able to take the action
-	if (current_action->CheckCriteria(statuses) ) // && current_action.CheckRange())  and range check?? 
+	if (current_action->CriteriaPassed(statuses) ) // && current_action.CheckRange())  and range check?? 
 	{
-		tick++;
-		if (current_action->GetApplicationByTick(tick)->GetHitMethod().returnAtTickEnd())
+		AdvanceTick();
+		if (current_action->GetApplicationByTick(tick) != nullptr)
 		{
-			current_action->GetApplicationByTick(tick)->GetHitMethod().InitiateCheck(stateStack);
+			if (current_action->GetApplicationByTick(tick)->GetHitMethod().returnAtTickEnd())
+			{
+				current_action->GetApplicationByTick(tick)->GetHitMethod().InitiateCheck(stateStack);
+			}
 		}
 	}
 	else

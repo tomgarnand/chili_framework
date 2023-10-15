@@ -387,9 +387,10 @@ public:
 		return ApplicationVector[tick];	
 	}
 
-	bool CheckCriteria(const Status& status)
+	bool CriteriaPassed(const Status& status) //returns true if criteria doesn't prevent action from occuring
 	{
 		bool failed = false;
+		//looks through all prohibtions, failed = true if there is a effect that be present
 		if (criteria.HasProhibitions())
 		{
 			for (auto& e_c : criteria.GetProhibited())
@@ -412,7 +413,7 @@ public:
 				}
 			}
 		}
-		return failed;
+		return !failed; //return true if nothing triggered a change in the bool
 	}
 	bool CheckRange(const float& dist) const { return (range > dist); }
 	

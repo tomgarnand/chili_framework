@@ -92,7 +92,6 @@ public:
 		return d;
 	}
 
-	void Draw(Graphics& gfx) const;
 	void Update(const World& world, float dt);
 	void effectActivate();
 	void AddAction(Action* action_in, Animation animation_in);
@@ -104,6 +103,11 @@ public:
 	void EndTick(std::vector<std::string>& stateStack);
 	void StartTick(std::vector<std::string>& stateStack);
 	void StartAction(Action* action, std::vector<Entity*> targets_in);
+	void AdvanceTick() 
+	{ 
+		if (tick != -1 && tick != 0) 
+		{ tick++; } 
+	}
 	bool IsActionEnded();
 	void Apply(const Application* app, const Outcome& out);
 
