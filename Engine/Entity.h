@@ -66,31 +66,8 @@ public:
 		return angle;
 	}
 
-	Drawable GetDrawable(const std::string& map) const
-	{
-		Drawable d(src);
-
-		Vec2 currentPos;
-		auto it = pos.find(current_map);
-		if (it != pos.end())
-		{
-			currentPos = it->second;
-		}
-		RectI currentFrame;
-		auto it2 = animation.find(current_action);
-		if (it2 != animation.end())
-		{
-			currentFrame = it2->second.GetSourceRect();
-			d.AddSourceRect(currentFrame);
-		}
-		
-		d.ApplyTransformation(
-			Mat3::Translation(currentPos.x, currentPos.y ) *
-			Mat3::Scale( scale ) *
-			Mat3::Rotation( angle )
-		);
-		return d;
-	}
+	Drawable GetDrawable(const std::string& map) const;
+	
 
 	void Update(const World& world, float dt);
 	void effectActivate();
@@ -99,8 +76,9 @@ public:
 
 	int GetArmorClass() const { return ArmorClass; }
 	const Attributes& GetStats() const { return stats; }
+	Status& GetStatuses() { return statuses; }
 
-	void EndTick(std::vector<std::string>& stateStack);
+	void EndTick(const World& world, float dt, std::vector<std::string>& stateStack);
 	void StartTick(std::vector<std::string>& stateStack);
 	void StartAction(Action* action, std::vector<Entity*> targets_in);
 	void AdvanceTick() 
@@ -109,7 +87,18 @@ public:
 		{ tick++; } 
 	}
 	bool IsActionEnded();
+
+	void DoAction(Action* action, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
 	void Apply(const Application* app, const Outcome& out);
+	void FlagSubTickEvent(Action* action, Entity* target);
+	void FlagSubTickEvent(Action* action, std::vector<Entity*> targets);
+	
+	void Resolve(const World& world, float dt);
+
+	Entity* Self()
+	{
+		return this; //is this dangerous?
+	}
 
 	//void Update(std::string current_map, const Entity& player);
 
@@ -127,6 +116,7 @@ protected:
 
 	Surface& src;
 	std::unordered_map<Action*, Animation> animation; //player_animations[Slash] = Slash_Animation;
+	Action* actionToAnimate = nullptr;
 	bool effectActive = false;
 	float effectTime = 0.0f;
 	float effectDuration = 0.045f;
@@ -134,11 +124,13 @@ protected:
 
 	//Behaviour& script;
 	Action* current_action = nullptr;
-	std::vector<Entity*> targets = {};
+	Action* current_subtick_action = {};
+	std::vector<Entity*> current_subtick_targets = {};
+	std::vector<Entity*> current_targets = {};
 	std::vector<Action*> past_actions = {};
 	std::vector<Action*> action_pool = {};
 	int tick = -1;
-
+	bool SubTickEvent = false;
 
 	Attributes stats;
 	Status statuses;

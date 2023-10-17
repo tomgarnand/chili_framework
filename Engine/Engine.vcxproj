@@ -197,6 +197,7 @@
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Action.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="COMInitializer.cpp" />
     <ClCompile Include="Dice.cpp" />

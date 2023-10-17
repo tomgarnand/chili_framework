@@ -12,19 +12,35 @@ public:
 	{
 	
 	}
-
-	void QueueAction(Action* action, const std::vector<Entity*> targets)
+	void QueueAction(Action* action, Entity* target)
 	{
-		QueuedAction = action;
-		QueuedTargets = targets;
-		ActionIsQueued = true;
+		QueueAction(action, std::vector<Entity*>{ target });
 	}
-	void StartAction(Action* action, const std::vector<Entity*> targets_in)
+	void QueueAction(Action* action, std::vector<Entity*> targets)
+	{
+		//if action is subtick action, toggle subtick applier, disregard rest
+
+		if (action->IsSubTickEvent())
+		{
+			FlagSubTickEvent(action, targets);
+		}
+		else
+		{
+			QueuedAction = action;
+			QueuedTargets = targets;
+			ActionIsQueued = true;
+		}
+	}
+	
+	void StartAction(Action* action, std::vector<Entity*> targets_in)
 	{
 		ActionIsQueued = false;
 		tick = 0;
 		current_action = action;
-		targets = targets_in;
+		current_targets = targets_in;
+
+		QueuedAction = nullptr;
+		QueuedTargets.clear();
 	}
 	bool IsActionQueued() const
 	{
@@ -38,17 +54,39 @@ public:
 	{
 		return QueuedTargets;
 	}
-	void Update(const World& world, float dt)
+	void SubTickUpdate(const World& world, float dt, std::vector<std::string>& stateStack)
 	{
-		if (vel != Vec2(0.0f, 0.0f))
+		Action* action = Idle;
+		if (SubTickEvent)
 		{
-			pos[current_map] = world.CheckAndAdjustMovement(pos[current_map], pos[current_map] + (vel * dt), radius);		
+			//immediately apply the action effects to status, then resolve status
+			EndTick(world, dt, stateStack);
+
+			//then immediately remove them from statuses
+			GetStatuses().RemoveSubTickEvents();
+			
+
+			action = current_subtick_action;
+
+			//clear flags
+			SubTickEvent = false;
+			current_subtick_action = nullptr;
+			
 		}
-		auto it = animation.find(current_action);
+
+		else
+		{
+			action = current_action;
+		}
+		
+		actionToAnimate = action;
+		//animation
+		auto it = animation.find(actionToAnimate);
 		if (it != animation.end()) {
 			it->second.Update(dt);
 		}
-
+		
+		//animation effects - currently not used
 		if (effectActive)
 		{
 			effectTime += dt;
@@ -58,6 +96,8 @@ public:
 				effectActive = false;
 			}
 		}
+
+		
 	}
 	
 

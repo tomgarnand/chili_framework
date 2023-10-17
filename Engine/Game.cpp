@@ -65,6 +65,11 @@ Game::Game(MainWindow& wnd)
 	//StandingUp    ;
 	//StandingDown  ;
 
+
+	
+
+	
+
 	player.AddAction(WalkingLeft, link_animations[0]);
 	player.AddAction(WalkingRight, link_animations[1]);
 	player.AddAction(WalkingUp, link_animations[2]);
@@ -87,103 +92,125 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	
 	float dt = ft.Mark();
 	TickTimer += dt;
+
+	
 
 	//Vec2 dir = { 0.0f, 0.0f };
 
 	const auto e = wnd.kbd.ReadKey();
+
 	if (e.IsPress())
 	{
-		switch (config.GetCommand(e.GetCode()))
-		{
-		case (Command::MAIN_MENU):
-		{
-			state = (state == GameState::Menu) ? GameState::Moving : GameState::Menu; //toggle
-			break;
-		}
-		case (Command::MOVE_RIGHT):
-		{
+		key = e.GetCode();
+	}
+	if (e.IsRelease())
+	{
+		key = 0;
+	}
+
+	switch (config.GetCommand(key))
+	{
+	case (Command::MAIN_MENU):
+	{
+		state = (state == GameState::Menu) ? GameState::Moving : GameState::Menu; //toggle
+		break;
+	}
+	case (Command::MOVE_RIGHT):
+	{
 		if (state == GameState::Moving)
 		{
-			player.QueueAction(WalkingRight, {});
+			player.QueueAction(WalkingRight, player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
 			//implement keyboard menu controls
 		}
 		break;
-		}
-		case (Command::MOVE_LEFT):
+	}
+	case (Command::MOVE_LEFT):
+	{
+		if (state == GameState::Moving)
 		{
-			if (state == GameState::Moving)
-			{
-				player.QueueAction(WalkingLeft, {});
-			}
-			else if (state == GameState::Menu)
-			{
-				//implement keyboard menu controls
-			}
-			break;
+			player.QueueAction(WalkingLeft, {});
 		}
-		case (Command::MOVE_DOWN):
+		else if (state == GameState::Menu)
 		{
-			if (state == GameState::Moving)
-			{
-				player.QueueAction(WalkingDown, {});
-			}
-			else if (state == GameState::Menu)
-			{
-				//implement keyboard menu controls
-			}
-			break;
+			//implement keyboard menu controls
 		}
-		case (Command::MOVE_UP):
+		break;
+	}
+	case (Command::MOVE_DOWN):
+	{
+		if (state == GameState::Moving)
 		{
-			if (state == GameState::Moving)
-			{
-				player.QueueAction(WalkingUp, {});
-			}
-			else if (state == GameState::Menu)
-			{
-				//implement keyboard menu controls
-			}
-			break;
+			player.QueueAction(WalkingDown, {});
 		}
-		case (Command::SELECT):
+		else if (state == GameState::Menu)
 		{
-			player.QueueAction(Entity::Idle, {});
-			break;
+			//implement keyboard menu controls
 		}
+		break;
+	}
+	case (Command::MOVE_UP):
+	{
+		if (state == GameState::Moving)
+		{
+			player.QueueAction(WalkingUp, {});
 		}
+		else if (state == GameState::Menu)
+		{
+			//implement keyboard menu controls
+		}
+		break;
+	}
+	case (Command::SELECT):
+	{
+		player.QueueAction(Entity::Idle, {});
+		break;
+	}
 	}
 	
 
-	player.Update(world, dt);
+	
 	
 	
 	
 	
 	if (TickLive)
 	{
+		//subtick
+		player.SubTickUpdate(world, dt, StateStack);
+		
+
+		//end tick
 		if (TickTimer > maxTickDuration)
 		{
-			TickLive = false;
-			TickTimer = TickTimer - maxTickDuration; // ~0.0f
-			player.EndTick(StateStack); //don't check for idleness because idle is default next_action
+			player.EndTick(world, dt, StateStack); //don't check for idleness because idle is default next_action
+
 			for (Entity* unit : entities)
 			{
-				unit->EndTick(StateStack);
+				unit->EndTick(world, dt, StateStack);
 			}
+
+			TickLive = false;
+			TickTimer = TickTimer - maxTickDuration; // ~0.0f
 		}
 	}
+	//start tick
 	if (!TickLive)
 	{
+
 		if (player.IsActionEnded() == true && player.IsActionQueued())
 		{
 			player.StartAction(player.GetQueuedAction(), player.GetQueuedTargets() ); 
 		}
+
+
 		player.StartTick(StateStack);
+
 		for (Entity* unit : entities)
 		{
 			if (unit->IsActionEnded() == true)

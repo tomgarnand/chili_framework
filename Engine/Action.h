@@ -1,4 +1,7 @@
 #pragma once
+#include <assert.h>
+#include <unordered_map>
+#include <string>
 #include <map>
 #include <random>
 #include "Util.h"
@@ -67,7 +70,12 @@ enum class EffectType
 	Burn,
 	Stun,
 	Silence,
-	Disorient //effects Concentration
+	Disorient, //effects Concentration
+
+
+	MoveRight
+
+
 	//types
 	//Burn, Stun, Poison - DoT, concentration effected (accuracy, ?), increased effect of other moves
 	//Blind - accuracy effected, visual effect onscreen
@@ -75,10 +83,11 @@ enum class EffectType
 	//Anchor - movement tied to location
 };
 
-enum class EffectCategory
+enum class EffectCategory //Active/Passive/Subtick
 {
 	Active,
-	Passive
+	Passive,
+	SubTick
 };
 
 class Effect
@@ -100,7 +109,7 @@ public:
 private:
 	EffectCategory cat;
 	EffectType type;
-	int duration;
+	int duration; //0 duration represents a subtick effect
 	float effectiveness;
 };
 
@@ -110,82 +119,14 @@ class Status //container for current effects
 {
 public:
 	Status() = default;
-	void AddEffect(const EffectCategory& cat, const Effect& effect)
-	{
-	
-		bool preexisting = false;
-		for (auto& categoryPair : effects) {
-			auto& effectVector = categoryPair.second;
-			for (auto& e : effectVector)
-			{
-				if (e.GetType() == effect.GetType())
-				{
-					if (e.GetDuration() < effect.GetDuration())
-					{
-						e.SetDuration(effect.GetDuration());
-						e.IncreaseEffectiveness(effect.GetEffectiveness()); //design choice... maybe not for the best
-					}
-					preexisting = true;
-				}
-			}
-		}
-		if (!preexisting)
-		{
-			effects[cat].emplace_back(effect);
-		}
-	}
-	
-	void RemoveEffect(const EffectType& check) //removes effect if it shares the same type
-	{
-		for (auto& categoryPair : effects) {
-			auto& effectVector = categoryPair.second;
-			effectVector.erase(std::remove_if(effectVector.begin(), effectVector.end(), 
-				[check](const Effect& effect)
-				{
-					return check == effect.GetType();
-				}),
-				effectVector.end());
-		}
-	}
+	void AddEffect(const EffectCategory& cat, const Effect& effect);
+	void RemoveEffect(const EffectType& check); //removes effect if it shares the same type
 
-	const std::vector<Effect>& getAllEffects() const {
-		std::vector<Effect> allEffects;
+	const std::vector<Effect> getAllEffects() const;
+	const std::vector<Effect> getEffectsByType(const EffectCategory& cat) const;
 
-		for (const auto& pair : effects) { // Iterate over each key-value pair in the map
-			const std::vector<Effect>& categoryEffects = pair.second;
-			allEffects.insert(allEffects.end(), categoryEffects.begin(), categoryEffects.end());
-		}
-
-		return allEffects;
-	}
-
-	const std::vector<Effect>& getEffectsByType(const EffectCategory& cat) const 
-	{
-		static const std::vector<Effect> emptyVector;  // Static empty vector to return in case of error
-
-		try {
-			return effects.at(cat);
-		}
-		catch (const std::out_of_range& e) {
-			assert(true);
-			std::cerr << e.what() <<"\nEffect type not found in the map!\n";
-			return emptyVector;
-		}
-	}
-	bool CheckForEffect(const EffectType& check) const
-	{
-		for (auto& categoryPair : effects) {
-			auto& effectVector = categoryPair.second;
-			for (auto& e : effectVector)
-			{
-				if (e.GetType() == check)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+	bool CheckForEffect(const EffectType& check) const;
+	void RemoveSubTickEvents();
 
 private:
 	std::map< EffectCategory, std::vector<Effect>> effects;
@@ -199,10 +140,10 @@ enum class Method
 	QTE
 };
 
-class HitMethod
-{
-public:
-	 HitMethod() = default;
+	class HitMethod
+	{
+	public:
+		HitMethod() = default;
 	 
 	 virtual Outcome CheckSuccess(const int& roll20, const int& bonus, const int& AC, const int& other) const { return Outcome::NotApplicable; }
 	 virtual Outcome CheckSuccess() const { return Outcome::NotApplicable; }
@@ -222,7 +163,9 @@ public:
 	DiceThrow(const Stat& bonus)
 		:
 		bonus(bonus)
-	{}
+	{
+		method = Method::DiceThrow;
+	}
 
 	Outcome CheckSuccess(const int& roll20, const int& bonus, const int& AC, const int& others) const override //others is armor + shield + dex + other effects
 	{
@@ -245,17 +188,18 @@ public:
 	}
 	const Stat& GetBonusStat() const { return bonus; }
 private:
-	Method method = Method::DiceThrow;
 	Stat bonus;
 };
 class Guaranteed : public HitMethod
 {
 public:
-	Guaranteed(const Outcome& outcome)
+	Guaranteed (const Outcome& outcome)
 		:
 		outcome(outcome)
-	{}
-	Outcome CheckSuccess() const override
+	{
+		method = Method::Guaranteed;
+	}
+	Outcome CheckSuccess() const
 	{
 		return outcome;
 	}
@@ -270,6 +214,7 @@ public:
 		action_name(action_name),
 		difficulty(difficulty)
 	{
+		method = Method::QTE;
 		code = d99999.roll();
 	}
 
@@ -310,7 +255,6 @@ private:
 	int code; //code to determine uniqueness for stateStack strings. An unlikely disaster (hopefully minor) waiting to happen
 	bool returnAtTickEndFlag = true;
 	int difficulty; //1-10
-	Method method = Method::QTE;
 };
 
 class Criteria
@@ -351,20 +295,40 @@ private:
 class Application
 {
 public:
-	Application(const int& tick, const std::vector<Effect>& effects, const HitMethod& hitMethod)
+	
+	Application(const Effect& effect)
+		:
+		hitMethod(new Guaranteed(Outcome::Hit))
+	{
+		effects.emplace_back(effect);
+	}
+	Application(const int& tick, const Effect& effect)
+		:
+		tick(tick),
+		hitMethod(new Guaranteed(Outcome::Hit))
+	{
+		effects.emplace_back(effect);
+	}
+	Application(const int& tick, const std::vector<Effect>& effects)
 		:
 		tick(tick),
 		effects(effects),
-		HitMethod(hitMethod)
+		hitMethod(new Guaranteed(Outcome::Hit))
 	{}
-
+	Application(const int& tick, const std::vector<Effect>& effects, HitMethod* hitMethod)
+		:
+		tick(tick),
+		effects(effects),
+		hitMethod(hitMethod)
+	{}
 	int GetTick() const { return tick; }
 	std::vector<Effect> GetEffects() const { return effects; }
-	const HitMethod GetHitMethod() const { return HitMethod; }
+	HitMethod* GetHitMethod() const { return hitMethod; }
 private:
-	int tick;
+	int tick = -1;
 	std::vector<Effect> effects;
-	HitMethod HitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
+	HitMethod* hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
+	
 	
 };
 
@@ -372,6 +336,24 @@ class Action
 {
 public:
 	Action() = default;
+	Action(Application* application) //right now this is the only initilizer that checks for subtick, could expand
+		:
+		criteria(noCriteria)
+	{
+		ApplicationVector.clear();
+		ApplicationVector.emplace_back(application);
+		bool subTick_in = true;
+		for (auto& effect : application->GetEffects())
+		{
+			if (effect.GetCategory() != EffectCategory::SubTick)
+			{
+				subTick_in = false;
+				break;
+			}
+		}
+		SubTick = subTick_in;
+
+	}
 	Action(const int& maxTicks, std::vector<Application*> ApplicationVector, const Criteria& criteria, const float& range)
 		:
 		ApplicationVector(ApplicationVector),
@@ -379,50 +361,21 @@ public:
 		criteria(criteria),
 		range(range)
 	{}
-
 	int GetMaxTicks() const { return maxTicks; }
 
 	Application* GetApplicationByTick(const int& tick) //could be multiple applications per tick
-	{
-		return ApplicationVector[tick];	
-	}
-
-	bool CriteriaPassed(const Status& status) //returns true if criteria doesn't prevent action from occuring
-	{
-		bool failed = false;
-		//looks through all prohibtions, failed = true if there is a effect that be present
-		if (criteria.HasProhibitions())
-		{
-			for (auto& e_c : criteria.GetProhibited())
-			{
-				failed = status.CheckForEffect(e_c);
-				if (failed)
-				{
-					break;
-				}
-			}
-		}
-		if (criteria.HasRequirements() && !failed)
-		{
-			for (auto& e_c : criteria.GetRequired())
-			{
-				failed = !status.CheckForEffect(e_c);
-				if (failed)
-				{
-					break;
-				}
-			}
-		}
-		return !failed; //return true if nothing triggered a change in the bool
-	}
+	{	return ApplicationVector[tick];	}
+	bool CriteriaPassed(const Status& status); //returns true if criteria doesn't prevent action from occuring
 	bool CheckRange(const float& dist) const { return (range > dist); }
-	
+	bool IsSubTickEvent() const { return SubTick; }
 
 private:
 	int maxTicks = -1; //uninitialized value, aka lasts forever
 	std::vector<Application*> ApplicationVector = { nullptr };
 	Criteria criteria;
 	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
+	bool SubTick = false;
+	static Criteria noCriteria;
 };
 
 

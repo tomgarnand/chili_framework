@@ -80,6 +80,7 @@ private:
 	std::string current_map = "testmap";
 	std::vector<std::string> StateStack;
 
+
 	GameState state = GameState::Moving;
 	GUI gui;
 
@@ -97,7 +98,7 @@ private:
 	std::vector<Animation> link_animations;
 
 	Action* WalkingLeft   = new Action();
-	Action* WalkingRight  = new Action();
+	//Action* WalkingRight  = new Action();
 	Action* WalkingUp     = new Action();
 	Action* WalkingDown   = new Action();
 	Action* StandingLeft  = new Action();
@@ -105,6 +106,9 @@ private:
 	Action* StandingUp    = new Action();
 	Action* StandingDown  = new Action();
 
+	Application* moveRight = new Application(Effect(EffectCategory::SubTick, EffectType::MoveRight, 0, 1.0f));
+	Action* WalkingRight = new Action(moveRight);
 
+	unsigned char key = 0;
 	/********************************/
 };
