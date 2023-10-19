@@ -165,6 +165,9 @@
     <ClInclude Include="ControlConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ControlConfig - OLD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXErr.cpp">

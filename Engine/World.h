@@ -36,8 +36,8 @@ public:
 
 		//InitCollTest();
 		//replacing this with a test rects
-		coll_test.emplace_back(RectF({ 400,200 }, { 600, 300 }));
-		coll_test.emplace_back(RectF({ 200,440 }, { 250, 460 }));
+		//coll_test.emplace_back(RectF({ 400,200 }, { 600, 300 }));
+		//coll_test.emplace_back(RectF({ 200,440 }, { 250, 460 }));
 
 
 		for (int row = 0; row < sheetHeight / tileHeight; row++) //TODO: create loader->getMap("testmap")->getTileSet("defaulttileset")->getNumTiles()

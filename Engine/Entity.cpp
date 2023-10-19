@@ -256,14 +256,23 @@ void Entity::Resolve(const World& world, float dt)
 	{
 		vel = Vec2(1.0f, 0.0f);
 	}
-	if (false) //statuses.CheckForEffect(EffectType::MoveLeft))
+	if (statuses.CheckForEffect(EffectType::MoveLeft))
 	{
 		vel = Vec2(-1.0f, 0.0f);
+	}
+	if (statuses.CheckForEffect(EffectType::MoveUp))
+	{
+		vel = Vec2(0.0f, -1.0f);
+	}
+	if (statuses.CheckForEffect(EffectType::MoveDown))
+	{
+		vel = Vec2(0.0f, 1.0f);
 	}
 	if (vel != Vec2(0.0f, 0.0f))
 	{
 		pos[current_map] = world.CheckAndAdjustMovement(pos[current_map], pos[current_map] + (vel * dt * speed), radius);
 	}
+
 
 	vel = Vec2(0.0f, 0.0f);
 }

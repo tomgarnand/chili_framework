@@ -39,6 +39,7 @@ Keyboard::Event Keyboard::ReadKey()
 	}
 }
 
+
 bool Keyboard::KeyIsEmpty() const
 {
 	return keybuffer.empty();

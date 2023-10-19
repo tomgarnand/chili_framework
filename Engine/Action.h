@@ -73,8 +73,15 @@ enum class EffectType
 	Disorient, //effects Concentration
 
 
-	MoveRight
-
+	MoveRight,
+	MoveLeft,
+	MoveUp,
+	MoveDown,
+	StandLeft,
+	StandRight,
+	StandUp,
+	StandDown,
+	Idle
 
 	//types
 	//Burn, Stun, Poison - DoT, concentration effected (accuracy, ?), increased effect of other moves

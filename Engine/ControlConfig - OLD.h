@@ -22,27 +22,27 @@ class ControlConfig
 public:
 	ControlConfig()
 	{
-		config[Command::SELECT]       = VK_SELECT ;
-		config[Command::MAIN_MENU]    = VK_ESCAPE ;
-		config[Command::COMBAT_MENU]  = VK_SPACE  ;
-		config[Command::MOVE_LEFT]    = VK_LEFT   ;
-		config[Command::MOVE_RIGHT]   = VK_RIGHT  ;
-		config[Command::MOVE_UP]      = VK_UP     ;
-		config[Command::MOVE_DOWN]    = VK_DOWN   ;
-		config[Command::ACTION]       = VK_LSHIFT ;
+		config[VK_SELECT] = Command::SELECT      ;
+		config[VK_ESCAPE] = Command::MAIN_MENU   ;
+		config[VK_SPACE ] = Command::COMBAT_MENU ;
+		config[VK_LEFT  ] = Command::MOVE_LEFT   ;
+		config[VK_RIGHT ] = Command::MOVE_RIGHT  ;
+		config[VK_UP    ] = Command::MOVE_UP	 ;
+		config[VK_DOWN  ] = Command::MOVE_DOWN   ;
+		config[VK_LSHIFT] = Command::ACTION	     ;
 	}
-	unsigned char GetKeycode(Command command) //given a keycode, return a Command
+	Command GetCommand(unsigned char keycode) //given a keycode, return a Command
 	{
 		//TODO: work through error handling (as implemented below) or use map[value] method (where a poorly written function could assign unmapped key presses)
 		try 
 		{
-			return config.at(command);
+			return config.at(keycode);
 		}
 		catch (const std::out_of_range& e)
 		{
 			assert(true);
 			std::cerr << e.what() << "\nKey not bound\n";
-			return '\0'; //shouldn't ever happen but avoids complier warning
+			return Command::_Blank_; //shouldn't ever happen but avoids complier warning
 		}
 
 	}
@@ -51,15 +51,15 @@ public:
 		//remove command from currently bound key
 		for (auto& pair : config)
 		{
-			if (pair.second == keycode)
+			if (pair.second == command)
 			{
-				pair.second = '\0';
+				pair.second = Command::_Blank_;
 			}
 		}
 		//assign command to new key
-		config[command] = keycode;
+		config[keycode] = command;
 	}
 
 private:
-	std::map<Command, unsigned char> config;
+	std::map<unsigned char, Command> config;
 };

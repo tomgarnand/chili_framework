@@ -97,18 +97,33 @@ private:
 
 	std::vector<Animation> link_animations;
 
-	Action* WalkingLeft   = new Action();
-	//Action* WalkingRight  = new Action();
-	Action* WalkingUp     = new Action();
-	Action* WalkingDown   = new Action();
-	Action* StandingLeft  = new Action();
-	Action* StandingRight = new Action();
-	Action* StandingUp    = new Action();
-	Action* StandingDown  = new Action();
+	
 
 	Application* moveRight = new Application(Effect(EffectCategory::SubTick, EffectType::MoveRight, 0, 1.0f));
 	Action* WalkingRight = new Action(moveRight);
 
+	Application* moveLeft = new Application(Effect(EffectCategory::SubTick, EffectType::MoveLeft, 0, 1.0f));
+	Action* WalkingLeft = new Action(moveLeft);
+
+	Application* moveUp = new Application(Effect(EffectCategory::SubTick, EffectType::MoveUp, 0, 1.0f));
+	Action* WalkingUp = new Action(moveUp);
+
+	Application* moveDown = new Application(Effect(EffectCategory::SubTick, EffectType::MoveDown, 0, 1.0f));
+	Action* WalkingDown = new Action(moveDown);
+
+	Application* standRight = new Application(Effect(EffectCategory::SubTick, EffectType::StandRight, 0, 1.0f));
+	Action* StandingRight = new Action(standRight);
+
+	Application* standLeft = new Application(Effect(EffectCategory::SubTick, EffectType::StandLeft, 0, 1.0f));
+	Action* StandingLeft = new Action(standLeft);
+
+	Application* standUp = new Application(Effect(EffectCategory::SubTick, EffectType::StandUp, 0, 1.0f));
+	Action* StandingUp = new Action(standUp);
+
+	Application* standDown = new Application(Effect(EffectCategory::SubTick, EffectType::StandDown, 0, 1.0f));
+	Action* StandingDown = new Action(standDown);
+
+	std::vector<unsigned char> PressedKeys;
 	unsigned char key = 0;
 	/********************************/
 };

@@ -97,28 +97,12 @@ void Game::UpdateModel()
 	TickTimer += dt;
 
 	
-
-	//Vec2 dir = { 0.0f, 0.0f };
-
-	const auto e = wnd.kbd.ReadKey();
-
-	if (e.IsPress())
-	{
-		key = e.GetCode();
-	}
-	if (e.IsRelease())
-	{
-		key = 0;
-	}
-
-	switch (config.GetCommand(key))
-	{
-	case (Command::MAIN_MENU):
+	
+	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MAIN_MENU)))
 	{
 		state = (state == GameState::Menu) ? GameState::Moving : GameState::Menu; //toggle
-		break;
 	}
-	case (Command::MOVE_RIGHT):
+	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_RIGHT)))
 	{
 		if (state == GameState::Moving)
 		{
@@ -128,9 +112,8 @@ void Game::UpdateModel()
 		{
 			//implement keyboard menu controls
 		}
-		break;
 	}
-	case (Command::MOVE_LEFT):
+	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_LEFT)))
 	{
 		if (state == GameState::Moving)
 		{
@@ -140,9 +123,8 @@ void Game::UpdateModel()
 		{
 			//implement keyboard menu controls
 		}
-		break;
 	}
-	case (Command::MOVE_DOWN):
+	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_DOWN)))
 	{
 		if (state == GameState::Moving)
 		{
@@ -152,9 +134,8 @@ void Game::UpdateModel()
 		{
 			//implement keyboard menu controls
 		}
-		break;
 	}
-	case (Command::MOVE_UP):
+	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_UP)))
 	{
 		if (state == GameState::Moving)
 		{
@@ -164,14 +145,14 @@ void Game::UpdateModel()
 		{
 			//implement keyboard menu controls
 		}
-		break;
 	}
-	case (Command::SELECT):
+	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::SELECT)))
 	{
 		player.QueueAction(Entity::Idle, {});
-		break;
+
 	}
-	}
+
+	
 	
 
 	
