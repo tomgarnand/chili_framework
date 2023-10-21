@@ -54,51 +54,6 @@ public:
 	{
 		return QueuedTargets;
 	}
-	void SubTickUpdate(const World& world, float dt, std::vector<std::string>& stateStack)
-	{
-		Action* action = Idle;
-		if (SubTickEvent)
-		{
-			//immediately apply the action effects to status, then resolve status
-			EndTick(world, dt, stateStack);
-
-			//then immediately remove them from statuses
-			GetStatuses().RemoveSubTickEvents();
-			
-
-			action = current_subtick_action;
-
-			//clear flags
-			SubTickEvent = false;
-			current_subtick_action = nullptr;
-			
-		}
-
-		else
-		{
-			action = current_action;
-		}
-		
-		actionToAnimate = action;
-		//animation
-		auto it = animation.find(actionToAnimate);
-		if (it != animation.end()) {
-			it->second.Update(dt);
-		}
-		
-		//animation effects - currently not used
-		if (effectActive)
-		{
-			effectTime += dt;
-			if (effectTime >= effectDuration)
-			{
-				effectTime = 0.0f;
-				effectActive = false;
-			}
-		}
-
-		
-	}
 	
 
 private:

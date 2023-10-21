@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-Action* Entity::Idle = new Action();
+Action* Entity::Idle = new Action("Idle");
 
 Drawable Entity::GetDrawable(const std::string& map) const
 {
@@ -87,7 +87,7 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 {
 	//re check criteria
 	//if you are still able to take the action
-	if (current_action->CriteriaPassed(statuses) ) // && current_action.CheckRange())  and range check?? 
+	if (current_action->CriteriaPassed(statuses)) // && current_action.CheckRange())  and range check?? 
 	{
 		AdvanceTick();
 		if (current_action->GetApplicationByTick(tick) != nullptr)
@@ -104,7 +104,6 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 		//cancel current move
 		current_action = Idle; //rethink this later, dont want to be applying idle when I want to be applying stun, if stun is applied as an action...
 	}
-	
 }
 
 void Entity::StartAction(Action* action, const std::vector<Entity*> targets_in)

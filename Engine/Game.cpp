@@ -29,7 +29,7 @@ Game::Game(MainWindow& wnd)
 	wnd(wnd),
 	gfx(wnd),
 	gui(),
-	menu(&allEntities),
+	menu(&player, &allEntities),
 	cam(gfx),
 	player("link", link, Attributes(), {current_map, {100,100}}),
 	npc1("npc1", link, Attributes(), {current_map, {200,200}}),
@@ -39,6 +39,7 @@ Game::Game(MainWindow& wnd)
 	Stack.emplace_back(gui.pGetMainMenu());
 
 	Collection::eEntity* eNpc1 = new Collection::eEntity(&npc1);
+	entities.emplace_back(&npc1);
 	allEntities.AddElement(eNpc1);
 
 
@@ -46,6 +47,11 @@ Game::Game(MainWindow& wnd)
 	Action* Fireball = new Action("Fireball", Burn);
 	Collection::eAction* aFireball = new Collection::eAction(Fireball);
 	gui.Collection_Spells.AddElement(aFireball);
+
+	Collection::Item* new_item = new Collection::Item(gui.item);
+	gui.Collection_Inventory.AddElement(new_item);
+	gui.Collection_Inventory.AddElement(new_item);
+
 
 	//WalkingLeft = 0
 	//WalkingRight,
@@ -74,6 +80,8 @@ Game::Game(MainWindow& wnd)
 	player.AddAction(StandingUp, link_animations[6]);
 	player.AddAction(StandingDown, link_animations[7]);
 	player.AddAction(Entity::Idle, link_animations[7]);
+
+	npc1.AddAction(Entity::Idle, link_animations[7]);
 
 }
 
@@ -159,7 +167,10 @@ void Game::UpdateModel()
 	{
 		//subtick
 		player.SubTickUpdate(world, dt, StateStack);
-		
+		for (Entity* unit : entities)
+		{
+			unit->SubTickUpdate(world, dt, StateStack);
+		}
 
 		//end tick
 		if (TickTimer > maxTickDuration)
@@ -179,13 +190,19 @@ void Game::UpdateModel()
 	if (!TickLive)
 	{
 
-		if (player.IsActionEnded() == true && player.IsActionQueued())
+		if (player.IsActionEnded())
 		{
-			player.StartAction(player.GetQueuedAction(), player.GetQueuedTargets() ); 
+			if (player.IsActionQueued())
+			{
+				player.StartAction(player.GetQueuedAction(), player.GetQueuedTargets());
+			}
+			else
+			{
+				player.StartAction(Entity::Idle, {});
+			}
 		}
-
-
 		player.StartTick(StateStack);
+
 
 		for (Entity* unit : entities)
 		{
@@ -208,6 +225,10 @@ void Game::UpdateModel()
 		if (state == GameState::Menu)
 		{
 			Stack = menu.ProcessMenu(e, Stack, wnd);
+			if (menu.ForceClose())
+			{
+				state = GameState::Moving; //obviously this should be changed later, just a way to close menu from within it
+			}
 		}
 	}
 

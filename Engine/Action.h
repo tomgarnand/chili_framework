@@ -343,6 +343,11 @@ class Action
 {
 public:
 	Action() = default;
+	Action(std::string name_in)
+	{
+		name.clear();
+		name = name_in;
+	}
 	Action(Application* application) //right now this is the only initilizer that checks for subtick, could expand
 		:
 		criteria(noCriteria)

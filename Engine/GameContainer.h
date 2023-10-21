@@ -30,14 +30,10 @@ public:
 			//remove_after_use = true;
 		}
 		std::string GetString() { return name; }
-		virtual void Use() = 0;
+		virtual void Use(Player* player, Entity* target) = 0;
 		SelectionMenu* pGetMenu()
 		{
 			return menu;
-		}
-		void Clear_pMenu()
-		{
-			menu = nullptr;
 		}
 		bool CheckRemove()
 		{
@@ -51,7 +47,7 @@ public:
 	protected:
 		std::string name;
 		SelectionMenu* menu = nullptr;
-		bool remove_after_use = false;
+		bool remove_after_use = true;
 		bool needsTarget = false;
 
 	};
@@ -64,7 +60,7 @@ public:
 		{
 			remove_after_use = true;
 		}
-		void Use() override
+		void Use(Player* player, Entity* target) override
 		{
 			if (need_target)
 			{
@@ -93,7 +89,7 @@ public:
 		{
 			remove_after_use = true;
 		}
-		void Use() override
+		void Use(Player* player, Entity* target) override
 		{
 			paired_collection->AddElement(this);
 			paired_collection->QueueUpdate();
@@ -114,7 +110,7 @@ public:
 			Element(entity->GetName()),
 			entity(entity)
 		{}
-		void Use()
+		void Use(Player* player, Entity* target)
 		{
 
 		}
@@ -132,10 +128,11 @@ public:
 			action(action)
 		{
 			needsTarget = true;
+			remove_after_use = false;
 		}
-		void Use()
+		void Use(Player* player, Entity* target)
 		{
-
+			player->QueueAction(action, target);
 		}
 	private:
 		Action* action = nullptr;

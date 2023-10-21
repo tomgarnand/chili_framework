@@ -102,28 +102,28 @@ private:
 	
 
 	Application* moveRight = new Application(Effect(EffectCategory::SubTick, EffectType::MoveRight, 0, 1.0f));
-	Action* WalkingRight = new Action(moveRight);
+	Action* WalkingRight = new Action("WalkingRight", moveRight);
 
 	Application* moveLeft = new Application(Effect(EffectCategory::SubTick, EffectType::MoveLeft, 0, 1.0f));
-	Action* WalkingLeft = new Action(moveLeft);
+	Action* WalkingLeft = new Action("WalkingLeft", moveLeft);
 
 	Application* moveUp = new Application(Effect(EffectCategory::SubTick, EffectType::MoveUp, 0, 1.0f));
-	Action* WalkingUp = new Action(moveUp);
+	Action* WalkingUp = new Action("WalkingUp", moveUp);
 
 	Application* moveDown = new Application(Effect(EffectCategory::SubTick, EffectType::MoveDown, 0, 1.0f));
-	Action* WalkingDown = new Action(moveDown);
+	Action* WalkingDown = new Action("WalkingDown", moveDown);
 
 	Application* standRight = new Application(Effect(EffectCategory::SubTick, EffectType::StandRight, 0, 1.0f));
-	Action* StandingRight = new Action(standRight);
+	Action* StandingRight = new Action("StandingRight", standRight);
 
 	Application* standLeft = new Application(Effect(EffectCategory::SubTick, EffectType::StandLeft, 0, 1.0f));
-	Action* StandingLeft = new Action(standLeft);
+	Action* StandingLeft = new Action("StandingLeft", standLeft);
 
 	Application* standUp = new Application(Effect(EffectCategory::SubTick, EffectType::StandUp, 0, 1.0f));
-	Action* StandingUp = new Action(standUp);
+	Action* StandingUp = new Action("StandingUp", standUp);
 
 	Application* standDown = new Application(Effect(EffectCategory::SubTick, EffectType::StandDown, 0, 1.0f));
-	Action* StandingDown = new Action(standDown);
+	Action* StandingDown = new Action("StandingDown", standDown);
 
 	std::vector<unsigned char> PressedKeys;
 	unsigned char key = 0;

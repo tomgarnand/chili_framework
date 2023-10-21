@@ -190,7 +190,7 @@ public:
 
 		auto ele = collection->pGetpElements();
 		
-		for (int i = int(ele.size()) - 1; i >=0 ; i--)
+		for (int i = int(ele.size()) - 1; i >= 0 ; i--)
 		{
 			if (items.size() < ele.size())
 			{
@@ -198,7 +198,7 @@ public:
 				items.front().InitParentMenu(this);
 				items.front().InitInnerMenu(ele[i]->pGetMenu());
 			}
-			else if (ele.size() < items.size())
+			else if (items.size() > ele.size())
 			{
 				items.pop_back();
 			}
@@ -207,6 +207,13 @@ public:
 				items[i] = SelectionItem(ele[i]);
 				items[i].InitParentMenu(this);
 				items[i].InitInnerMenu(ele[i]->pGetMenu());
+			}
+		}
+		if (ele.size() == 0 && items.size() > 0) //edge case
+		{
+			while (items.size() != 0)
+			{
+				items.pop_back();
 			}
 		}
 	}
