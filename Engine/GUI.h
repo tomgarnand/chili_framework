@@ -5,6 +5,7 @@
 #include "SelectionMenu.h"
 //#include "ProcessMenu.h"
 #include "GameContainer.h"
+#include "Action.h"
 
 class GUI
 {
@@ -89,6 +90,9 @@ public:
 	//items - maybe a container container down the line
 	Collection::Item item = Collection::Item("Health Potion", pGetConfirmMenu());
 	Collection::Equipment armor = Collection::Equipment("Armour", pGetConfirmMenu());
+
+	
+	
 
 	//SelectionMenus
 	SelectionMenu Inventory;

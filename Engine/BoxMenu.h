@@ -53,6 +53,28 @@ public:
 			boxItems.emplace_back(boxRectIs[i], i);
 		}
 	}
+	BoxMenu(std::vector<RectI> boxRectIs)
+		:
+		boxRectIs(boxRectIs)
+	{
+		for (int i = 0; i < boxRectIs.size(); i++)
+		{
+			boxItems.emplace_back(boxRectIs[i], i);
+		}
+		int xMin = boxRectIs[0].left;
+		int yMin = boxRectIs[0].right;
+		int xMax = boxRectIs[0].top;
+		int yMax = boxRectIs[0].bottom;
+		for (RectI& rect : boxRectIs)
+		{
+			if (rect.left    < xMin) { xMin = rect.left;   }
+			if (rect.right   < xMax) { xMax = rect.right;  }
+			if (rect.top     < yMin) { yMin = rect.top;    }
+			if (rect.bottom  < yMax) { yMax = rect.bottom; }
+		}
+		const int CxMin = xMin;
+		menuRect = RectI( xMin, xMax, yMin, yMax );
+	}
 	std::vector<BoxItem> GetBoxItems(){return boxItems;}
 	BoxItem* pGetBoxItems() { return boxItems.data(); } 
 	RectI GetMenuRect() const { return menuRect; }
@@ -121,9 +143,9 @@ private:
 	static constexpr Color color = Colors::Blue;
 	std::vector<BoxItem> boxItems;
 	std::vector<RectI> boxRectIs;
-	const RectI menuRect;
-	int height;//height of one single line
-	int rows;//total number of rows
+	RectI menuRect;
+	int height = 0;//height of one single line
+	int rows = 0;//total number of rows
 	int xOff = 0;
 	int yOff = 0;
 	bool centered = false;

@@ -8,7 +8,10 @@
 class MenuProcessing
 {
 public:
-	MenuProcessing() = default;
+	MenuProcessing(Collection* allEntities)
+		:
+		allEntities(allEntities)
+	{}
 
 	void DrawGUI(std::vector<SelectionMenu*> stack, Graphics& gfx, Font* font)
 	{
@@ -68,15 +71,18 @@ public:
 
 			if (e.GetType() == Mouse::Event::Type::LPress && select != nullptr)
 			{
-				if (select->pGetEle() != nullptr)
+				if (select->pGetEle() != nullptr) //if the selected SelectionItem contains an Element
 				{
-					SuspendProcess(Stack); //design choice to make menu untargetable when an item is clicked. Could be changed to avoid (hitting Escape?) to cancel
+					SuspendProcess(Stack); //move the stack to storage, so it cant be interacted with (until we resolve the selected Element)
+					
+					//design choice to make menu untargetable when an item is clicked. Could be changed to avoid (hitting Escape?) to cancel
 					//if I wanted to make the menu still interactable, I would just need to remove the Element from storage in *this when the 'confirmation menu' is unselected below
 					//of course, it would be tough (atm) to implement suspending for select menus/elements
+
 					Stack = {};
-					Stack.emplace_back(select->pGetNextMenu());
+					Stack.emplace_back(select->pGetNextMenu()); //new Stack is the nextMenu of SelectionItem select (could be nullptr)
 					element = select->pGetEle();
-					collection = select->pGetParentMenu()->pGetCollection();
+					collection = select->pGetParentMenu()->pGetCollection(); //game container for SelectionItem select's element
 					return Stack;
 				}
 				
@@ -106,6 +112,7 @@ public:
 							Stack.pop_back();
 						}
 						//Emplace the NextMenu the Selected Entry points to
+						rerun_pGetNextMenu:
 						auto e_temp = e.pGetNextMenu();
 						if (e.pGetNextMenu() != nullptr)
 						{
@@ -119,14 +126,23 @@ public:
 						}
 						else //this occurs when the stack has been suspended, but now a menu has been selected that doesnt lead anywhere
 						{
-							
-							element->Use();
+							if (element->NeedsTarget())
+							{
+								if (element->pGetMenu() == nullptr) //first time through here, create the menu then go back
+								{
+									CreateTargetingMenu();
+									goto rerun_pGetNextMenu;
+								}
+								element->Clear_pMenu(); //2nd time through, clear the menu, then use element
+								delete targetingMenu;
+							}
+							element->Use(); //TODO need to give the element data from targetmenu
 							
 							// Translator class Target
 							// Takes overloaded inputs, converts it to the input needed by the derived element in a container
 							// 
 							//delete element;
-							collection->RemoveElement(element);
+							collection->RemoveElement(element); //only if removeafteruse is true
 							element = nullptr;
 							collection = nullptr;
 							Stack[0]->pGetBoxMenu()->ResetSelectedTab();
@@ -259,9 +275,23 @@ public:
 		stored_stack.clear();
 		return temp;
 	}
+	void CreateTargetingMenu() //current map? world? player?
+	{
+		std::vector<RectI> boxes;
+		for (Collection::Element* elemPtr : *allEntities) 
+		{
+			//implement target filtering
+			Collection::eEntity* e = static_cast<Collection::eEntity*>(elemPtr);
+			boxes.emplace_back(e->pGetEntity()->GetHitBox());
+		}
+		targetingMenu = new SelectionMenu(BoxMenu(boxes), allEntities);
+		element->GiveTargetingMenu(targetingMenu);
+	}
 
 private:
+	Collection* allEntities; //make sure this is of entity type, or the static cast gon have a bad time
 	std::vector<SelectionMenu*> stored_stack;
+	SelectionMenu* targetingMenu = nullptr;
 
 	Collection::Element* element = nullptr;
 	BoxMenu::BoxItem* element_box = nullptr;

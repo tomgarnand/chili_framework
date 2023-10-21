@@ -14,8 +14,9 @@
 class Entity
 {
 public:
-	Entity( Surface& src ) //maybe it doesn't nec need a surface, if it can be initialized with tiled import
+	Entity( std::string name, Surface& src ) //maybe it doesn't nec need a surface, if it can be initialized with tiled import
 		:
+		name(name),
 		src( src ),
 		current_action(Idle)
 	{
@@ -25,8 +26,9 @@ public:
 		tick = 0;
 
 	}
-	Entity(Surface& src, Attributes stats, std::pair<std::string, Vec2> starting_pos)
+	Entity(std::string name, Surface& src, Attributes stats, std::pair<std::string, Vec2> starting_pos)
 		:
+		name(name),
 		src(src),
 		current_action(Idle),
 		stats(stats)
@@ -40,30 +42,18 @@ public:
 		Health = 10;
 		tick = 0;
 	}
-	const Vec2& GetPos(const std::string& map) const
-	{
-		return pos.at(map);
-	}
-	void SetPos(const std::string& map, const Vec2& newPos )
-	{
-		pos[map] = newPos;
-	}
+	const std::string& GetName() const { return name; }
+	const Vec2& GetPos(const std::string& map) const{return pos.at(map);}
+	void SetPos(const std::string& map, const Vec2& newPos ){pos[map] = newPos;}
 	//void TranslateBy( const Vec2& offset ){pos += offset;}
-	void SetScale( float s )
+	void SetScale( float s ){scale = s;}
+	float GetScale() const{return scale;}
+	void SetAngle( float a ){angle = a;}
+	float GetAngle() const{return angle;}
+
+	RectI GetHitBox() const
 	{
-		scale = s;
-	}
-	float GetScale() const
-	{
-		return scale;
-	}
-	void SetAngle( float a )
-	{
-		angle = a;
-	}
-	float GetAngle() const
-	{
-		return angle;
+		return RectI(Vec2(GetPos(current_map) - radius), Vec2(GetPos(current_map) + radius));
 	}
 
 	Drawable GetDrawable(const std::string& map) const;
@@ -103,6 +93,8 @@ public:
 	//void Update(std::string current_map, const Entity& player);
 
 protected:
+	std::string name;
+
 	float radius = 25.0f;
 
 	float angle = 0.0f;

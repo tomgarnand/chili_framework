@@ -83,6 +83,8 @@ private:
 
 	GameState state = GameState::Moving;
 	GUI gui;
+	Collection allEntities;
+	
 
 	MenuProcessing menu;
 	std::vector<SelectionMenu*> Stack;

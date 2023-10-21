@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
+#include "Player.h"
+#include "Action.h"
 
 //useage:
 //Collection::Item* new_item = new Collection::Item(gui.item);
@@ -16,12 +18,16 @@ public:
 	class Element //game object
 	{
 	public:
+		Element(std::string name)
+			:
+			name(name)
+		{}
 		Element(std::string name, SelectionMenu* menu)
 			:
 			name(name),
 			menu(menu)
 		{
-			remove_after_use = true;
+			//remove_after_use = true;
 		}
 		std::string GetString() { return name; }
 		virtual void Use() = 0;
@@ -29,14 +35,24 @@ public:
 		{
 			return menu;
 		}
+		void Clear_pMenu()
+		{
+			menu = nullptr;
+		}
 		bool CheckRemove()
 		{
 			return remove_after_use;
 		}
+		bool NeedsTarget() const { return needsTarget; }
+		void GiveTargetingMenu(SelectionMenu* targeting)
+		{
+			menu = targeting;
+		}
 	protected:
 		std::string name;
-		SelectionMenu* menu;
-		bool remove_after_use;
+		SelectionMenu* menu = nullptr;
+		bool remove_after_use = false;
+		bool needsTarget = false;
 
 	};
 	class Item : public Element
@@ -90,9 +106,51 @@ public:
 	private:
 		Collection* paired_collection = nullptr;
 	};
+	class eEntity : public Element //all entities (per map?)
+	{
+	public:
+		eEntity(Entity* entity)
+			:
+			Element(entity->GetName()),
+			entity(entity)
+		{}
+		void Use()
+		{
+
+		}
+		Entity* pGetEntity() { return entity; }
+		
+	private:
+		Entity* entity = nullptr;
+	};
+	class eAction : public Element
+	{
+	public:
+		eAction(Action* action)
+			:
+			Element(action->GetName()),
+			action(action)
+		{
+			needsTarget = true;
+		}
+		void Use()
+		{
+
+		}
+	private:
+		Action* action = nullptr;
+	};
 public:
 	Collection() = default;
-	
+
+	using iterator = typename std::vector<Element*>::iterator;
+	using const_iterator = typename std::vector<Element*>::const_iterator;
+	// For non-const collections
+	iterator begin() { return collection.begin(); }
+	iterator end() { return collection.end(); }
+	// For const collections
+	const_iterator begin() const { return collection.begin(); }
+	const_iterator end() const { return collection.end(); }
 	
 
 	void AddElement(Element* element)

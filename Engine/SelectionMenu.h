@@ -44,7 +44,6 @@ public:
 		{
 			return (s != other.s);
 		}
-
 		std::string GetStr() const
 		{
 			if (this == nullptr)
@@ -61,7 +60,6 @@ public:
 			}
 			return element; 
 		}
-
 		void InitInnerMenu(SelectionMenu* inner)
 		{
 			NextMenu = inner;
@@ -70,14 +68,8 @@ public:
 		{
 			ParentMenu = parent;
 		}
-		SelectionMenu* pGetNextMenu() const
-		{
-			return NextMenu;
-		}
-		SelectionMenu* pGetParentMenu() const
-		{
-			return ParentMenu;
-		}
+		SelectionMenu* pGetNextMenu() const { return NextMenu; }
+		SelectionMenu* pGetParentMenu() const { return ParentMenu; }
 
 	private:
 		std::string s;

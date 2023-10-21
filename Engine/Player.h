@@ -6,9 +6,9 @@
 class Player : public Entity
 {
 public:
-	Player(Surface& src, Attributes stats, std::pair<std::string, Vec2> starting_pos)
+	Player(std::string name, Surface& src, Attributes stats, std::pair<std::string, Vec2> starting_pos)
 		:
-		Entity(src, stats, starting_pos)
+		Entity(name, src, stats, starting_pos)
 	{
 	
 	}

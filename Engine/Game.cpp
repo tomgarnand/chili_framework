@@ -29,16 +29,24 @@ Game::Game(MainWindow& wnd)
 	wnd(wnd),
 	gfx(wnd),
 	gui(),
-	menu(),
+	menu(&allEntities),
 	cam(gfx),
-	player(link, Attributes(), { current_map, {100,100}}),
-	npc1(link, Attributes(), { current_map, {200,200} }),
+	player("link", link, Attributes(), {current_map, {100,100}}),
+	npc1("npc1", link, Attributes(), {current_map, {200,200}}),
 	world()
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
 	Stack.emplace_back(gui.pGetMainMenu());
 
-	
+	Collection::eEntity* eNpc1 = new Collection::eEntity(&npc1);
+	allEntities.AddElement(eNpc1);
+
+
+	Application* Burn = new Application(Effect(EffectCategory::Active, EffectType::Burn, 10, 1.0f));
+	Action* Fireball = new Action("Fireball", Burn);
+	Collection::eAction* aFireball = new Collection::eAction(Fireball);
+	gui.Collection_Spells.AddElement(aFireball);
+
 	//WalkingLeft = 0
 	//WalkingRight,
 	//WalkingUp,
@@ -56,19 +64,6 @@ Game::Game(MainWindow& wnd)
 	{
 		link_animations.emplace_back(Animation(0, 90 * (i - 4), 90, 90, 1, link, 0.16f));
 	}
-	//WalkingLeft   ;
-	//WalkingRight  ;
-	//WalkingUp     ;
-	//WalkingDown   ;
-	//StandingLeft  ;
-	//StandingRight ;
-	//StandingUp    ;
-	//StandingDown  ;
-
-
-	
-
-	
 
 	player.AddAction(WalkingLeft, link_animations[0]);
 	player.AddAction(WalkingRight, link_animations[1]);
@@ -225,6 +220,6 @@ void Game::ComposeFrame()
 	}
 	
 	cam.Draw(player.GetDrawable(current_map));
-	//cam.Draw(npc1.GetDrawable(current_map));
+	cam.Draw(npc1.GetDrawable(current_map));
 
 }

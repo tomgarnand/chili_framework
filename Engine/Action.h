@@ -116,7 +116,7 @@ public:
 private:
 	EffectCategory cat;
 	EffectType type;
-	int duration; //0 duration represents a subtick effect
+	int duration; //0 duration represents an instant effect
 	float effectiveness;
 };
 
@@ -361,6 +361,13 @@ public:
 		SubTick = subTick_in;
 
 	}
+	Action(std::string name_in, Application* application)
+		:
+		Action(application)
+	{
+		name.clear();
+		name = name_in;
+	}
 	Action(const int& maxTicks, std::vector<Application*> ApplicationVector, const Criteria& criteria, const float& range)
 		:
 		ApplicationVector(ApplicationVector),
@@ -368,6 +375,13 @@ public:
 		criteria(criteria),
 		range(range)
 	{}
+	Action(std::string name_in, const int& maxTicks, std::vector<Application*> ApplicationVector, const Criteria& criteria, const float& range)
+		:
+		Action(maxTicks, ApplicationVector, criteria, range)
+	{
+		name.clear();
+		name = name_in;
+	}
 	int GetMaxTicks() const { return maxTicks; }
 
 	Application* GetApplicationByTick(const int& tick) //could be multiple applications per tick
@@ -375,6 +389,8 @@ public:
 	bool CriteriaPassed(const Status& status); //returns true if criteria doesn't prevent action from occuring
 	bool CheckRange(const float& dist) const { return (range > dist); }
 	bool IsSubTickEvent() const { return SubTick; }
+	std::string GetName() const { return name; }
+	bool RequiresTargetSelection() { return false; }
 
 private:
 	int maxTicks = -1; //uninitialized value, aka lasts forever
@@ -383,6 +399,16 @@ private:
 	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
 	bool SubTick = false;
 	static Criteria noCriteria;
+	std::string name = "";
+
+	//targets
+	//self only
+	//self or other(min_range, max_range)
+	//other only (min_range, max_range)
+	//AoE all (min_range, max_range)
+	//AoE all less self (min_range, max_range)
+	//AoE choice (min_range, max_range)
+	//AoE area (X by Y) (min_range, max_range)
 };
 
 
