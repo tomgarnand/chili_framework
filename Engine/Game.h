@@ -83,7 +83,6 @@ private:
 
 	GameState state = GameState::Moving;
 	GUI gui;
-	Collection allEntities;
 	
 
 	MenuProcessing menu;
@@ -94,6 +93,7 @@ private:
 
 	Player player;
 	Entity npc1;
+	Entity npc2;
 
 	std::vector<Entity*> entities;
 

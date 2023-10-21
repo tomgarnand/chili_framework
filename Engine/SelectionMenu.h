@@ -1,15 +1,8 @@
 #pragma once
-#include "Graphics.h"
-#include "Rect.h"
-#include "Mouse.h"
-#include "Sound.h"
 #include <string>
-#include "Font.h"
 #include <vector>
-#include <functional>
-#include <cmath>
 #include "BoxMenu.h"
-#include "GameContainer.h"
+
 
 
 
@@ -18,17 +11,28 @@ class SelectionMenu
 public:
 	class SelectionItem
 	{
-	using Element = Collection::Element;
 	public:
 		SelectionItem(std::string s)
 			:
 			s(s)
-		{}
-		SelectionItem(Element* element)
-			:
-			element(element)
 		{
-			s = element->GetString();
+			leaf = false;
+		}
+		SelectionItem(Entity* entity)
+			:
+			entity(entity)
+		{
+			s = entity->GetName();
+			leaf = true;
+			isEntity = true;
+		}
+		SelectionItem(Action* action)
+			:
+			action(action)
+		{
+			s = action->GetName();
+			leaf = true;
+			isAction = true;
 		}
 		~SelectionItem() = default;
 		SelectionItem operator=(const SelectionItem& other)
@@ -52,15 +56,20 @@ public:
 			}
 			return s;
 		}
-		Element* pGetEle() 
+		Action* pGetAction() 
 		{
-			if (this == nullptr)
-			{
-				return nullptr;
-			}
-			return element; 
+			if (this == nullptr) { return nullptr; }
+			return action; 
 		}
-		void InitInnerMenu(SelectionMenu* inner)
+		Entity* pGetEntity() 
+		{
+			if (this == nullptr) { return nullptr; }
+			return entity;
+		}
+		bool IsLeaf() const { return leaf; }
+		bool IsAction() const { return isAction; }
+		bool IsEntity() const { return isEntity; }
+		void InitNextMenu(SelectionMenu* inner)
 		{
 			NextMenu = inner;
 		}
@@ -70,6 +79,7 @@ public:
 		}
 		SelectionMenu* pGetNextMenu() const { return NextMenu; }
 		SelectionMenu* pGetParentMenu() const { return ParentMenu; }
+		bool NeedsTarget() const { return needsTarget; }
 
 	private:
 		std::string s;
@@ -77,22 +87,41 @@ public:
 		SelectionMenu* NextMenu = nullptr; //SelectionMenu that *this item leads to
 		SelectionMenu* ParentMenu = nullptr; //SelectionMenu that *this item is contained in
 
-		Element* element = nullptr;
+		bool leaf;
+		bool needsTarget;
+		Action* action = nullptr;
+		bool isAction = false;
+		Entity* entity = nullptr;
+		bool isEntity = false;
+		//Equipment* equip = nullptr;
+		//bool isEquipment = false;
 	};
 public:
-	SelectionMenu(BoxMenu box, Collection* collection)
+	SelectionMenu(BoxMenu box, std::vector<Entity*>* entities) //bottom level menu
 		:
 		boxmenu(box),
-		collection(collection)
+		entities(entities)
 	{
-		for (auto& e : collection->pGetpElements())
+		for (auto* e : *entities)
 		{
 			items.emplace_back(e);
 		}
-
+		isEntityMenu = true;
 
 	}
-	SelectionMenu(BoxMenu box, std::vector<std::string> input, std::vector<SelectionMenu*> NextMenu)
+	SelectionMenu(BoxMenu box, std::vector<Action*>* actions) //bottom level menu
+		:
+		boxmenu(box),
+		actions(actions)
+	{
+		for (auto* e : *actions)
+		{
+			items.emplace_back(e);
+		}
+		isEntityMenu = true;
+
+	}
+	SelectionMenu(BoxMenu box, std::vector<std::string> input, std::vector<SelectionMenu*> NextMenu) //top level menu
 		:
 		SelectionMenu(box, input)
 	{
@@ -105,14 +134,13 @@ public:
 			}
 			if (NextMenu[i] != nullptr)
 			{
-				e.InitInnerMenu(NextMenu[i]);
+				e.InitNextMenu(NextMenu[i]);
 				e.InitParentMenu(this);
 			}
 			i++;
 		}
-		//we only ever need to init one layer of selectionMenu's, because they are reverse-initialized, starting with a empty (front level, intended to be modified in game) selectionmenu
 	}
-	SelectionMenu(BoxMenu box, std::vector<std::string> input)
+	SelectionMenu(BoxMenu box, std::vector<std::string> input) //diaglog selection, standalone menu, or testing dead end
 		:
 		boxmenu(box)
 	{
@@ -121,20 +149,10 @@ public:
 			items.emplace_back(s);
 		}
 	}
-	SelectionMenu* pGetSelectionMenu()
-	{
-		return this;
-	}
-	Collection* pGetCollection()
-	{
-		return collection;
-	}
+
 	SelectionItem* GetOpenDefault() const 
 	{
-		if (this == nullptr)
-		{
-			return nullptr;
-		}
+		if (this == nullptr){return nullptr;}
 		return openDefaultEntry; 
 	}
 	std::vector<SelectionItem> GetSelectionItems() { return items; }
@@ -170,52 +188,31 @@ public:
 			
 		}
 	}
-	bool NeedsUpdate()
+	
+	void Update()
 	{
-		if (this == nullptr)
+		if (IsActionMenu() && items.size() != actions->size()) //it would be real bad if a zero sum operation happened on a menu...
 		{
-			return false;
-		}
-		if (collection == nullptr)
-		{
-			return false;
-		}
-		else
-		{
-			return collection->IsQueueUpdate();
-		}
-	}
-	void UpdateFromCollection()
-	{
-
-		auto ele = collection->pGetpElements();
-		
-		for (int i = int(ele.size()) - 1; i >= 0 ; i--)
-		{
-			if (items.size() < ele.size())
+			for (int i = 0; i == int(actions->size()) -1; i++)
 			{
-				items.emplace(items.begin(), ele[i]);
-				items.front().InitParentMenu(this);
-				items.front().InitInnerMenu(ele[i]->pGetMenu());
-			}
-			else if (items.size() > ele.size())
-			{
-				items.pop_back();
-			}
-			else if (items[i].pGetEle() != ele[i])
-			{
-				items[i] = SelectionItem(ele[i]);
-				items[i].InitParentMenu(this);
-				items[i].InitInnerMenu(ele[i]->pGetMenu());
+				if (items[i].pGetAction() != (*actions)[i])
+				{
+					items[i] = SelectionItem((*actions)[i]);
+					items[i].InitParentMenu(this);
+				}
 			}
 		}
-		if (ele.size() == 0 && items.size() > 0) //edge case
+		else if (IsEntityMenu())
 		{
-			while (items.size() != 0)
+			for (int i = 0; i == int(entities->size()) - 1; i++)
 			{
-				items.pop_back();
+				if (items[i].pGetEntity() != (*entities)[i])
+				{
+					items[i] = SelectionItem((*entities)[i]);
+					items[i].InitParentMenu(this);
+				}
 			}
-		}
+		}	
 	}
 	void SetDefaultEntry(int i) 
 	{
@@ -231,15 +228,20 @@ public:
 	{
 		openDefaultEntry = nullptr;
 	}
-
+	bool IsActionMenu() const  { return isActionMenu;}
+	bool IsEntityMenu() const { return isEntityMenu; }
 private:
 	std::vector<SelectionItem> items;
 	BoxMenu boxmenu;
-	Collection* collection = nullptr;
+	std::vector<Entity*>* entities = nullptr;
+	std::vector<Action*>* actions = nullptr;
+	//std::vector<Equipment*>* actions = nullptr;
+
+	bool isEntityMenu = false;
+	bool isActionMenu = false;
 
 	SelectionMenu::SelectionItem* openDefaultEntry = nullptr; //For when a 'Tab' menu should be paired with another menu. Could be used in longer chains too
 
 	int ScrollOffset = 0; //1 = 1 row down
-	bool QueueUpdate = false;
 };
 

@@ -12,6 +12,7 @@
 
 class SelectionMenu; //forward declaration
 
+
 class Collection //game container
 {
 public:

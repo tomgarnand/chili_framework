@@ -33,6 +33,7 @@ Game::Game(MainWindow& wnd)
 	cam(gfx),
 	player("link", link, Attributes(), {current_map, {100,100}}),
 	npc1("npc1", link, Attributes(), {current_map, {200,200}}),
+	npc2("npc2", link, Attributes(), { current_map, {400,200} }),
 	world()
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
@@ -41,6 +42,10 @@ Game::Game(MainWindow& wnd)
 	Collection::eEntity* eNpc1 = new Collection::eEntity(&npc1);
 	entities.emplace_back(&npc1);
 	allEntities.AddElement(eNpc1);
+
+	Collection::eEntity* eNpc2 = new Collection::eEntity(&npc2);
+	entities.emplace_back(&npc2);
+	allEntities.AddElement(eNpc2);
 
 
 	Application* Burn = new Application(Effect(EffectCategory::Active, EffectType::Burn, 10, 1.0f));
@@ -242,5 +247,6 @@ void Game::ComposeFrame()
 	
 	cam.Draw(player.GetDrawable(current_map));
 	cam.Draw(npc1.GetDrawable(current_map));
+	cam.Draw(npc2.GetDrawable(current_map));
 
 }

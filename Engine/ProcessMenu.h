@@ -1,14 +1,12 @@
 #pragma once
 #include "SelectionMenu.h"
-#include "GameContainer.h"
-#include "GUI.h"
 #include "MainWindow.h"
 #include <cmath>
 
 class MenuProcessing
 {
 public:
-	MenuProcessing(Player* player, Collection* allEntities)
+	MenuProcessing(Player* player, std::vector<Entity*>* allEntities)
 		:
 		player(player),
 		allEntities(allEntities)
@@ -21,20 +19,14 @@ public:
 			for (auto sm : stored_stack)
 			{
 				//everytime we draw a menu, we should make sure none of the SelectionItems need to be updated
-				//pretty lightweight, just looks at a boolean in the selectionMenu's associated collection
-				if (sm->NeedsUpdate())
-				{
-					sm->UpdateFromCollection();
-				}
+				//need to lock in when menus get updated so I can add a flag to run this
+				sm->Update();
 				DrawMenu(sm, gfx, font);
 			}
 		}
 		for (auto sm : stack)
 		{
-			if (sm->NeedsUpdate()) //as above, so below
-			{
-				sm->UpdateFromCollection();
-			}
+			sm->Update();
 			DrawMenu(sm, gfx, font);
 		}
 	}
@@ -72,54 +64,38 @@ public:
 
 			if (e.GetType() == Mouse::Event::Type::LPress && select != nullptr)
 			{
-				if (select->pGetEle() != nullptr) //if the selected SelectionItem contains an Element
+				if (select->IsLeaf()) //if the selected SelectionItem contains an Element
 				{
-					if (targetingMenu != nullptr) //Collection::eEntity* entity = dynamic_cast<Collection::eEntity*>(select->pGetEle()))
+					if (select->IsAction())
 					{
-						Collection::eEntity* e = static_cast<Collection::eEntity*>(select->pGetEle());
-						target = e->pGetEntity();
-						element->Use(player, target);
+						if (select->NeedsTarget() && targetingMenu != nullptr) //if the selected item needs a target and a targeting menu hasn't been made yet, make a targeting menu and store the action
+						{
+							SuspendProcess(Stack); //move the stack to storage, so it cant be interacted with (until we resolve the selected Element)
+							Stack = {};
+							hide_stored_stack = true;
 
+							CreateTargetingMenu();
+							select->InitNextMenu(targetingMenu);
+							Stack.emplace_back(select->pGetNextMenu()); //new Stack is the nextMenu of SelectionItem select
+							return Stack;
+						}
+					}
+					if (select->IsEntity() && leaf != nullptr) //if the selected item is an entity and a leaf has been stored
+					{
+						player->QueueAction(leaf->pGetAction(), select->pGetEntity());
+
+						//clean up
 						delete targetingMenu;
 						targetingMenu = nullptr;
-						collection->RemoveElement(element); //only if removeafteruse is true
-						element = nullptr;
-						collection = nullptr;
-						Stack[0]->pGetBoxMenu()->ResetSelectedTab();
-						Stack[0]->ResetDefaultEntry();
-						Stack[0]->pGetBoxMenu()->ResetHighlights();
+
+						ResetHighlights(Stack);
 						Stack = ResolveProcess();
-						element_box->ResetSelectedTab();
-						element_box->ResetHighlight();
-						element_box = nullptr;
+
 						SetForceClose();
 						return Stack;
-					}
-					else
-					{
-						SuspendProcess(Stack); //move the stack to storage, so it cant be interacted with (until we resolve the selected Element)
-
-						//design choice to make menu untargetable when an item is clicked. Could be changed to avoid (hitting Escape?) to cancel
-						//if I wanted to make the menu still interactable, I would just need to remove the Element from storage in *this when the 'confirmation menu' is unselected below
-						//of course, it would be tough (atm) to implement suspending for select menus/elements
-
-						Stack = {};
-						element = select->pGetEle();
-						collection = select->pGetParentMenu()->pGetCollection(); //game container for SelectionItem select's element
-						if (element->NeedsTarget() && element->pGetMenu() == nullptr) //no functionality if the element has a specific menu rn, not even sure they should be holding a menu in the first place
-						{
-							hide_stored_stack = true;
-							CreateTargetingMenu();
-							select->InitInnerMenu(targetingMenu);
-						}
-
-						Stack.emplace_back(select->pGetNextMenu()); //new Stack is the nextMenu of SelectionItem select (could be nullptr)
-
-						return Stack;
+							
 					}
 				}
-				
-
 				if (select->GetStr() == "Game End")
 				{
 					wnd.Kill();
@@ -158,19 +134,7 @@ public:
 						}
 						else //this occurs when the stack has been suspended, but now a menu has been selected that doesnt lead anywhere
 						{
-
-							delete targetingMenu;
-							collection->RemoveElement(element); //only if removeafteruse is true
-							element = nullptr;
-							collection = nullptr;
-							Stack[0]->pGetBoxMenu()->ResetSelectedTab();
-							Stack[0]->ResetDefaultEntry();
-							Stack[0]->pGetBoxMenu()->ResetHighlights();
-							Stack = ResolveProcess();
-							element_box->ResetSelectedTab();
-							element_box->ResetHighlight();
-							element_box = nullptr;
-							SetForceClose();
+							assert(true); //a selectionitem is clicked on that is not a leaf & has no nextmenu
 							return Stack;
 						}
 					}
@@ -239,7 +203,7 @@ public:
 					check->pGetBoxMenu()->ResetSelectedTab();
 					bm[i].SetSelectedTab();
 
-					if (sm[iOffset].pGetEle() != nullptr)
+					if (sm[iOffset].IsLeaf())
 					{
 						element_box = &bm[i];
 					}
@@ -297,14 +261,13 @@ public:
 	void CreateTargetingMenu() //current map? world? player?
 	{
 		std::vector<RectI> boxes;
-		for (Collection::Element* elemPtr : *allEntities) 
+		for (Entity* entity : *allEntities)
 		{
 			//implement target filtering
-			Collection::eEntity* e = static_cast<Collection::eEntity*>(elemPtr);
-			boxes.emplace_back(e->pGetEntity()->GetHitBox());
+			
+			boxes.emplace_back(entity->GetHitBox());
 		}
 		targetingMenu = new SelectionMenu(BoxMenu(boxes), allEntities);
-		//element->GiveTargetingMenu(targetingMenu);
 	}
 	bool ForceClose()
 	{
@@ -316,19 +279,27 @@ public:
 	{
 		forceClose = true;
 	}
-
+	void ResetHighlights(std::vector<SelectionMenu*> Stack)
+	{
+		Stack[0]->pGetBoxMenu()->ResetSelectedTab();
+		Stack[0]->ResetDefaultEntry();
+		Stack[0]->pGetBoxMenu()->ResetHighlights();
+		element_box->ResetSelectedTab();
+		element_box->ResetHighlight();
+		element_box = nullptr;
+	}
 private:
 	Player* player;
-
-	Collection* allEntities; //make sure this is of entity type, or the static cast gon have a bad time
+	std::vector<Entity*>* allEntities; //make sure this is of entity type, or the static cast gon have a bad time
 	Entity* target = nullptr;
+
 	std::vector<SelectionMenu*> stored_stack;
+	bool forceClose = false;
 	bool hide_stored_stack = false;
+	BoxMenu::BoxItem* element_box = nullptr;
+
+	SelectionMenu::SelectionItem* leaf;
 	SelectionMenu* targetingMenu = nullptr;
 
-	Collection::Element* element = nullptr;
-	BoxMenu::BoxItem* element_box = nullptr;
-	Collection* collection = nullptr;
-
-	bool forceClose = false;
+	
 };
