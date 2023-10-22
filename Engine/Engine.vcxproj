@@ -160,11 +160,12 @@
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="DXErr.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Equipment.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FrameTimer.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameAssets.h" />
     <ClInclude Include="Graphics.h" />
-    <ClInclude Include="GUI.h" />
     <ClInclude Include="BoxMenu.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Line.h" />
@@ -206,7 +207,6 @@
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FrameTimer.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GameAssets.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Main.cpp" />

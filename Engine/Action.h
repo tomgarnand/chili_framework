@@ -71,6 +71,7 @@ enum class EffectType
 	Stun,
 	Silence,
 	Disorient, //effects Concentration
+	Heal,
 
 
 	MoveRight,

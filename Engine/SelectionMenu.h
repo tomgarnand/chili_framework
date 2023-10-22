@@ -2,6 +2,9 @@
 #include <string>
 #include <vector>
 #include "BoxMenu.h"
+#include "Entity.h"
+#include "Action.h"
+#include "Equipment.h"
 
 
 
@@ -33,6 +36,7 @@ public:
 			s = action->GetName();
 			leaf = true;
 			isAction = true;
+			needsTarget = true;
 		}
 		~SelectionItem() = default;
 		SelectionItem operator=(const SelectionItem& other)
@@ -87,8 +91,8 @@ public:
 		SelectionMenu* NextMenu = nullptr; //SelectionMenu that *this item leads to
 		SelectionMenu* ParentMenu = nullptr; //SelectionMenu that *this item is contained in
 
-		bool leaf;
-		bool needsTarget;
+		bool leaf = false;
+		bool needsTarget = false;
 		Action* action = nullptr;
 		bool isAction = false;
 		Entity* entity = nullptr;
@@ -118,7 +122,13 @@ public:
 		{
 			items.emplace_back(e);
 		}
-		isEntityMenu = true;
+		isActionMenu = true;
+
+	}
+	SelectionMenu(BoxMenu box, std::vector<Equipment*>* equip)
+		:
+		boxmenu(box)
+	{
 
 	}
 	SelectionMenu(BoxMenu box, std::vector<std::string> input, std::vector<SelectionMenu*> NextMenu) //top level menu
@@ -149,19 +159,30 @@ public:
 			items.emplace_back(s);
 		}
 	}
-
+	void AddNextMenuToActionMenu(Action* action, SelectionMenu* nextMenu)
+	{
+		Update();
+		for (SelectionItem& item : items)
+		{
+			if (item.IsAction())
+			{
+				if (action = item.pGetAction())
+				{
+					item.InitNextMenu(nextMenu);
+				}
+			}
+		}
+	}
 	SelectionItem* GetOpenDefault() const 
 	{
 		if (this == nullptr){return nullptr;}
 		return openDefaultEntry; 
 	}
-	std::vector<SelectionItem> GetSelectionItems() { return items; }
+	std::vector<SelectionItem>& GetSelectionItems() { return items; }
 	SelectionItem* pGetSelectionItems() { return items.data(); }
 	BoxMenu GetBoxMenu() { return boxmenu; }
 	BoxMenu* pGetBoxMenu() { return &boxmenu; }
 	int GetScrollOffset() { return ScrollOffset; }
-
-
 	void UpdateScrollOffset(int dir)
 	{
 		if (items.size() > boxmenu.GetBoxItemRects().size())
@@ -193,22 +214,22 @@ public:
 	{
 		if (IsActionMenu() && items.size() != actions->size()) //it would be real bad if a zero sum operation happened on a menu...
 		{
-			for (int i = 0; i == int(actions->size()) -1; i++)
+			for (int i = 0; i < int(actions->size()); i++)
 			{
-				if (items[i].pGetAction() != (*actions)[i])
+				if (items.empty() || items[i].pGetAction() == nullptr || items[i].pGetAction() != (*actions)[i])
 				{
-					items[i] = SelectionItem((*actions)[i]);
+					items.insert(items.begin() + i, SelectionItem((*actions)[i]));
 					items[i].InitParentMenu(this);
 				}
 			}
 		}
 		else if (IsEntityMenu())
 		{
-			for (int i = 0; i == int(entities->size()) - 1; i++)
+			for (int i = 0; i < int(entities->size()); i++)
 			{
-				if (items[i].pGetEntity() != (*entities)[i])
+				if (items.empty() || items[i].pGetEntity() == nullptr || items[i].pGetEntity() != (*entities)[i])
 				{
-					items[i] = SelectionItem((*entities)[i]);
+					items.insert(items.begin() + i, SelectionItem((*entities)[i]));
 					items[i].InitParentMenu(this);
 				}
 			}

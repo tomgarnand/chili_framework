@@ -28,7 +28,6 @@
 
 #include "Font.h"
 #include "Sound.h"
-#include "GUI.h"
 #include <utility>
 #include <functional>
 #include <map>
@@ -39,6 +38,7 @@
 #include "Entity.h"
 #include "Player.h"
 #include "ControlConfig.h"
+#include "GameAssets.h"
 
 class Game
 {
@@ -72,60 +72,21 @@ private:
 	float TickTimer = 0.0f;
 	float maxTickDuration = 2.0f;
 
-	Font font = Font("Images//Fixedsys16x28.bmp", Colors::White);
-	Surface link = Surface("Images//link90x90.bmp");
-	Sound hover = { L"Sounds//menu_boop.wav" };
+	std::string current_map = "testmap";
+
 
 	World world;
-	std::string current_map = "testmap";
+	
 	std::vector<std::string> StateStack;
 
 
 	GameState state = GameState::Moving;
-	GUI gui;
+	GameAssets g;
 	
 
 	MenuProcessing menu;
 	std::vector<SelectionMenu*> Stack;
 
 	Camera cam;
-
-
-	Player player;
-	Entity npc1;
-	Entity npc2;
-
-	std::vector<Entity*> entities;
-
-	std::vector<Animation> link_animations;
-
-	
-
-	Application* moveRight = new Application(Effect(EffectCategory::SubTick, EffectType::MoveRight, 0, 1.0f));
-	Action* WalkingRight = new Action("WalkingRight", moveRight);
-
-	Application* moveLeft = new Application(Effect(EffectCategory::SubTick, EffectType::MoveLeft, 0, 1.0f));
-	Action* WalkingLeft = new Action("WalkingLeft", moveLeft);
-
-	Application* moveUp = new Application(Effect(EffectCategory::SubTick, EffectType::MoveUp, 0, 1.0f));
-	Action* WalkingUp = new Action("WalkingUp", moveUp);
-
-	Application* moveDown = new Application(Effect(EffectCategory::SubTick, EffectType::MoveDown, 0, 1.0f));
-	Action* WalkingDown = new Action("WalkingDown", moveDown);
-
-	Application* standRight = new Application(Effect(EffectCategory::SubTick, EffectType::StandRight, 0, 1.0f));
-	Action* StandingRight = new Action("StandingRight", standRight);
-
-	Application* standLeft = new Application(Effect(EffectCategory::SubTick, EffectType::StandLeft, 0, 1.0f));
-	Action* StandingLeft = new Action("StandingLeft", standLeft);
-
-	Application* standUp = new Application(Effect(EffectCategory::SubTick, EffectType::StandUp, 0, 1.0f));
-	Action* StandingUp = new Action("StandingUp", standUp);
-
-	Application* standDown = new Application(Effect(EffectCategory::SubTick, EffectType::StandDown, 0, 1.0f));
-	Action* StandingDown = new Action("StandingDown", standDown);
-
-	std::vector<unsigned char> PressedKeys;
-	unsigned char key = 0;
 	/********************************/
 };

@@ -2,6 +2,8 @@
 #include "SelectionMenu.h"
 #include "MainWindow.h"
 #include <cmath>
+#include "Player.h"
+#include "Entity.h"
 
 class MenuProcessing
 {
@@ -66,15 +68,20 @@ public:
 			{
 				if (select->IsLeaf()) //if the selected SelectionItem contains an Element
 				{
+					if (select->pGetNextMenu() != nullptr)
+					{
+						//TODO
+					}
 					if (select->IsAction())
 					{
-						if (select->NeedsTarget() && targetingMenu != nullptr) //if the selected item needs a target and a targeting menu hasn't been made yet, make a targeting menu and store the action
+						if (select->NeedsTarget() && targetingMenu == nullptr) //if the selected item needs a target and a targeting menu hasn't been made yet, make a targeting menu and store the action
 						{
 							SuspendProcess(Stack); //move the stack to storage, so it cant be interacted with (until we resolve the selected Element)
 							Stack = {};
 							hide_stored_stack = true;
 
 							CreateTargetingMenu();
+							leaf = select;
 							select->InitNextMenu(targetingMenu);
 							Stack.emplace_back(select->pGetNextMenu()); //new Stack is the nextMenu of SelectionItem select
 							return Stack;
@@ -87,6 +94,7 @@ public:
 						//clean up
 						delete targetingMenu;
 						targetingMenu = nullptr;
+						leaf = nullptr;
 
 						ResetHighlights(Stack);
 						Stack = ResolveProcess();
@@ -284,6 +292,9 @@ public:
 		Stack[0]->pGetBoxMenu()->ResetSelectedTab();
 		Stack[0]->ResetDefaultEntry();
 		Stack[0]->pGetBoxMenu()->ResetHighlights();
+		stored_stack[stored_stack.size() - 1]->pGetBoxMenu()->ResetSelectedTab();
+		stored_stack[stored_stack.size() - 1]->ResetDefaultEntry();
+		stored_stack[stored_stack.size() - 1]->pGetBoxMenu()->ResetHighlights();
 		element_box->ResetSelectedTab();
 		element_box->ResetHighlight();
 		element_box = nullptr;
@@ -298,7 +309,7 @@ private:
 	bool hide_stored_stack = false;
 	BoxMenu::BoxItem* element_box = nullptr;
 
-	SelectionMenu::SelectionItem* leaf;
+	SelectionMenu::SelectionItem* leaf = nullptr;
 	SelectionMenu* targetingMenu = nullptr;
 
 	

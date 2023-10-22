@@ -28,65 +28,13 @@ Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
 	gfx(wnd),
-	gui(),
-	menu(&player, &allEntities),
+	g(),
+	menu(g.pPlayer, g.entities),
 	cam(gfx),
-	player("link", link, Attributes(), {current_map, {100,100}}),
-	npc1("npc1", link, Attributes(), {current_map, {200,200}}),
-	npc2("npc2", link, Attributes(), { current_map, {400,200} }),
 	world()
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
-	Stack.emplace_back(gui.pGetMainMenu());
-
-	Collection::eEntity* eNpc1 = new Collection::eEntity(&npc1);
-	entities.emplace_back(&npc1);
-	allEntities.AddElement(eNpc1);
-
-	Collection::eEntity* eNpc2 = new Collection::eEntity(&npc2);
-	entities.emplace_back(&npc2);
-	allEntities.AddElement(eNpc2);
-
-
-	Application* Burn = new Application(Effect(EffectCategory::Active, EffectType::Burn, 10, 1.0f));
-	Action* Fireball = new Action("Fireball", Burn);
-	Collection::eAction* aFireball = new Collection::eAction(Fireball);
-	gui.Collection_Spells.AddElement(aFireball);
-
-	Collection::Item* new_item = new Collection::Item(gui.item);
-	gui.Collection_Inventory.AddElement(new_item);
-	gui.Collection_Inventory.AddElement(new_item);
-
-
-	//WalkingLeft = 0
-	//WalkingRight,
-	//WalkingUp,
-	//WalkingDown,
-	//StandingLeft,
-	//StandingRight,
-	//StandingUp,
-	//StandingDown = 7
-	//Count
-	for (int i = 0; i < 4; i++)
-	{
-		link_animations.emplace_back(Animation(90, 90 * i, 90, 90, 4, link, 0.16f));
-	}
-	for (int i = 4; i < 8; i++)
-	{
-		link_animations.emplace_back(Animation(0, 90 * (i - 4), 90, 90, 1, link, 0.16f));
-	}
-
-	player.AddAction(WalkingLeft, link_animations[0]);
-	player.AddAction(WalkingRight, link_animations[1]);
-	player.AddAction(WalkingUp, link_animations[2]);
-	player.AddAction(WalkingDown, link_animations[3]);
-	player.AddAction(StandingLeft, link_animations[4]);
-	player.AddAction(StandingRight, link_animations[5]);
-	player.AddAction(StandingUp, link_animations[6]);
-	player.AddAction(StandingDown, link_animations[7]);
-	player.AddAction(Entity::Idle, link_animations[7]);
-
-	npc1.AddAction(Entity::Idle, link_animations[7]);
+	Stack.emplace_back(g.pMainMenu);
 
 }
 
@@ -114,7 +62,7 @@ void Game::UpdateModel()
 	{
 		if (state == GameState::Moving)
 		{
-			player.QueueAction(WalkingRight, player.Self());
+			g.player.QueueAction(g.WalkingRight, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
@@ -125,7 +73,7 @@ void Game::UpdateModel()
 	{
 		if (state == GameState::Moving)
 		{
-			player.QueueAction(WalkingLeft, {});
+			g.player.QueueAction(g.WalkingLeft, {});
 		}
 		else if (state == GameState::Menu)
 		{
@@ -136,7 +84,7 @@ void Game::UpdateModel()
 	{
 		if (state == GameState::Moving)
 		{
-			player.QueueAction(WalkingDown, {});
+			g.player.QueueAction(g.WalkingDown, {});
 		}
 		else if (state == GameState::Menu)
 		{
@@ -147,7 +95,7 @@ void Game::UpdateModel()
 	{
 		if (state == GameState::Moving)
 		{
-			player.QueueAction(WalkingUp, {});
+			g.player.QueueAction(g.WalkingUp, {});
 		}
 		else if (state == GameState::Menu)
 		{
@@ -156,7 +104,7 @@ void Game::UpdateModel()
 	}
 	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::SELECT)))
 	{
-		player.QueueAction(Entity::Idle, {});
+		g.player.QueueAction(Entity::Idle, {});
 
 	}
 
@@ -171,8 +119,8 @@ void Game::UpdateModel()
 	if (TickLive)
 	{
 		//subtick
-		player.SubTickUpdate(world, dt, StateStack);
-		for (Entity* unit : entities)
+		g.player.SubTickUpdate(world, dt, StateStack);
+		for (Entity* unit : (*g.entities))
 		{
 			unit->SubTickUpdate(world, dt, StateStack);
 		}
@@ -180,9 +128,9 @@ void Game::UpdateModel()
 		//end tick
 		if (TickTimer > maxTickDuration)
 		{
-			player.EndTick(world, dt, StateStack); //don't check for idleness because idle is default next_action
+			g.player.EndTick(world, dt, StateStack); //don't check for idleness because idle is default next_action
 
-			for (Entity* unit : entities)
+			for (Entity* unit : (*g.entities))
 			{
 				unit->EndTick(world, dt, StateStack);
 			}
@@ -195,21 +143,21 @@ void Game::UpdateModel()
 	if (!TickLive)
 	{
 
-		if (player.IsActionEnded())
+		if (g.player.IsActionEnded())
 		{
-			if (player.IsActionQueued())
+			if (g.player.IsActionQueued())
 			{
-				player.StartAction(player.GetQueuedAction(), player.GetQueuedTargets());
+				g.player.StartAction(g.player.GetQueuedAction(), g.player.GetQueuedTargets());
 			}
 			else
 			{
-				player.StartAction(Entity::Idle, {});
+				g.player.StartAction(Entity::Idle, {});
 			}
 		}
-		player.StartTick(StateStack);
+		g.player.StartTick(StateStack);
 
 
-		for (Entity* unit : entities)
+		for (Entity* unit : (*g.entities))
 		{
 			if (unit->IsActionEnded() == true)
 			{
@@ -242,11 +190,11 @@ void Game::ComposeFrame()
 {
 	if (state == GameState::Menu)
 	{
- 		menu.DrawGUI(Stack, gfx, gui.GetFont());
+ 		menu.DrawGUI(Stack, gfx, g.font);
 	}
 	
-	cam.Draw(player.GetDrawable(current_map));
-	cam.Draw(npc1.GetDrawable(current_map));
-	cam.Draw(npc2.GetDrawable(current_map));
+	cam.Draw(g.player.GetDrawable(current_map));
+	cam.Draw(g.npc1.GetDrawable(current_map));
+	cam.Draw(g.npc2.GetDrawable(current_map));
 
 }
