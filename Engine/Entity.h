@@ -18,19 +18,19 @@ public:
 		:
 		name(name),
 		src( src ),
-		current_action(Idle)
+		current_action(Action::Idle)
 	{
 		//defaults
 		ArmorClass = 10; 
 		Health = 10;
-		tick = 0;
+		tick = -1;
 
 	}
 	Entity(std::string name, Surface& src, Attributes stats, std::pair<std::string, Vec2> starting_pos)
 		:
 		name(name),
 		src(src),
-		current_action(Idle),
+		current_action(Action::Idle),
 		stats(stats)
 		
 	{
@@ -40,7 +40,7 @@ public:
 		//defaults
 		ArmorClass = 10;
 		Health = 10;
-		tick = 0;
+		tick = -1;
 	}
 	const std::string& GetName() const { return name; }
 	const Vec2& GetPos(const std::string& map) const{return pos.at(map);}
@@ -60,6 +60,7 @@ public:
 	
 
 	void Update(const World& world, float dt);
+	void UpdateFromScript();
 	void effectActivate();
 	void AddAction(Action* action_in, Animation animation_in);
 	
@@ -73,7 +74,7 @@ public:
 	void StartAction(Action* action, std::vector<Entity*> targets_in);
 	void AdvanceTick() 
 	{ 
-		if (tick != -1 && tick != 0) 
+		if (tick != -1) 
 		{ tick++; } 
 	}
 	bool IsActionEnded();
@@ -87,7 +88,7 @@ public:
 
 	void SubTickUpdate(const World& world, float dt, std::vector<std::string>& stateStack)
 	{
-		Action* action = Idle;
+		Action* action = Action::Idle;
 		if (SubTickEvent)
 		{
 			//immediately apply the action effects to status, then resolve status
@@ -118,14 +119,14 @@ public:
 		}
 		else //case for animation not found, so that whole spritesheet isnt drawn
 		{
-			actionToAnimate = Idle;
+			actionToAnimate = Action::Idle;
 			auto it = animation.find(actionToAnimate);
 			if (it != animation.end()) {
 				it->second.Update(dt);
 			}
 		}
 
-		//animation effects - currently not used
+		//animation effects
 		if (effectActive)
 		{
 			effectTime += dt;
@@ -187,6 +188,5 @@ protected:
 	bool trigger_check = false;
 	std::string scenario_keyword;
 
-public:
-	static Action* Idle;
+	
 };

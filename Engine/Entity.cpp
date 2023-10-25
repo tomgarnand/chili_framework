@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-Action* Entity::Idle = new Action("Idle");
+
 
 Drawable Entity::GetDrawable(const std::string& map) const
 {
@@ -21,6 +21,10 @@ Drawable Entity::GetDrawable(const std::string& map) const
 			currentFrame = it2->second.GetSourceRect();
 			d.AddSourceRect(currentFrame);
 		}
+		if (effectActive)
+		{
+			d.AddVisualEffect(VisualEffect::Red);
+		}
 
 		d.ApplyTransformation(
 			Mat3::Translation(currentPos.x, currentPos.y) *
@@ -33,7 +37,21 @@ Drawable Entity::GetDrawable(const std::string& map) const
 
 void Entity::Update(const World& world, float dt)
 {
-	//run behaviour script
+	//update active effects
+	for (Effect& effect : statuses.getEffectsByCategory(EffectCategory::Active))
+	{
+		effect.SetDuration(effect.GetDuration() - 1);
+		if (effect.GetDuration() == 0)
+		{
+			//there shouldn't ever be two of the same effecttypes
+			statuses.RemoveEffect(EffectCategory::Active, effect.GetType());
+		}
+	}
+}
+
+void Entity::UpdateFromScript()
+{
+	StartAction(Action::Idle, {});
 }
 
 
@@ -69,7 +87,7 @@ void Entity::EndTick(const World& world, float dt, std::vector<std::string>& sta
 			//rethink this
 			tick = -1;
 			past_actions.emplace_back(current_action);
-			current_action = Idle;
+			current_action = Action::Idle;
 		}
 		else
 		{
@@ -89,8 +107,8 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 	//if you are still able to take the action
 	if (current_action->CriteriaPassed(statuses)) // && current_action.CheckRange())  and range check?? 
 	{
-		AdvanceTick();
-		if (current_action->GetApplicationByTick(tick) != nullptr)
+		
+		if (current_action->GetApplicationByTick(tick) != Application::nullapp)
 		{
 			//Queue hit methods that require input before hit can be determined
 			if (current_action->GetApplicationByTick(tick)->GetHitMethod()->returnAtTickEnd())
@@ -102,7 +120,7 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 	else
 	{
 		//cancel current move
-		current_action = Idle; //rethink this later, dont want to be applying idle when I want to be applying stun, if stun is applied as an action...
+		current_action = Action::Idle; //rethink this later, dont want to be applying idle when I want to be applying stun, if stun is applied as an action...
 	}
 }
 
@@ -128,7 +146,7 @@ void Entity::DoAction(Action* action, std::vector<Entity*> targets, std::vector<
 	if (action->GetApplicationByTick(tick) != nullptr)
 	{
 		HitMethod* HitMethod = action->GetApplicationByTick(tick)->GetHitMethod();
-		std::vector<Outcome> out(targets.size());
+		std::vector<Outcome> out; //(targets.size()); didnt work with emplace back
 		Outcome i_out;
 		switch (HitMethod->GetMethod())
 		{
@@ -213,16 +231,13 @@ skip_apply: {} //because crit miss self applies
 
 void Entity::Apply(const Application* app, const Outcome& out)
 {
-	for (auto& effect : app->GetEffects())
+	if (out == Outcome::CriticalHit)
 	{
-		if (out == Outcome::CriticalHit)
-		{
-			effect.IncreaseEffectiveness(effect.GetEffectiveness() * static_cast<int>(out)); //*2
-		}
-		statuses.AddEffect(effect.GetCategory(), effect);
-
-		//queue visual/sound effects
+		app->GetEffect().IncreaseEffectiveness(app->GetEffect().GetEffectiveness() * static_cast<int>(out)); //*2
 	}
+	statuses.AddEffect(app->GetEffect().GetCategory(), app->GetEffect());
+
+	//queue visual/sound effects
 }
 
 void Entity::FlagSubTickEvent(Action* action, Entity* target)
@@ -242,6 +257,7 @@ void Entity::FlagSubTickEvent(Action* action, std::vector<Entity*> targets)
 	{
 		current_subtick_action = action;
 		current_subtick_targets = targets;
+		tick = 0;
 	}
 
 }
@@ -270,6 +286,10 @@ void Entity::Resolve(const World& world, float dt)
 	if (vel != Vec2(0.0f, 0.0f))
 	{
 		pos[current_map] = world.CheckAndAdjustMovement(pos[current_map], pos[current_map] + (vel * dt * speed), radius);
+	}
+	if (statuses.CheckForEffect(EffectType::Burn))
+	{
+		effectActivate();
 	}
 
 

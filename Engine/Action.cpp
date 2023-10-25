@@ -1,5 +1,8 @@
 #include "Action.h"
 
+Effect Effect::nulleff = Effect(EffectCategory::None, EffectType::None, 0, 0.0f);
+Application* Application::nullapp = new Application(Effect::nulleff);
+Action* Action::Idle = new Action("Idle", { -1, Application::nullapp });
 
 void Status::AddEffect(const EffectCategory& cat, const Effect& effect)
 {
@@ -38,30 +41,33 @@ void Status::RemoveEffect(const EffectType& check)
 	}
 }
 
-const std::vector<Effect> Status::getAllEffects() const
+void Status::RemoveEffect(const EffectCategory& cat, const EffectType& check)
 {
-	std::vector<Effect> allEffects;
-
-	for (const auto& pair : effects) { // Iterate over each key-value pair in the map
-		const std::vector<Effect>& categoryEffects = pair.second;
-		allEffects.insert(allEffects.end(), categoryEffects.begin(), categoryEffects.end());
+	std::vector<Effect> & effectVector = getEffectsByCategory(cat);
+	{
+		effectVector.erase(std::remove_if(effectVector.begin(), effectVector.end(),
+			[check](const Effect& effect)
+			{
+				return check == effect.GetType();
+			}),
+			effectVector.end());
 	}
-
-	return allEffects;
 }
 
-const std::vector<Effect> Status::getEffectsByType(const EffectCategory& cat) const
-{
-	static const std::vector<Effect> emptyVector;  // Static empty vector to return in case of error
 
-	try {
-		return effects.at(cat);
-	}
-	catch (const std::out_of_range& e) {
-		assert(true);
-		std::cerr << e.what() << "\nEffect type not found in the map!\n";
+
+std::vector<Effect>& Status::getEffectsByCategory(const EffectCategory& cat)
+{
+	// Find the effects for the given category
+	auto it = effects.find(cat);
+	// If the category is not present in the map, throw an exception or handle it in some other way
+	if (it == effects.end()) 
+	{
+		static std::vector<Effect> emptyVector;
 		return emptyVector;
 	}
+	// Return a reference to the vector of effects
+	return it->second;
 }
 
 bool Status::CheckForEffect(const EffectType& check) const
@@ -91,6 +97,21 @@ void Status::RemoveSubTickEvents()
 			}),
 			effectVector.end());
 	}
+}
+
+Effect& Status::getEffectByType(const EffectType& cat)
+{
+	for (auto& categoryPair : effects) {
+		auto& effectVector = categoryPair.second;
+		for (auto& e : effectVector)
+		{
+			if (e.GetType() == cat)
+			{
+				return e;
+			}
+		}
+	}
+	return Effect::nulleff;
 }
 
 

@@ -95,13 +95,14 @@ enum class EffectCategory //Active/Passive/Subtick
 {
 	Active,
 	Passive,
-	SubTick
+	SubTick,
+	None
 };
 
 class Effect
 {
 public:
-	Effect(const EffectCategory& cat, const EffectType& type, const int& duration, const float& effectiveness)
+	Effect(const EffectCategory& cat, const EffectType& type, int duration, float effectiveness)
 		:
 		cat(cat),
 		type(type),
@@ -119,6 +120,8 @@ private:
 	EffectType type;
 	int duration; //0 duration represents an instant effect
 	float effectiveness;
+public:
+	static Effect nulleff;
 };
 
 
@@ -129,15 +132,16 @@ public:
 	Status() = default;
 	void AddEffect(const EffectCategory& cat, const Effect& effect);
 	void RemoveEffect(const EffectType& check); //removes effect if it shares the same type
+	void RemoveEffect(const EffectCategory& cat, const EffectType& check);
 
-	const std::vector<Effect> getAllEffects() const;
-	const std::vector<Effect> getEffectsByType(const EffectCategory& cat) const;
-
+	//create get effects and return the map
+	std::vector<Effect>& getEffectsByCategory(const EffectCategory& cat);
+	Effect& getEffectByType(const EffectType& check);
 	bool CheckForEffect(const EffectType& check) const;
 	void RemoveSubTickEvents();
 
 private:
-	std::map< EffectCategory, std::vector<Effect>> effects;
+	std::map<EffectCategory, std::vector<Effect>> effects;
 };
 
 enum class Method
@@ -148,19 +152,19 @@ enum class Method
 	QTE
 };
 
-	class HitMethod
-	{
-	public:
-		HitMethod() = default;
-	 
-	 virtual Outcome CheckSuccess(const int& roll20, const int& bonus, const int& AC, const int& other) const { return Outcome::NotApplicable; }
-	 virtual Outcome CheckSuccess() const { return Outcome::NotApplicable; }
-	 virtual Outcome CheckSuccess(const std::vector<std::string>& stateStack) const { return Outcome::NotApplicable; }
+class HitMethod
+{
+public:		
+	HitMethod() = default;
+ 
+ virtual Outcome CheckSuccess(const int& roll20, const int& bonus, const int& AC, const int& other) const { return Outcome::NotApplicable; }
+ virtual Outcome CheckSuccess() const { return Outcome::NotApplicable; }
+ virtual Outcome CheckSuccess(const std::vector<std::string>& stateStack) const { return Outcome::NotApplicable; }
 
-	 virtual void InitiateCheck(std::vector<std::string>& stateStack) const {}
+ virtual void InitiateCheck(std::vector<std::string>& stateStack) const {}
 
-	 bool returnAtTickEnd() const { return returnAtTickEndFlag; }
-	 const Method& GetMethod() { return method; }
+ bool returnAtTickEnd() const { return returnAtTickEndFlag; }
+ const Method& GetMethod() { return method; }
 protected:
 	bool returnAtTickEndFlag = false;
 	Method method = Method::None;
@@ -306,37 +310,23 @@ public:
 	
 	Application(const Effect& effect)
 		:
-		hitMethod(new Guaranteed(Outcome::Hit))
-	{
-		effects.emplace_back(effect);
-	}
-	Application(const int& tick, const Effect& effect)
-		:
-		tick(tick),
-		hitMethod(new Guaranteed(Outcome::Hit))
-	{
-		effects.emplace_back(effect);
-	}
-	Application(const int& tick, const std::vector<Effect>& effects)
-		:
-		tick(tick),
-		effects(effects),
+		effect(effect),
 		hitMethod(new Guaranteed(Outcome::Hit))
 	{}
-	Application(const int& tick, const std::vector<Effect>& effects, HitMethod* hitMethod)
+	Application(const Effect& effect, HitMethod* hitMethod)
 		:
-		tick(tick),
-		effects(effects),
+		effect(effect),
 		hitMethod(hitMethod)
 	{}
-	int GetTick() const { return tick; }
-	std::vector<Effect> GetEffects() const { return effects; }
+
+
+	Effect GetEffect() const { return effect; }
 	HitMethod* GetHitMethod() const { return hitMethod; }
 private:
-	int tick = -1;
-	std::vector<Effect> effects;
+	Effect effect;
 	HitMethod* hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
-	
+public:
+	static Application* nullapp;
 	
 };
 
@@ -344,54 +334,72 @@ class Action
 {
 public:
 	Action() = default;
-	Action(std::string name_in)
+	Action(std::string name_in, std::pair<int, Application*> Applications)
 	{
+		if (Applications.first == -1)
+		{
+			ApplicationVector = { Applications.second };
+			SubTick = true;
+		}
+		else
+		{
+			std::vector<Application*> newVec(Applications.first, Application::nullapp);
+			newVec[Applications.first] = Applications.second;
+			ApplicationVector = newVec;
+		}
 		name.clear();
 		name = name_in;
 	}
-	Action(Application* application) //right now this is the only initilizer that checks for subtick, could expand
-		:
-		criteria(noCriteria)
+	Action(std::string name_in, std::vector<std::pair<int, Application*>> Applications)
 	{
-		ApplicationVector.clear();
-		ApplicationVector.emplace_back(application);
-		bool subTick_in = true;
-		for (auto& effect : application->GetEffects())
+		int largest = 0;
+		for (auto& pair : Applications)
 		{
-			if (effect.GetCategory() != EffectCategory::SubTick)
+			if (pair.first > largest)
 			{
-				subTick_in = false;
-				break;
+				largest = pair.first;
 			}
 		}
-		SubTick = subTick_in;
+		std::vector<Application*> newVec(largest, Application::nullapp);
+		for (auto& pair : Applications)
+		{
+			newVec[pair.first - 1] =  pair.second;
+		}
+		ApplicationVector = newVec;
 
-	}
-	Action(std::string name_in, Application* application)
-		:
-		Action(application)
-	{
 		name.clear();
 		name = name_in;
 	}
-	Action(const int& maxTicks, std::vector<Application*> ApplicationVector, const Criteria& criteria, const float& range)
+	Action(std::string name_in, int maxTicks, std::vector<std::pair<int, Application*>> Applications, const Criteria& criteria, const float& range)
 		:
-		ApplicationVector(ApplicationVector),
 		maxTicks(maxTicks),
 		criteria(criteria),
 		range(range)
-	{}
-	Action(std::string name_in, const int& maxTicks, std::vector<Application*> ApplicationVector, const Criteria& criteria, const float& range)
-		:
-		Action(maxTicks, ApplicationVector, criteria, range)
 	{
+		int largest = 0;
+		for (auto& pair : Applications)
+		{
+			if (pair.first > largest)
+			{
+				largest = pair.first;
+			}
+		}
+		std::vector<Application*> newVec(largest, Application::nullapp);
+		for (auto& pair : Applications)
+		{
+			newVec[pair.first - 1] = pair.second;
+		}
+		ApplicationVector = newVec;
+
 		name.clear();
 		name = name_in;
 	}
 	int GetMaxTicks() const { return maxTicks; }
 
 	Application* GetApplicationByTick(const int& tick) //could be multiple applications per tick
-	{	return ApplicationVector[tick];	}
+	{
+		return ApplicationVector[tick];
+	}
 	bool CriteriaPassed(const Status& status); //returns true if criteria doesn't prevent action from occuring
 	bool CheckRange(const float& dist) const { return (range > dist); }
 	bool IsSubTickEvent() const { return SubTick; }
@@ -400,13 +408,14 @@ public:
 
 private:
 	int maxTicks = -1; //uninitialized value, aka lasts forever
-	std::vector<Application*> ApplicationVector = { nullptr };
+	std::vector<Application*> ApplicationVector;
 	Criteria criteria;
 	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
 	bool SubTick = false;
 	static Criteria noCriteria;
-	std::string name = "";
-
+	std::string name;
+public:
+	static Action* Idle;
 	//targets
 	//self only
 	//self or other(min_range, max_range)

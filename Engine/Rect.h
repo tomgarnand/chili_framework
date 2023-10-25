@@ -13,6 +13,8 @@ public:
 		right(right_in),
 		top(top_in),
 		bottom(bottom_in),
+		topLeft({left, top}),
+		bottomRight({right_in, bottom_in}),
 		lLeft( left_in, left_in, top_in, bottom_in),
 		lRight(right_in, right_in, top_in, bottom_in),
 		lTop(left_in, right_in, top_in, top_in),
@@ -79,6 +81,8 @@ public:
 	T right;
 	T top;
 	T bottom;
+	Vec2_<T> topLeft;
+	Vec2_<T> bottomRight;
 	Line<T> lLeft;
 	Line<T> lRight;
 	Line<T> lTop;

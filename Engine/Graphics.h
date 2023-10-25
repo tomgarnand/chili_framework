@@ -30,6 +30,8 @@
 #include <cassert>
 #include "Mat3.h"
 
+
+
 class Graphics
 {
 public:
@@ -128,7 +130,9 @@ public:
 				effect(s.GetPixel(sx, sy), x + sx - srcRect.left, y + sy - srcRect.top, *this);
 			}
 		}
+		
 	}
+
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device>				pDevice;

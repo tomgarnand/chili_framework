@@ -6,9 +6,17 @@
 #include "Surface.h"
 #include "SpriteEffect.h"
 
+enum class VisualEffect
+{
+	Default,
+	Red
+};
+
+
 class Drawable
 {
 public:
+
 	Drawable( const Surface& src)
 		:
 		src( &src )
@@ -20,14 +28,31 @@ public:
 	}
 	void Render( Graphics& gfx ) const 
 	{
-		if (hasRect)
+		switch(effect)
 		{
-			
-			gfx.DrawSprite(transformation, srcRect, *src, SpriteEffect::Chroma{ Colors::Magenta });
-		}
-		else
-		{
-			gfx.DrawSprite(transformation, *src, SpriteEffect::Chroma{ Colors::Magenta });
+			case(VisualEffect::Default):
+			if (hasRect)
+			{
+
+				gfx.DrawSprite(transformation, srcRect, *src, SpriteEffect::Chroma{ Colors::Magenta });
+			}
+			else
+			{
+				gfx.DrawSprite(transformation, *src, SpriteEffect::Chroma{ Colors::Magenta });
+			}
+			break;
+		
+			case(VisualEffect::Red):
+			if (hasRect)
+			{
+
+				gfx.DrawSprite(transformation, srcRect, *src, SpriteEffect::Substitution{ Colors::Magenta, Colors::Red });
+			}
+			else
+			{
+				gfx.DrawSprite(transformation, *src, SpriteEffect::Substitution{ Colors::Magenta, Colors::Red });
+			}
+			break;
 		}
 	}
 	void AddSourceRect(const RectI& srcRect_in)
@@ -36,14 +61,19 @@ public:
 		hasRect = true;
 
 	}
+	void AddVisualEffect(const VisualEffect& effect_in)
+	{
+		effect = effect_in;
+	}
 	bool FromSpriteSheet() const
 	{
 		return hasRect;
 	}
 private:
-	
+	VisualEffect effect = VisualEffect::Default;
 	const Surface* src; 
 	RectI srcRect = {};
 	bool hasRect = false;
 	Mat3 transformation = Mat3::Identity();
 };
+

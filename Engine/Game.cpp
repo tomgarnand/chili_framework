@@ -73,7 +73,7 @@ void Game::UpdateModel()
 	{
 		if (state == GameState::Moving)
 		{
-			g.player.QueueAction(g.WalkingLeft, {});
+			g.player.QueueAction(g.WalkingLeft, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
@@ -84,7 +84,7 @@ void Game::UpdateModel()
 	{
 		if (state == GameState::Moving)
 		{
-			g.player.QueueAction(g.WalkingDown, {});
+			g.player.QueueAction(g.WalkingDown, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
@@ -95,7 +95,7 @@ void Game::UpdateModel()
 	{
 		if (state == GameState::Moving)
 		{
-			g.player.QueueAction(g.WalkingUp, {});
+			g.player.QueueAction(g.WalkingUp, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
@@ -104,7 +104,7 @@ void Game::UpdateModel()
 	}
 	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::SELECT)))
 	{
-		g.player.QueueAction(Entity::Idle, {});
+		g.player.QueueAction(Action::Idle, {});
 
 	}
 
@@ -142,7 +142,18 @@ void Game::UpdateModel()
 	//start tick
 	if (!TickLive)
 	{
+		//updating
+		g.player.Update(world, dt);
+		for (Entity* unit : (*g.entities))
+		{
+			unit->Update(world, dt);
+		}
 
+
+		//-------
+		// PLAYER
+		//-------
+		
 		if (g.player.IsActionEnded())
 		{
 			if (g.player.IsActionQueued())
@@ -151,21 +162,34 @@ void Game::UpdateModel()
 			}
 			else
 			{
-				g.player.StartAction(Entity::Idle, {});
+				g.player.StartAction(Action::Idle, {});
 			}
 		}
-		g.player.StartTick(StateStack);
+		else
+		{
+			g.player.StartTick(StateStack);
+			g.player.AdvanceTick();
+		}
+		
+		
 
-
+		//---------
+		// ENTITIES
+		//---------
 		for (Entity* unit : (*g.entities))
 		{
+			
 			if (unit->IsActionEnded() == true)
 			{
-				unit->Update(world, dt); //hmmm
+				unit->UpdateFromScript(); //hmmm
 
 			}
 			unit->StartTick(StateStack);
+			
 		}
+
+
+
 		TickLive = true;
 	}
 	
@@ -191,6 +215,17 @@ void Game::ComposeFrame()
 	if (state == GameState::Menu)
 	{
  		menu.DrawGUI(Stack, gfx, g.font);
+	}
+	if (g.npc1.GetStatuses().CheckForEffect(EffectType::Burn))
+	{
+		int b = g.npc1.GetStatuses().getEffectByType(EffectType::Burn).GetDuration();
+		std::stringstream ss;
+		ss << "NPC is burning! Duration: " << b;
+		std::string s = ss.str();
+
+		
+		g.dialogbox.AddText(s);
+		g.dialogbox.Draw(gfx);
 	}
 	
 	cam.Draw(g.player.GetDrawable(current_map));

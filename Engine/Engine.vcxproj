@@ -156,6 +156,7 @@
     <ClInclude Include="COMInitializer.h" />
     <ClInclude Include="ControlConfig - OLD.h" />
     <ClInclude Include="ControlConfig.h" />
+    <ClInclude Include="DialogBox.h" />
     <ClInclude Include="Dice.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="DXErr.h" />
@@ -201,6 +202,7 @@
     <ClCompile Include="Action.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="COMInitializer.cpp" />
+    <ClCompile Include="DialogBox.cpp" />
     <ClCompile Include="Dice.cpp" />
     <ClCompile Include="DXErr.cpp" />
     <ClCompile Include="Entity.cpp" />

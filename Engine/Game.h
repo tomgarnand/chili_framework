@@ -39,6 +39,7 @@
 #include "Player.h"
 #include "ControlConfig.h"
 #include "GameAssets.h"
+#include <sstream>
 
 class Game
 {

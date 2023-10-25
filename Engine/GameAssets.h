@@ -8,13 +8,18 @@
 #include "Font.h"
 #include "Sound.h"
 
+#include "DialogBox.h"
+
+
+
 class GameAssets
 {
 public:
 	GameAssets()
 		
 	{
-
+		DialogBox::staticBoxRect = RectI(0, Graphics::ScreenWidth - 400, 500, Graphics::ScreenHeight - 1);
+		DialogBox::staticFont = &fontV;
 
 		mInventoryTabs.SetDefaultEntry(0);
 		mEquipmentTabs.SetDefaultEntry(1);
@@ -47,9 +52,10 @@ public:
 		player.AddAction(StandingRight, link_animations[5]);
 		player.AddAction(StandingUp, link_animations[6]);
 		player.AddAction(StandingDown, link_animations[7]);
-		player.AddAction(Entity::Idle, link_animations[7]);
+		player.AddAction(Action::Idle, link_animations[7]);
 
-		npc1.AddAction(Entity::Idle, link_animations[7]);
+		npc1.AddAction(Action::Idle, link_animations[7]);
+		npc2.AddAction(Action::Idle, link_animations[7]);
 
 	}
 
@@ -70,6 +76,8 @@ public:
 	Font fontV = Font("Images//Fixedsys16x28.bmp", Colors::White);
 	Font* font = &fontV;
 	int font_height = fontV.GetGlyphHeight();
+
+	DialogBox dialogbox = DialogBox("Testing testing 123");
 
 #pragma region Menus
 
@@ -116,34 +124,40 @@ public:
 #pragma endregion
 #pragma region Moves
 	Application* moveRight = new Application(Effect(EffectCategory::SubTick, EffectType::MoveRight, 0, 1.0f));
-	Action* WalkingRight = new Action("WalkingRight", moveRight);
+	Action* WalkingRight = new Action("WalkingRight", { -1,moveRight });
 
 	Application* moveLeft = new Application(Effect(EffectCategory::SubTick, EffectType::MoveLeft, 0, 1.0f));
-	Action* WalkingLeft = new Action("WalkingLeft", moveLeft);
+	Action* WalkingLeft = new Action("WalkingLeft", { -1,moveLeft });
 
 	Application* moveUp = new Application(Effect(EffectCategory::SubTick, EffectType::MoveUp, 0, 1.0f));
-	Action* WalkingUp = new Action("WalkingUp", moveUp);
+	Action* WalkingUp = new Action("WalkingUp", { -1,moveUp });
 
 	Application* moveDown = new Application(Effect(EffectCategory::SubTick, EffectType::MoveDown, 0, 1.0f));
-	Action* WalkingDown = new Action("WalkingDown", moveDown);
+	Action* WalkingDown = new Action("WalkingDown", { -1,moveDown });
 
 	Application* standRight = new Application(Effect(EffectCategory::SubTick, EffectType::StandRight, 0, 1.0f));
-	Action* StandingRight = new Action("StandingRight", standRight);
+	Action* StandingRight = new Action("StandingRight", { -1,standRight });
 
 	Application* standLeft = new Application(Effect(EffectCategory::SubTick, EffectType::StandLeft, 0, 1.0f));
-	Action* StandingLeft = new Action("StandingLeft", standLeft);
+	Action* StandingLeft = new Action("StandingLeft", { -1,standLeft });
 
 	Application* standUp = new Application(Effect(EffectCategory::SubTick, EffectType::StandUp, 0, 1.0f));
-	Action* StandingUp = new Action("StandingUp", standUp);
+	Action* StandingUp = new Action("StandingUp", { -1,standUp });
 
 	Application* standDown = new Application(Effect(EffectCategory::SubTick, EffectType::StandDown, 0, 1.0f));
-	Action* StandingDown = new Action("StandingDown", standDown);
+	Action* StandingDown = new Action("StandingDown", { -1, standDown });
 
 	Application* Burn = new Application(Effect(EffectCategory::Active, EffectType::Burn, 10, 1.0f));
-	Action* Fireball = new Action("Fireball", Burn);
+	Action* Fireball = new Action("Fireball", { { 1,Burn } });
 
 	Application* RestoreHealth = new Application(Effect(EffectCategory::Active, EffectType::Heal, 0, 5.0f));
-	Action* Health_Potion = new Action("Health Potion", RestoreHealth);
+	Action* Health_Potion = new Action("Health Potion", { {1,RestoreHealth} });
+
+	Application* newApp = new Application(Effect( EffectCategory::Active, EffectType::None, 0, 0.0f ));
+	
+	Action* Test = new Action("test_move", { {1, newApp}, {2, newApp} , {3,newApp} });
+
+
 
 #pragma endregion
 
