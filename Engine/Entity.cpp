@@ -13,12 +13,25 @@ Drawable Entity::GetDrawable(const std::string& map) const
 		{
 			currentPos = it->second;
 		}
+
 		RectI currentFrame;
-		
 		auto it2 = animation.find(actionToAnimate);
 		if (it2 != animation.end())
 		{
+			
 			currentFrame = it2->second.GetSourceRect();
+			if (it2->second.ContainsExtraAnimation())
+			{
+				Drawable e(actionToAnimate->GetSurface());
+				e.AddSourceRect(it2->second.GetExtraAnimation()->GetSourceRect());
+				e.ApplyTransformation(
+					Mat3::Translation(currentPos.x, currentPos.y) *
+					Mat3::Scale(scale) * //entity's scale
+					Mat3::Rotation(angle)
+				);
+				d.AddExraDrawable(e);
+
+			}
 			d.AddSourceRect(currentFrame);
 		}
 		if (effectActive)
@@ -53,8 +66,6 @@ void Entity::UpdateFromScript()
 {
 	StartAction(Action::Idle, {});
 }
-
-
 
 void Entity::effectActivate()
 {
@@ -294,5 +305,63 @@ void Entity::Resolve(const World& world, float dt)
 
 
 	vel = Vec2(0.0f, 0.0f);
+}
+
+void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string>& stateStack)
+{
+	Action* action = Action::Idle;
+	if (SubTickEvent)
+	{
+		//immediately apply the action effects to status, then resolve status
+		EndTick(world, dt, stateStack);
+
+		//then immediately remove them from statuses
+		GetStatuses().RemoveSubTickEvents();
+
+
+		action = current_subtick_action;
+
+		//clear flags
+		SubTickEvent = false;
+		current_subtick_action = nullptr;
+
+	}
+
+	else
+	{
+		action = current_action;
+	}
+
+	actionToAnimate = action;
+	//animation
+	auto it = animation.find(actionToAnimate);
+	if (it != animation.end()) {
+		it->second.Update(dt);
+		if (it->second.ContainsExtraAnimation())
+		{
+			it->second.GetExtraAnimation()->Update(dt);
+		}
+	}
+	else //case for animation not found, so that whole spritesheet isnt drawn
+	{
+		actionToAnimate = Action::Idle;
+		auto it = animation.find(actionToAnimate);
+		if (it != animation.end()) {
+			it->second.Update(dt);
+		}
+	}
+
+	//animation effects
+	if (effectActive)
+	{
+		effectTime += dt;
+		if (effectTime >= effectDuration)
+		{
+			effectTime = 0.0f;
+			effectActive = false;
+		}
+	}
+
+
 }
 

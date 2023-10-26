@@ -86,60 +86,7 @@ public:
 	
 	void Resolve(const World& world, float dt);
 
-	void SubTickUpdate(const World& world, float dt, std::vector<std::string>& stateStack)
-	{
-		Action* action = Action::Idle;
-		if (SubTickEvent)
-		{
-			//immediately apply the action effects to status, then resolve status
-			EndTick(world, dt, stateStack);
-
-			//then immediately remove them from statuses
-			GetStatuses().RemoveSubTickEvents();
-
-
-			action = current_subtick_action;
-
-			//clear flags
-			SubTickEvent = false;
-			current_subtick_action = nullptr;
-
-		}
-
-		else
-		{
-			action = current_action;
-		}
-
-		actionToAnimate = action;
-		//animation
-		auto it = animation.find(actionToAnimate);
-		if (it != animation.end()) {
-			it->second.Update(dt);
-		}
-		else //case for animation not found, so that whole spritesheet isnt drawn
-		{
-			actionToAnimate = Action::Idle;
-			auto it = animation.find(actionToAnimate);
-			if (it != animation.end()) {
-				it->second.Update(dt);
-			}
-		}
-
-		//animation effects
-		if (effectActive)
-		{
-			effectTime += dt;
-			if (effectTime >= effectDuration)
-			{
-				effectTime = 0.0f;
-				effectActive = false;
-			}
-		}
-
-
-	}
-
+	void SubTickUpdate(const World& world, float dt, std::vector<std::string>& stateStack);
 	Entity* Self()
 	{
 		return this; //is this dangerous?

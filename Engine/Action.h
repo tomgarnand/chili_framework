@@ -9,6 +9,7 @@
 #include <memory>
 #include <stdexcept>
 #include <algorithm>
+#include "Surface.h"
 
 //after pretty much finishing this, a question popped in my mind: What if I had just used maps instead of a million vector iterating sub functions?
 //but I'm not knowledgeable enough (yet) to know if what would be the better HitMethod
@@ -405,7 +406,8 @@ public:
 	bool IsSubTickEvent() const { return SubTick; }
 	std::string GetName() const { return name; }
 	bool RequiresTargetSelection() { return false; }
-
+	void AddSurface(Surface& src_in) { src = &src_in; }
+	Surface& GetSurface() { return *src; }
 private:
 	int maxTicks = -1; //uninitialized value, aka lasts forever
 	std::vector<Application*> ApplicationVector;
@@ -414,6 +416,7 @@ private:
 	bool SubTick = false;
 	static Criteria noCriteria;
 	std::string name;
+	Surface* src = nullptr;
 public:
 	static Action* Idle;
 	//targets

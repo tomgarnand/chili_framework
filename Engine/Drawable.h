@@ -54,6 +54,10 @@ public:
 			}
 			break;
 		}
+		if (extra)
+		{
+			gfx.DrawSprite((*extra).transformation, (*extra).srcRect, *(*extra).src, SpriteEffect::Chroma{ Colors::Magenta });
+		}
 	}
 	void AddSourceRect(const RectI& srcRect_in)
 	{
@@ -69,7 +73,12 @@ public:
 	{
 		return hasRect;
 	}
+	void AddExraDrawable(Drawable& extra_in)
+	{
+		extra = &extra_in;
+	}
 private:
+	Drawable* extra = nullptr;
 	VisualEffect effect = VisualEffect::Default;
 	const Surface* src; 
 	RectI srcRect = {};

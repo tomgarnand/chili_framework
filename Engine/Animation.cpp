@@ -1,38 +1,15 @@
 #include "Animation.h"
 #include "SpriteEffect.h"
 
-Animation::Animation(int x, int y, int width, int height, int count, const Surface& sprite, float holdTime, Color chroma)
+Animation::Animation(int x, int y, int width, int height, int count, const Surface& sprite, float holdTime)
 	:
 	sprite(sprite),
-	holdTime(holdTime),
-	chroma(chroma)
+	holdTime(holdTime)
 {
 	for (int i = 0; i < count; i++)
 	{
 		frames.emplace_back(x + i * width, x + (i + 1) * width, y + 1, y + height); //why do I need a + 1?
 	}
-}
-
-void Animation::Draw(const Vei2& pos, Graphics& gfx) const
-{
-	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], sprite, SpriteEffect::Inverse{chroma});
-}
-
-void Animation::Draw(const Vei2& pos, Graphics& gfx, const RectI& clipRect) const
-{
-	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, SpriteEffect::Chroma{ chroma });
-}
-
-
-void Animation::DrawColor(const Vei2& pos, Color sub, Graphics& gfx) const
-{
-	gfx.DrawSprite(pos.x, pos.y,  frames[iCurFrame], sprite, SpriteEffect::Substitution{ chroma, sub });
-}
-
-void Animation::DrawColor(const Vei2& pos, Color sub, Graphics& gfx, const RectI& clipRect) const
-{
-	SpriteEffect::Substitution e{ chroma, sub };
-	gfx.DrawSprite(pos.x, pos.y, frames[iCurFrame], clipRect, sprite, e);
 }
 
 void Animation::Update(float dt)
@@ -45,10 +22,18 @@ void Animation::Update(float dt)
 	}
 	
 }
-
 RectI Animation::GetSourceRect() const
 {
 	return frames[iCurFrame];
+}
+
+bool Animation::ContainsExtraAnimation() const
+{
+	if (extra == nullptr)
+	{
+		return false;
+	}
+	return true;
 }
 
 void Animation::Advance()

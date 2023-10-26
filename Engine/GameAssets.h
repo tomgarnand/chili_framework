@@ -7,6 +7,7 @@
 #include "Equipment.h"
 #include "Font.h"
 #include "Sound.h"
+#include "Animation.h"
 
 #include "DialogBox.h"
 
@@ -41,7 +42,9 @@ public:
 		{
 			link_animations.emplace_back(Animation(0, 90 * (i - 4), 90, 90, 1, link, 0.16f));
 		}
-
+		casting = new Animation(link_animations[7]);
+		Fireball->AddSurface(ball);
+		casting->AddExtraAnimation(fireball_animation);
 		
 
 		player.AddAction(WalkingLeft, link_animations[0]);
@@ -53,6 +56,8 @@ public:
 		player.AddAction(StandingUp, link_animations[6]);
 		player.AddAction(StandingDown, link_animations[7]);
 		player.AddAction(Action::Idle, link_animations[7]);
+
+		player.AddAction(Fireball, *casting);
 
 		npc1.AddAction(Action::Idle, link_animations[7]);
 		npc2.AddAction(Action::Idle, link_animations[7]);
@@ -117,9 +122,9 @@ public:
 	Entity npc2 = Entity("npc2", link, Attributes(), { current_map, {400,200} });
 
 
-
-
-
+	Surface ball = Surface("Assets//ARWFlame.bmp");
+	Animation* fireball_animation = new Animation(0, 0, 24, 24, 7, ball, 0.16f);
+	Animation* casting;
 
 #pragma endregion
 #pragma region Moves
@@ -153,9 +158,6 @@ public:
 	Application* RestoreHealth = new Application(Effect(EffectCategory::Active, EffectType::Heal, 0, 5.0f));
 	Action* Health_Potion = new Action("Health Potion", { {1,RestoreHealth} });
 
-	Application* newApp = new Application(Effect( EffectCategory::Active, EffectType::None, 0, 0.0f ));
-	
-	Action* Test = new Action("test_move", { {1, newApp}, {2, newApp} , {3,newApp} });
 
 
 

@@ -5,6 +5,7 @@
 #include "Rect.h"
 
 //Surface dude = Surface("Images//link90x90.bmp");
+//https://online-converting.com/image/convert2bmp/
 
 class Surface
 {
