@@ -53,10 +53,13 @@ void Game::UpdateModel()
 	TickTimer += dt;
 
 	
-	
+
 	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MAIN_MENU)))
 	{
-		state = (state == GameState::Menu) ? GameState::Moving : GameState::Menu; //toggle
+		if (wnd.kbd.ReadKey().IsRelease())
+		{
+			state = (state == GameState::Menu) ? GameState::Moving : GameState::Menu; //toggle
+		}
 	}
 	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_RIGHT)))
 	{
@@ -118,8 +121,7 @@ void Game::UpdateModel()
 	
 	if (TickLive)
 	{
-		//subtick
-		g.player.SubTickUpdate(world, dt, StateStack);
+		g.player.SubTickUpdate(world, dt, StateStack); //update animations & do subtick
 		for (Entity* unit : (*g.entities))
 		{
 			unit->SubTickUpdate(world, dt, StateStack);
@@ -128,7 +130,7 @@ void Game::UpdateModel()
 		//end tick
 		if (TickTimer > maxTickDuration)
 		{
-			g.player.EndTick(world, dt, StateStack); //don't check for idleness because idle is default next_action
+			g.player.EndTick(world, dt, StateStack); 
 
 			for (Entity* unit : (*g.entities))
 			{
@@ -142,35 +144,31 @@ void Game::UpdateModel()
 	//start tick
 	if (!TickLive)
 	{
-		//updating
-		g.player.Update(world, dt);
+		g.player.Update(world, dt);//update statuses
 		for (Entity* unit : (*g.entities))
 		{
 			unit->Update(world, dt);
 		}
-
-
 		//-------
 		// PLAYER
 		//-------
 		
-		if (g.player.IsActionEnded())
+		if (g.player.IsActionEnded()) 
 		{
-			if (g.player.IsActionQueued())
+			if (g.player.IsActionQueued()) 
 			{
-				g.player.StartAction(g.player.GetQueuedAction(), g.player.GetQueuedTargets());
+				g.player.StartAction(g.player.GetQueuedAction(), g.player.GetQueuedTargets()); //tick = 0
 			}
 			else
 			{
-				g.player.StartAction(Action::Idle, {});
+				g.player.StartAction(Action::Idle, {}); //tick = 0
 			}
 		}
 		else
 		{
-			g.player.StartTick(StateStack);
-			g.player.AdvanceTick();
+			g.player.StartTick(StateStack); //criteria check for current_action & hitMethod init
+			
 		}
-		
 		
 
 		//---------
@@ -187,7 +185,6 @@ void Game::UpdateModel()
 			unit->StartTick(StateStack);
 			
 		}
-
 
 
 		TickLive = true;

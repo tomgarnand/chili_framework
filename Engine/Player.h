@@ -34,8 +34,16 @@ public:
 	
 	void StartAction(Action* action, std::vector<Entity*> targets_in)
 	{
+		if (action->GetMaxTicks() == -1)
+		{
+			tick = -1;
+		}
+		else
+		{
+			tick = 0;
+		}
 		ActionIsQueued = false;
-		tick = 0;
+
 		current_action = action;
 		current_targets = targets_in;
 

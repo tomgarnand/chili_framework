@@ -82,12 +82,16 @@ void Entity::AddAction(Action* action_in, Animation animation_in)
 
 void Entity::EndTick(const World& world, float dt, std::vector<std::string>& stateStack)
 {
-	//if this is a subtick
 	if (SubTickEvent)
 	{
 		//for ea action in current_subtick_actionS
+		
 		DoAction(current_subtick_action, current_subtick_targets, stateStack);
 		Resolve(world, dt);
+	}
+	else if (tick == -1)
+	{
+		
 	}
 
 	//if this is called at the end of a standard tick cycle
@@ -104,7 +108,7 @@ void Entity::EndTick(const World& world, float dt, std::vector<std::string>& sta
 		{
 			DoAction(current_action, current_targets, stateStack);
 			Resolve(world, dt);
-			
+			AdvanceTick();
 		}
 	}
 	
@@ -116,7 +120,11 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 {
 	//re check criteria
 	//if you are still able to take the action
-	if (current_action->CriteriaPassed(statuses)) // && current_action.CheckRange())  and range check?? 
+	if (tick == -1)
+	{
+
+	}
+	else if (current_action->CriteriaPassed(statuses)) // && current_action.CheckRange())  and range check?? 
 	{
 		
 		if (current_action->GetApplicationByTick(tick) != Application::nullapp)
@@ -137,14 +145,22 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 
 void Entity::StartAction(Action* action, const std::vector<Entity*> targets_in)
 {
-	tick = 0;
+	if (action->GetMaxTicks() == -1)
+	{
+		tick = -1;
+	}
+	else
+	{
+		tick = 0;
+	}
+
 	current_action = action;
 	current_targets = targets_in;
 }
 
-bool Entity::IsActionEnded()
+bool Entity::IsActionEnded() 
 {
-	if (tick == 0 || tick == -1)
+	if (tick == current_action->GetMaxTicks())
 	{
 		return true;
 	}
@@ -268,7 +284,7 @@ void Entity::FlagSubTickEvent(Action* action, std::vector<Entity*> targets)
 	{
 		current_subtick_action = action;
 		current_subtick_targets = targets;
-		tick = 0;
+		tick = -1;
 	}
 
 }
@@ -312,6 +328,7 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 	Action* action = Action::Idle;
 	if (SubTickEvent)
 	{
+		tick = 0;
 		//immediately apply the action effects to status, then resolve status
 		EndTick(world, dt, stateStack);
 
@@ -322,6 +339,7 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 		action = current_subtick_action;
 
 		//clear flags
+		tick = -1;
 		SubTickEvent = false;
 		current_subtick_action = nullptr;
 

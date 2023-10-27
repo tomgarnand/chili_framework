@@ -153,7 +153,7 @@ public:
 	Action* StandingDown = new Action("StandingDown", { -1, standDown });
 
 	Application* Burn = new Application(Effect(EffectCategory::Active, EffectType::Burn, 10, 1.0f));
-	Action* Fireball = new Action("Fireball", { { 1,Burn } });
+	Action* Fireball = new Action("Fireball", 10, { { 0,Burn } }, {}, 100.0f );
 
 	Application* RestoreHealth = new Application(Effect(EffectCategory::Active, EffectType::Heal, 0, 5.0f));
 	Action* Health_Potion = new Action("Health Potion", { {1,RestoreHealth} });

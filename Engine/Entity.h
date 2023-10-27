@@ -77,6 +77,7 @@ public:
 		if (tick != -1) 
 		{ tick++; } 
 	}
+
 	bool IsActionEnded();
 
 	void DoAction(Action* action, std::vector<Entity*> targets, std::vector<std::string>& stateStack);

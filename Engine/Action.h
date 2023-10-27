@@ -361,16 +361,17 @@ public:
 				largest = pair.first;
 			}
 		}
-		std::vector<Application*> newVec(largest, Application::nullapp);
+		std::vector<Application*> newVec(largest + 1, Application::nullapp);
 		for (auto& pair : Applications)
 		{
-			newVec[pair.first - 1] =  pair.second;
+			newVec[pair.first] =  pair.second;
 		}
 		ApplicationVector = newVec;
 
 		name.clear();
 		name = name_in;
 	}
+	//Starts on tick 0
 	Action(std::string name_in, int maxTicks, std::vector<std::pair<int, Application*>> Applications, const Criteria& criteria, const float& range)
 		:
 		maxTicks(maxTicks),
@@ -385,10 +386,10 @@ public:
 				largest = pair.first;
 			}
 		}
-		std::vector<Application*> newVec(largest, Application::nullapp);
+		std::vector<Application*> newVec(maxTicks + 1, Application::nullapp);
 		for (auto& pair : Applications)
 		{
-			newVec[pair.first - 1] = pair.second;
+			newVec[pair.first] = pair.second;
 		}
 		ApplicationVector = newVec;
 
