@@ -229,4 +229,8 @@ void Game::ComposeFrame()
 	cam.Draw(g.npc1.GetDrawable(current_map));
 	cam.Draw(g.npc2.GetDrawable(current_map));
 
+	gfx.DrawRect(0, Graphics::ScreenWidth - 1, 0, 20, Colors::Gray);
+	int percentfill = Graphics::ScreenWidth * (TickTimer/maxTickDuration);
+	gfx.DrawRect(0, percentfill, 0, 20, Colors::Gray);
+
 }
