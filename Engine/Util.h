@@ -4,7 +4,6 @@
 #include "Mat3.h"
 #include "Dice.h"
 
-
 constexpr double PI_D = 3.141592653589793238462643383279;
 constexpr float PI = (float)PI_D;
 

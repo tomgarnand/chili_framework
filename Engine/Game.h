@@ -40,6 +40,8 @@
 #include "ControlConfig.h"
 #include "GameAssets.h"
 #include <sstream>
+#include <numbers>
+#include <cmath>
 
 class Game
 {
@@ -75,7 +77,7 @@ private:
 
 	std::string current_map = "testmap";
 
-
+	double pi = std::numbers::pi;
 	World world;
 	
 	std::vector<std::string> StateStack;

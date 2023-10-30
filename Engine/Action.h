@@ -74,7 +74,7 @@ enum class EffectType
 	Disorient, //effects Concentration
 	Heal,
 
-
+	Move,
 	MoveRight,
 	MoveLeft,
 	MoveUp,
@@ -116,11 +116,14 @@ public:
 	float GetEffectiveness() const { return effectiveness; }
 	void SetDuration(const int& newDuration) { duration = newDuration; }
 	void IncreaseEffectiveness(const float& effectivenessIncrease) { effectiveness += effectivenessIncrease; }
+	void AddAngle(float angle_in) { angle = angle_in; }
+	float GetAngle() const { return angle; }
 private:
 	EffectCategory cat;
 	EffectType type;
 	int duration; //0 duration represents an instant effect
 	float effectiveness;
+	float angle;
 public:
 	static Effect nulleff;
 };

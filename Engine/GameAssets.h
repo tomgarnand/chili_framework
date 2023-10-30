@@ -152,6 +152,11 @@ public:
 	Application* standDown = new Application(Effect(EffectCategory::SubTick, EffectType::StandDown, 0, 1.0f));
 	Action* StandingDown = new Action("StandingDown", { -1, standDown });
 
+
+	Application* move = new Application(Effect(EffectCategory::SubTick, EffectType::Move, 0, 1.0f));
+	Action* Move = new Action("Move", { -1,move });
+
+
 	Application* Burn = new Application(Effect(EffectCategory::Active, EffectType::Burn, 10, 1.0f));
 	Action* Fireball = new Action("Fireball", 10, { { 0,Burn } }, {}, 100.0f );
 

@@ -53,7 +53,6 @@ void Game::UpdateModel()
 	TickTimer += dt;
 
 	
-
 	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MAIN_MENU)))
 	{
 		if (wnd.kbd.ReadKey().IsRelease())
@@ -61,33 +60,13 @@ void Game::UpdateModel()
 			state = (state == GameState::Menu) ? GameState::Moving : GameState::Menu; //toggle
 		}
 	}
+	Vec2 dir = { 0,0 };
 	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_RIGHT)))
 	{
 		if (state == GameState::Moving)
 		{
-			g.player.QueueAction(g.WalkingRight, g.player.Self());
-		}
-		else if (state == GameState::Menu)
-		{
-			//implement keyboard menu controls
-		}
-	}
-	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_LEFT)))
-	{
-		if (state == GameState::Moving)
-		{
-			g.player.QueueAction(g.WalkingLeft, g.player.Self());
-		}
-		else if (state == GameState::Menu)
-		{
-			//implement keyboard menu controls
-		}
-	}
-	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_DOWN)))
-	{
-		if (state == GameState::Moving)
-		{
-			g.player.QueueAction(g.WalkingDown, g.player.Self());
+			dir.x += 1;
+			//g.player.QueueAction(g.WalkingRight, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
@@ -98,13 +77,48 @@ void Game::UpdateModel()
 	{
 		if (state == GameState::Moving)
 		{
-			g.player.QueueAction(g.WalkingUp, g.player.Self());
+			dir.y -= 1;
+			//g.player.QueueAction(g.WalkingUp, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
 			//implement keyboard menu controls
 		}
 	}
+	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_LEFT)))
+	{
+		if (state == GameState::Moving)
+		{
+			dir.x -= 1;
+			//g.player.QueueAction(g.WalkingLeft, g.player.Self());
+		}
+		else if (state == GameState::Menu)
+		{
+			//implement keyboard menu controls
+		}
+	}
+	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::MOVE_DOWN)))
+	{
+		if (state == GameState::Moving)
+		{
+			dir.y += 1;
+			//g.player.QueueAction(g.WalkingDown, g.player.Self());
+		}
+		else if (state == GameState::Menu)
+		{
+			//implement keyboard menu controls
+		}
+	}
+	if (dir != Vec2(0,0))
+	{
+		g.player.QueueAction(g.Move, g.player.Self());
+		g.player.SetDir(std::atan2(dir.y, dir.x));
+	}
+
+		
+
+
+	
 	if (wnd.kbd.KeyIsPressed(config.GetKeycode(Command::SELECT)))
 	{
 		g.player.QueueAction(Action::Idle, {});
@@ -232,5 +246,5 @@ void Game::ComposeFrame()
 	gfx.DrawRect(0, Graphics::ScreenWidth - 1, 0, 20, Colors::Gray);
 	int percentfill = Graphics::ScreenWidth * (TickTimer/maxTickDuration);
 	gfx.DrawRect(0, percentfill, 0, 20, Colors::Gray);
-
+	
 }

@@ -8,7 +8,7 @@
 #include "Action.h"
 #include "Animation.h"
 #include "World.h"
-
+#include <cmath>
 
 
 class Entity
@@ -50,6 +50,14 @@ public:
 	float GetScale() const{return scale;}
 	void SetAngle( float a ){angle = a;}
 	float GetAngle() const{return angle;}
+	void SetDir(float angle) //for keyboard inputs
+	{
+		dir = angle;
+	}
+	void SetDir(Vec2 vec) //for mouse input, relative to player pos
+	{
+
+	}
 
 	RectI GetHitBox() const
 	{
@@ -107,6 +115,7 @@ protected:
 	std::unordered_map<std::string, Vec2> pos;
 
 	Vec2 vel = { 0.0f, 0.0f };
+	float dir; //dir angle
 	float speed = 80.0f;
 
 	Surface& src;

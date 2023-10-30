@@ -18,8 +18,15 @@ Drawable Entity::GetDrawable(const std::string& map) const
 		auto it2 = animation.find(actionToAnimate);
 		if (it2 != animation.end())
 		{
-			
-			currentFrame = it2->second.GetSourceRect();
+			if (it2->second.IsDirectional())
+			{
+				currentFrame = it2->second.GetSourceRect(
+					actionToAnimate->GetApplicationByTick(tick)->GetEffect().GetAngle());
+			}
+			else 
+			{
+				currentFrame = it2->second.GetSourceRect();
+			}
 			if (it2->second.ContainsExtraAnimation())
 			{
 				Drawable e(actionToAnimate->GetSurface());
@@ -292,24 +299,14 @@ void Entity::FlagSubTickEvent(Action* action, std::vector<Entity*> targets)
 void Entity::Resolve(const World& world, float dt)
 {
 	//shaping up to be a huge bloaty function that has all the functionality for how statuses effect an entity
+	if (statuses.CheckForEffect(EffectType::Move))
+	{
+		vel = {
+			(float)std::cos(dir) * statuses.getEffectByType(EffectType::Move).GetEffectiveness(),
+			(float)std::sin(dir) * statuses.getEffectByType(EffectType::Move).GetEffectiveness()
+		};
+	}
 
-
-	if (statuses.CheckForEffect(EffectType::MoveRight))
-	{
-		vel = Vec2(1.0f, 0.0f);
-	}
-	if (statuses.CheckForEffect(EffectType::MoveLeft))
-	{
-		vel = Vec2(-1.0f, 0.0f);
-	}
-	if (statuses.CheckForEffect(EffectType::MoveUp))
-	{
-		vel = Vec2(0.0f, -1.0f);
-	}
-	if (statuses.CheckForEffect(EffectType::MoveDown))
-	{
-		vel = Vec2(0.0f, 1.0f);
-	}
 	if (vel != Vec2(0.0f, 0.0f))
 	{
 		pos[current_map] = world.CheckAndAdjustMovement(pos[current_map], pos[current_map] + (vel * dt * speed), radius);
