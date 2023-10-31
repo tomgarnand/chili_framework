@@ -20,8 +20,7 @@ Drawable Entity::GetDrawable(const std::string& map) const
 		{
 			if (it2->second.IsDirectional())
 			{
-				currentFrame = it2->second.GetSourceRect(
-					actionToAnimate->GetApplicationByTick(tick)->GetEffect().GetAngle());
+				currentFrame = it2->second.GetSourceRect(dir);
 			}
 			else 
 			{
@@ -311,8 +310,11 @@ void Entity::Resolve(const World& world, float dt)
 	{
 		pos[current_map] = world.CheckAndAdjustMovement(pos[current_map], pos[current_map] + (vel * dt * speed), radius);
 	}
+
+
 	if (statuses.CheckForEffect(EffectType::Burn))
 	{
+		//deal damage
 		effectActivate();
 	}
 

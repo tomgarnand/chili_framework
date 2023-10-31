@@ -35,7 +35,7 @@ Game::Game(MainWindow& wnd)
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
 	Stack.emplace_back(g.pMainMenu);
-
+	g.player.SetDir(3 * pi / 2);
 }
 
 void Game::Go()
@@ -66,7 +66,6 @@ void Game::UpdateModel()
 		if (state == GameState::Moving)
 		{
 			dir.x += 1;
-			//g.player.QueueAction(g.WalkingRight, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
@@ -78,7 +77,6 @@ void Game::UpdateModel()
 		if (state == GameState::Moving)
 		{
 			dir.y -= 1;
-			//g.player.QueueAction(g.WalkingUp, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
@@ -90,7 +88,6 @@ void Game::UpdateModel()
 		if (state == GameState::Moving)
 		{
 			dir.x -= 1;
-			//g.player.QueueAction(g.WalkingLeft, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{
@@ -102,7 +99,6 @@ void Game::UpdateModel()
 		if (state == GameState::Moving)
 		{
 			dir.y += 1;
-			//g.player.QueueAction(g.WalkingDown, g.player.Self());
 		}
 		else if (state == GameState::Menu)
 		{

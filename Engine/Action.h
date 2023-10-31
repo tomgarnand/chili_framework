@@ -75,14 +75,6 @@ enum class EffectType
 	Heal,
 
 	Move,
-	MoveRight,
-	MoveLeft,
-	MoveUp,
-	MoveDown,
-	StandLeft,
-	StandRight,
-	StandUp,
-	StandDown,
 	Idle
 
 	//types
@@ -404,6 +396,10 @@ public:
 	Application* GetApplicationByTick(const int& tick) //could be multiple applications per tick
 	{
 		return ApplicationVector[tick];
+	}
+	Application* GetSubTickApplication()
+	{
+		return ApplicationVector[0];
 	}
 	bool CriteriaPassed(const Status& status); //returns true if criteria doesn't prevent action from occuring
 	bool CheckRange(const float& dist) const { return (range > dist); }

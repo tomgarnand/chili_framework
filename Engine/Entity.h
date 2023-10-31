@@ -9,7 +9,7 @@
 #include "Animation.h"
 #include "World.h"
 #include <cmath>
-
+#include <numbers>
 
 class Entity
 {
@@ -52,6 +52,10 @@ public:
 	float GetAngle() const{return angle;}
 	void SetDir(float angle) //for keyboard inputs
 	{
+		if (angle < 0)
+		{
+			angle += (2.0f*std::numbers::pi); //atan2 conversion from range -pi<theta<pi to 0<theta<2pi
+		}
 		dir = angle;
 	}
 	void SetDir(Vec2 vec) //for mouse input, relative to player pos

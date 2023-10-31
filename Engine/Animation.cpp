@@ -80,7 +80,7 @@ bool Animation::ContainsExtraAnimation() const
 void Animation::Advance()
 {
 	++iCurFrame;
-	if (iCurFrame == frames.size())
+	if (iCurFrame == frames.size() || iCurFrame == directional_frames.begin()->second.size())
 	{
 		iCurFrame = 0;
 	}
