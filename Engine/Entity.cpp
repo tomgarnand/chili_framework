@@ -7,7 +7,8 @@ Drawable Entity::GetDrawable(const std::string& map) const
 	{
 		Drawable d(src);
 
-		Vec2 currentPos;
+		Vec2 currentPos{};
+
 		auto it = pos.find(current_map);
 		if (it != pos.end())
 		{
@@ -31,7 +32,7 @@ Drawable Entity::GetDrawable(const std::string& map) const
 				Drawable e(actionToAnimate->GetSurface());
 				e.AddSourceRect(it2->second.GetExtraAnimation()->GetSourceRect());
 				e.ApplyTransformation(
-					Mat3::Translation(currentPos.x, currentPos.y) *
+					Mat3::Translation(currentPos.x - radius, currentPos.y - radius) *
 					Mat3::Scale(scale) * //entity's scale
 					Mat3::Rotation(angle)
 				);
@@ -46,7 +47,7 @@ Drawable Entity::GetDrawable(const std::string& map) const
 		}
 
 		d.ApplyTransformation(
-			Mat3::Translation(currentPos.x, currentPos.y) *
+			Mat3::Translation(currentPos.x - radius, currentPos.y -radius) *
 			Mat3::Scale(scale) *
 			Mat3::Rotation(angle)
 		);

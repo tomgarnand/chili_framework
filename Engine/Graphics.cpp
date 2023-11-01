@@ -331,9 +331,9 @@ void Graphics::PutPixel( int x,int y,Color c )
 void Graphics::DrawRect(int x0, int x1, int y0, int y1, Color c)
 {
 	//always transparent
-	for (int x = x0; x <= x1; x++)
+	for (int x = x0; x != x1; x++)
 	{
-		for (int y = y0; y <= y1; y++)
+		for (int y = y0; y != y1; y++)
 		{
 			const Color dest = GetPixel(x, y);
 			const Color blend = Color({ unsigned char((c.GetR() + dest.GetR()) / 2),unsigned char((c.GetG() + dest.GetG()) / 2), unsigned char((c.GetB() + dest.GetB()) / 2) });

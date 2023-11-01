@@ -110,7 +110,7 @@ public:
 protected:
 	std::string name;
 
-	float radius = 25.0f;
+	float radius = 45.0f;
 
 	float angle = 0.0f;
 	float scale = 1.0f;

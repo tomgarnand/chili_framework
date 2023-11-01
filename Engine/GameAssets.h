@@ -116,7 +116,7 @@ public:
 	Player* pPlayer = &player;
 
 	Entity npc1 = Entity("npc1", link, Attributes(), { current_map, {200,200} });
-	Entity npc2 = Entity("npc2", link, Attributes(), { current_map, {400,200} });
+	Entity npc2 = Entity("npc2", link, Attributes(), { current_map, {400,220} });
 
 
 	Surface ball = Surface("Assets//ARWFlame.bmp");

@@ -251,10 +251,13 @@ public:
 	}
 	bool IsActionMenu() const  { return isActionMenu;}
 	bool IsEntityMenu() const { return isEntityMenu; }
+	void DisableDrawNames() { drawNames = false; }
+	bool DrawNames() const { return drawNames; }
 private:
 	std::vector<SelectionItem> items;
 	BoxMenu boxmenu;
 	std::vector<Entity*>* entities = nullptr;
+	bool drawNames = true;
 	std::vector<Action*>* actions = nullptr;
 	//std::vector<Equipment*>* actions = nullptr;
 

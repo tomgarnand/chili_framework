@@ -48,8 +48,12 @@ public:
 			{
 				gfx.DrawRect(b.GetRect(), BoxMenu::BoxItem::highlightColor);
 			}
-			std::string s = selectionMenu->GetSelectionItems()[i].GetStr();
-			centered ? font->DrawText(s, b.GetRect(), gfx) : font->DrawText(s, Vei2(b.GetRect().left, b.GetRect().top), gfx);
+			if (selectionMenu->DrawNames())
+			{
+				std::string s = selectionMenu->GetSelectionItems()[i].GetStr();
+				centered ? font->DrawText(s, b.GetRect(), gfx) : font->DrawText(s, Vei2(b.GetRect().left, b.GetRect().top), gfx);
+				
+			}
 			r++;
 		}
 	}
@@ -276,6 +280,7 @@ public:
 			boxes.emplace_back(entity->GetHitBox());
 		}
 		targetingMenu = new SelectionMenu(BoxMenu(boxes), allEntities);
+		targetingMenu->DisableDrawNames();
 	}
 	bool ForceClose()
 	{
