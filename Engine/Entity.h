@@ -10,6 +10,7 @@
 #include "World.h"
 #include <cmath>
 #include <numbers>
+#include "Circle.h"
 
 class Entity
 {
@@ -24,6 +25,8 @@ public:
 		ArmorClass = 10; 
 		Health = 10;
 		tick = -1;
+
+
 
 	}
 	Entity(std::string name, Surface& src, Attributes stats, std::pair<std::string, Vec2> starting_pos)
@@ -41,11 +44,16 @@ public:
 		ArmorClass = 10;
 		Health = 10;
 		tick = -1;
+
+		float radius = 45.0f;
+		circle = CircF(starting_pos.second, radius);
 	}
 	const std::string& GetName() const { return name; }
 	const Vec2& GetPos(const std::string& map) const{return pos.at(map);}
 	void SetPos(const std::string& map, const Vec2& newPos ){pos[map] = newPos;}
 	//void TranslateBy( const Vec2& offset ){pos += offset;}
+	CircF GetCircle() const { return circle; }
+
 	void SetScale( float s ){scale = s;}
 	float GetScale() const{return scale;}
 	void SetAngle( float a ){angle = a;}
@@ -63,13 +71,10 @@ public:
 
 	}
 
-	RectI GetHitBox() const
-	{
-		return RectI(Vec2(GetPos(current_map) - radius), Vec2(GetPos(current_map) + radius));
-	}
+	CircF GetCircle() const {return circle; }
 
 	Drawable GetDrawable(const std::string& map) const;
-	
+	//std::vector<Projectile*>& GetProjectiles() { return ownedProjectiles; }
 
 	void Update(const World& world, float dt);
 	void UpdateFromScript();
@@ -110,7 +115,8 @@ public:
 protected:
 	std::string name;
 
-	float radius = 45.0f;
+	CircF circle;
+	//bool collision = true;
 
 	float angle = 0.0f;
 	float scale = 1.0f;
@@ -128,6 +134,8 @@ protected:
 	bool effectActive = false;
 	float effectTime = 0.0f;
 	float effectDuration = 0.045f;
+
+	std::vector<Projectile*> ownedProjectiles;
 
 
 	//Behaviour& script;

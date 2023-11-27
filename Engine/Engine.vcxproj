@@ -149,9 +149,11 @@
   <ItemGroup>
     <ClInclude Include="Action.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Attributes.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="ChiliWin.h" />
+    <ClInclude Include="Circle.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="COMInitializer.h" />
     <ClInclude Include="ControlConfig - OLD.h" />
@@ -175,12 +177,14 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="ProcessMenu.h" />
+    <ClInclude Include="Projectile.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectionMenu.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SpriteEffect.h" />
+    <ClInclude Include="Status.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="TMXLoader\RapidXML\rapidxml.hpp" />
     <ClInclude Include="TMXLoader\RapidXML\rapidxml_iterators.hpp" />
@@ -216,6 +220,7 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Sound.cpp" />
+    <ClCompile Include="Status.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="TMXLoader\TMXLoader.cpp" />
     <ClCompile Include="TMXLoader\TMXMap.cpp" />

@@ -11,134 +11,14 @@
 #include <algorithm>
 #include "Surface.h"
 
+#include "Attributes.h"
+#include "Projectile.h"
+#include "Status.h"
+#include <optional>
+
 //after pretty much finishing this, a question popped in my mind: What if I had just used maps instead of a million vector iterating sub functions?
 //but I'm not knowledgeable enough (yet) to know if what would be the better HitMethod
 
-enum class Stat
-{
-	Charisma,     //social ability
-	Constitution, //special resistance, hitpoints, mental & physical fortitude, endurance
-	Strength,	  //physical strength
-	Dexterity,	  //quickness, sleight of hand, agility. Ability to complete complicated tasks and avoid 
-	Intelligence, //knowledge, aptitude
-	Wisdom	  //environmental awareness
-};
-
-class Attributes
-{
-public:
-	Attributes()
-	{
-		//default values
-		stats[Stat::Charisma] = 10;
-		stats[Stat::Constitution] = 10;
-		stats[Stat::Strength] = 10;
-		stats[Stat::Dexterity] = 10;
-		stats[Stat::Intelligence] = 10;
-		stats[Stat::Wisdom] = 10;
-	}
-	Attributes(int cha, int con, int str, int dex, int intel, int wis)
-	{
-		stats[Stat::Charisma] = cha;
-		stats[Stat::Constitution] = con;
-		stats[Stat::Strength] = str;
-		stats[Stat::Dexterity] = dex;
-		stats[Stat::Intelligence] = intel;
-		stats[Stat::Wisdom] = wis;
-	}
-
-	int getStat(Stat statName) const {
-		auto it = stats.find(statName);
-		if (it != stats.end()) {
-			return it->second;
-		}
-		// Return a default value (you can customize this)
-		return 0;
-	}
-
-	void setStat(Stat statName, int value) {
-		stats[statName] = value;
-	}
-public:
-	std::unordered_map<Stat, int> stats;
-
-};
-
-enum class EffectType
-{
-	None, //place holder for a extra roll/check
-	Physical,
-	Burn,
-	Stun,
-	Silence,
-	Disorient, //effects Concentration
-	Heal,
-
-	Move,
-	Idle
-
-	//types
-	//Burn, Stun, Poison - DoT, concentration effected (accuracy, ?), increased effect of other moves
-	//Blind - accuracy effected, visual effect onscreen
-	//Knockdown, Disabled - movement and/or actions restricted
-	//Anchor - movement tied to location
-};
-
-enum class EffectCategory //Active/Passive/Subtick
-{
-	Active,
-	Passive,
-	SubTick,
-	None
-};
-
-class Effect
-{
-public:
-	Effect(const EffectCategory& cat, const EffectType& type, int duration, float effectiveness)
-		:
-		cat(cat),
-		type(type),
-		duration(duration),
-		effectiveness(effectiveness)
-	{}
-	EffectType GetType() const { return type; }
-	EffectCategory GetCategory() const { return cat; }
-	int GetDuration() const { return duration; }
-	float GetEffectiveness() const { return effectiveness; }
-	void SetDuration(const int& newDuration) { duration = newDuration; }
-	void IncreaseEffectiveness(const float& effectivenessIncrease) { effectiveness += effectivenessIncrease; }
-	void AddAngle(float angle_in) { angle = angle_in; }
-	float GetAngle() const { return angle; }
-private:
-	EffectCategory cat;
-	EffectType type;
-	int duration; //0 duration represents an instant effect
-	float effectiveness;
-	float angle;
-public:
-	static Effect nulleff;
-};
-
-
-
-class Status //container for current effects
-{
-public:
-	Status() = default;
-	void AddEffect(const EffectCategory& cat, const Effect& effect);
-	void RemoveEffect(const EffectType& check); //removes effect if it shares the same type
-	void RemoveEffect(const EffectCategory& cat, const EffectType& check);
-
-	//create get effects and return the map
-	std::vector<Effect>& getEffectsByCategory(const EffectCategory& cat);
-	Effect& getEffectByType(const EffectType& check);
-	bool CheckForEffect(const EffectType& check) const;
-	void RemoveSubTickEvents();
-
-private:
-	std::map<EffectCategory, std::vector<Effect>> effects;
-};
 
 enum class Method
 {
@@ -264,6 +144,18 @@ private:
 	bool returnAtTickEndFlag = true;
 	int difficulty; //1-10
 };
+class HitBox : public HitMethod
+{
+public:
+	HitBox()
+	{}
+	Outcome CheckSuccess(const Vec2& entity_pos)
+	{
+
+	}
+private:
+	bool active = true;
+};
 
 class Criteria
 {
@@ -300,6 +192,8 @@ private:
 	//if a prohibition is missing, cross out the action in selection and make it unselectable
 };
 
+class Action;
+
 class Application
 {
 public:
@@ -309,28 +203,42 @@ public:
 		effect(effect),
 		hitMethod(new Guaranteed(Outcome::Hit))
 	{}
+	Application(Projectile* proj)
+		:
+		effect(Effect::nulleff),
+		projectile(*proj),
+		hitMethod(new Guaranteed(Outcome::Hit))
+	{
+		projectile.value().InitProjectile(parent->GetRange());
+	}
 	Application(const Effect& effect, HitMethod* hitMethod)
 		:
 		effect(effect),
 		hitMethod(hitMethod)
 	{}
 
-
+	Projectile GiveProjectile();
 	Effect GetEffect() const { return effect; }
 	HitMethod* GetHitMethod() const { return hitMethod; }
+	void InitParent(Action* useThis) { parent = useThis; }
 private:
+	Action* parent = nullptr;
 	Effect effect;
 	HitMethod* hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
+	//instead of an effect, a application can store a proj with an effect in it
+	std::optional<Projectile> projectile; //1 proj per app cuz you can have multiple apps on the same tick
+
 public:
 	static Application* nullapp;
-	
 };
+
+
 
 class Action
 {
 public:
 	Action() = default;
-	Action(std::string name_in, std::pair<int, Application*> Applications)
+	Action(std::string name_in, std::pair<int, Application*> Applications) //single app
 	{
 		if (Applications.first == -1)
 		{
@@ -345,6 +253,7 @@ public:
 		}
 		name.clear();
 		name = name_in;
+		InitApplicationParent();
 	}
 	Action(std::string name_in, std::vector<std::pair<int, Application*>> Applications)
 	{
@@ -365,6 +274,7 @@ public:
 
 		name.clear();
 		name = name_in;
+		InitApplicationParent();
 	}
 	//Starts on tick 0
 	Action(std::string name_in, int maxTicks, std::vector<std::pair<int, Application*>> Applications, const Criteria& criteria, const float& range)
@@ -390,6 +300,7 @@ public:
 
 		name.clear();
 		name = name_in;
+		InitApplicationParent();
 	}
 	int GetMaxTicks() const { return maxTicks; }
 
@@ -406,9 +317,9 @@ public:
 	bool IsSubTickEvent() const { return SubTick; }
 	std::string GetName() const { return name; }
 	bool RequiresTargetSelection() { return false; }
-	void AddSurface(Surface& src_in) { src = &src_in; }
-	Surface& GetSurface() { return *src; }
+	float GetRange() const { return range; }
 private:
+	void InitApplicationParent();
 	int maxTicks = -1; //uninitialized value, aka lasts forever
 	std::vector<Application*> ApplicationVector;
 	Criteria criteria;
@@ -416,7 +327,6 @@ private:
 	bool SubTick = false;
 	static Criteria noCriteria;
 	std::string name;
-	Surface* src = nullptr;
 public:
 	static Action* Idle;
 	//targets

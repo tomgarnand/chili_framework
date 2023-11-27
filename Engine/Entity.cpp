@@ -2,57 +2,56 @@
 
 
 
-Drawable Entity::GetDrawable(const std::string& map) const
+std::vector<Drawable> Entity::GetDrawables(const std::string& map) const
 {
+	std::vector<Drawable> Drawables;
+	Drawable d(src);
+
+	Vec2 currentPos{};
+
+	auto it = pos.find(current_map);
+	if (it != pos.end())
 	{
-		Drawable d(src);
-
-		Vec2 currentPos{};
-
-		auto it = pos.find(current_map);
-		if (it != pos.end())
-		{
-			currentPos = it->second;
-		}
-
-		RectI currentFrame;
-		auto it2 = animation.find(actionToAnimate);
-		if (it2 != animation.end())
-		{
-			if (it2->second.IsDirectional())
-			{
-				currentFrame = it2->second.GetSourceRect(dir);
-			}
-			else 
-			{
-				currentFrame = it2->second.GetSourceRect();
-			}
-			if (it2->second.ContainsExtraAnimation())
-			{
-				Drawable e(actionToAnimate->GetSurface());
-				e.AddSourceRect(it2->second.GetExtraAnimation()->GetSourceRect());
-				e.ApplyTransformation(
-					Mat3::Translation(currentPos.x - radius, currentPos.y - radius) *
-					Mat3::Scale(scale) * //entity's scale
-					Mat3::Rotation(angle)
-				);
-				d.AddExraDrawable(e);
-
-			}
-			d.AddSourceRect(currentFrame);
-		}
-		if (effectActive)
-		{
-			d.AddVisualEffect(VisualEffect::Red);
-		}
-
-		d.ApplyTransformation(
-			Mat3::Translation(currentPos.x - radius, currentPos.y -radius) *
-			Mat3::Scale(scale) *
-			Mat3::Rotation(angle)
-		);
-		return d;
+		currentPos = it->second;
 	}
+
+	RectI currentFrame;
+	auto it2 = animation.find(actionToAnimate);
+	if (it2 != animation.end())
+	{
+		if (it2->second.IsDirectional())
+		{
+			currentFrame = it2->second.GetSourceRect(dir);
+		}
+		else
+		{
+			currentFrame = it2->second.GetSourceRect();
+		}
+		if (it2->second.ContainsExtraAnimation())
+		{
+			Drawable e(actionToAnimate->GetSurface());
+			e.AddSourceRect(it2->second.GetExtraAnimation()->GetSourceRect());
+			e.ApplyTransformation(
+				Mat3::Translation(currentPos.x - radius, currentPos.y - radius) *
+				Mat3::Scale(scale) * //entity's scale
+				Mat3::Rotation(angle)
+			);
+			d.AddExraDrawable(e);
+
+		}
+		d.AddSourceRect(currentFrame);
+	}
+	if (effectActive)
+	{
+		d.AddVisualEffect(VisualEffect::Red);
+	}
+
+	d.ApplyTransformation(
+		Mat3::Translation(currentPos.x - radius, currentPos.y - radius) *
+		Mat3::Scale(scale) *
+		Mat3::Rotation(angle)
+	);
+	return d;
 }
 
 void Entity::Update(const World& world, float dt)
@@ -141,6 +140,15 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 			{
 				current_action->GetApplicationByTick(tick)->GetHitMethod()->InitiateCheck(stateStack);
 			}
+			//if this is a projectile hitmethod
+			else if (HitBox* HitBoxPtr = dynamic_cast<HitBox*>(current_action->GetApplicationByTick(tick)->GetHitMethod()))
+			{
+				//the entity is responsible for checking to see if it's projectiles hit anything
+				for (auto& proj : ownedProjectiles)
+				{
+
+				}
+			}
 		}
 	}
 	else
@@ -176,7 +184,6 @@ bool Entity::IsActionEnded()
 
 void Entity::DoAction(Action* action, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
 {
-	//need behavior if there is no hitmethod or even application
 	if (action->GetApplicationByTick(tick) != nullptr)
 	{
 		HitMethod* HitMethod = action->GetApplicationByTick(tick)->GetHitMethod();
@@ -348,6 +355,15 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 	else
 	{
 		action = current_action;
+	}
+
+	//projectiles
+	for (auto& proj : ownedProjectiles)
+	{
+		std::pair<Vec2, Vec2> move = proj->AttemptMoveProjectile();
+		Vec2 result = world.CheckAndAdjustMovement(move.first, move.second, proj->GetRadius());
+		//need to also return who is hit, need to make a new world function, address how we add Rects to coll_test
+		proj->MoveProjectile(result);
 	}
 
 	actionToAnimate = action;

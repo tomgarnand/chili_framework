@@ -4,6 +4,7 @@
 #include <set>
 #include "Line.h"
 #include "TMXLoader/TMXLoader.h"
+#include "Entity.h"
 
 class World
 {
@@ -36,8 +37,8 @@ public:
 
 		//InitCollTest();
 		//replacing this with a test rects
-		//coll_test.emplace_back(RectF({ 400,200 }, { 600, 300 }));
-		//coll_test.emplace_back(RectF({ 200,440 }, { 250, 460 }));
+		//fixtures.emplace_back(RectF({ 400,200 }, { 600, 300 }));
+		//fixtures.emplace_back(RectF({ 200,440 }, { 250, 460 }));
 
 
 		for (int row = 0; row < sheetHeight / tileHeight; row++) //TODO: create loader->getMap("testmap")->getTileSet("defaulttileset")->getNumTiles()
@@ -48,9 +49,13 @@ public:
 			}
 		}
 	}
+	void InitEntities(Entity* entities)
+	{
+
+	}
 	void DrawRects(Graphics& gfx)
 	{
-		for (auto& rect : coll_test)
+		for (auto& rect : fixtures)
 		{
 			gfx.DrawRect(rect, Colors::Blue);
 		}
@@ -101,144 +106,149 @@ public:
 				{
 					float left = i * (float)tileWidth;
 					float top = j * (float)tileHeight;
-					coll_test.emplace_back(RectF(left, tileWidth + left, top, tileHeight + top));
+					fixtures.emplace_back(RectF(left, tileWidth + left, top, tileHeight + top));
 				}
 			}
 		}
 	}
-	//bool GetNearbyLinesByBounds(Vec2 Opt, Vec2 Mpt, float radius)
-	//{
-	//
-	//	bool y_bound = false;
-	//	bool x_bound = false;
-	//
-	//		//if mpt is between line.a.y and line.b.y
-	//		// and if mpt is between line.a.x and line.b.x
-	//
-	//		//or, same check but for opt (only necessary for diagonal movement)
-	//
-	//	if ((line.A.y < Mpt.y - radius && line.B.y > Mpt.y + radius) ||
-	//		(line.A.y > Mpt.y + radius && line.B.y < Mpt.y - radius))
-	//	{
-	//		y_bound = true;
-	//	}
-	//	else if ((line.A.y < Opt.y - radius && line.B.y > Opt.y + radius) ||
-	//			(line.A.y > Opt.y + radius && line.B.y < Opt.y - radius))
-	//	{
-	//		y_bound = true;
-	//	}
-	//	else
-	//	{
-	//		continue;
-	//	}
-	//	if ((line.A.x < Mpt.x - radius && line.B.x > Mpt.x + radius) ||
-	//		(line.A.x > Mpt.x + radius && line.B.x < Mpt.x - radius))
-	//	{
-	//		x_bound = true;
-	//	}
-	//	else if ((line.A.x < Opt.x - radius && line.B.x > Opt.x + radius) ||
-	//		(line.A.x > Opt.x + radius && line.B.x < Opt.x - radius))
-	//	{
-	//		x_bound = true;
-	//	}
-	//
-	//
-	//	if (x_bound && y_bound)
-	//	{
-	//		nearby.emplace(line);
-	//	}
-	//
-	//}
+	
+	std::vector < std::pair<Entity*, Vec2> > CheckCollision_Entities(const Vec2& origin, const Vec2& move) const
+	{
 
-	Vec2 CheckAndAdjustMovement(const Vec2& origin, const Vec2& move, float radius) const
+		LineF movement = LineF(origin, move);
+		std::pair<bool, Vec2> pair_return;
+		std::vector < std::pair<Entity*, Vec2> > intercepts;
+
+		for (auto& entity : entities)
+		{
+			if (movement.GetNearbyLinesByDistance(entity->GetCircle().GetCenter(), entity->GetCircle().GetRadius())) //if line is within a reasonable dist to circle
+			{
+				std::pair<bool, Vec2> pair = movement.ClosestIntercept(entity->GetCircle());
+				if (pair.first)
+				{
+					intercepts.emplace_back(entity, pair.second);
+				}
+			}
+		}
+		
+	}
+	std::vector<Vec2> CheckCollision_Fixtures(const Vec2& origin, const Vec2& move) const
 	{
 		std::vector<Vec2> intercepts;
-		Vec2 shortest_move;
-		std::pair<bool,Vec2> tempVec;
-		float shortest_move_dist;
+		std::pair<bool, Vec2> pair_return;
 		LineF movement = LineF(origin, move);
-		for (auto& rect : coll_test)
+
+		for (auto& rect : fixtures)
 		{
 			if (rect.lBottom.GetNearbyLinesByDistance(move, movement.lengthSq))
 			{
-				tempVec = rect.lBottom.Intercept(movement);
-				if (tempVec.first == true)
+				pair_return = rect.lBottom.Intercept(movement);
+				if (pair_return.first == true)
 				{
-					intercepts.emplace_back(tempVec.second);
+					intercepts.emplace_back(pair_return.second);
 				}
 			}
 			if (rect.lTop.GetNearbyLinesByDistance(move, movement.lengthSq))
 			{
-				tempVec = rect.lTop.Intercept(movement);
-				if (tempVec.first == true)
+				pair_return = rect.lTop.Intercept(movement);
+				if (pair_return.first == true)
 				{
-					intercepts.emplace_back(tempVec.second);
+					intercepts.emplace_back(pair_return.second);
 				}
 			}
 			if (rect.lLeft.GetNearbyLinesByDistance(move, movement.lengthSq))
 			{
-				tempVec = rect.lLeft.Intercept(movement);
-				if (tempVec.first == true)
+				pair_return = rect.lLeft.Intercept(movement);
+				if (pair_return.first == true)
 				{
-					intercepts.emplace_back(tempVec.second);
+					intercepts.emplace_back(pair_return.second);
 				}
 			}
 			if (rect.lRight.GetNearbyLinesByDistance(move, movement.lengthSq))
 			{
-				tempVec = rect.lRight.Intercept(movement);
-				if (tempVec.first == true)
+				pair_return = rect.lRight.Intercept(movement);
+				if (pair_return.first == true)
 				{
-					intercepts.emplace_back(tempVec.second);
+					intercepts.emplace_back(pair_return.second);
 				}
 			}
 		}
+		
 
+	}
+	std::pair<bool, Entity*> CheckCollision_And_ReturnEntity(const Vec2& origin, const Vec2& move) const
+	{
+		std::vector < std::pair<Entity*, Vec2> > intercepts_entities = CheckCollision_Entities(origin, move);
+
+		std::vector<Vec2> intercepts = CheckCollision_Fixtures(origin, move);
+		for (auto& vec : intercepts)
+		{
+			intercepts_entities.emplace_back(nullptr, vec);
+		}
+		if (intercepts.empty())
+		{
+		
+			return { false, nullptr };
+		}
+
+		std::pair<Entity*, Vec2> first_collision;
+		float first_collision_dist;
+
+		first_collision = intercepts_entities[0]; //init
+		first_collision_dist = origin.GetDistanceSq(first_collision.second);
+		for (auto& pair : intercepts_entities)
+		{
+			if (origin.GetDistanceSq(pair.second) < first_collision_dist)
+			{
+				first_collision_dist = origin.GetDistanceSq(pair.second);
+				first_collision = pair;
+			}
+		}
+		return { true, first_collision.first };
+	}
+
+
+	Vec2 CheckAndAdjustMovement(const Vec2& origin, const Vec2& move) const
+	{
+
+		std::vector<Vec2> intercepts = CheckCollision_Fixtures(origin, move);
+		std::vector < std::pair<Entity*, Vec2> > intercepts_entities = CheckCollision_Entities(origin, move);
+		for (auto& pair : intercepts_entities)
+		{
+			intercepts.emplace_back(pair.second);
+		}
+	
 		if (intercepts.empty())
 		{
 			return move;
 		}
-		float temp;
-		shortest_move = intercepts[0];
+
+		Vec2 shortest_move;
+		float shortest_move_dist;
+
+		shortest_move = intercepts[0]; //init
 		shortest_move_dist = origin.GetDistanceSq(shortest_move);
-		for (auto& in : intercepts)
+		for (auto& intercept : intercepts)
 		{
-			temp = origin.GetDistanceSq(in);
-			if (temp < shortest_move_dist)
+			if (origin.GetDistanceSq(intercept) < shortest_move_dist)
 			{
-				shortest_move_dist = temp;
-				shortest_move = in;
+				shortest_move_dist = origin.GetDistanceSq(intercept);
+				shortest_move = intercept;
 			}
 		}
 
-		//check direction
-		Vec2 dir = { 0,0 };
-
-		if (move.x - origin.x < 0)
-		{
-			dir.x = -1;
-		}
-		else if (move.x - origin.x > 0)
-		{
-			dir.x = 1;
-		}
-		if (move.y - origin.y < 0)
-		{
-			dir.y = -1;
-		}
-		else if (move.y - origin.y > 0)
-		{
-			dir.y = 1;
-		}
-
-		//return the shortest move possible, adjusted for the radius of the unit in the direction its moving
-		return shortest_move  -(dir * 1.0f);
+		return shortest_move;
 	}
+	
 
 
+	
 private:
 	TMXLoader* loader;
 	Surface spritesheet;
 	std::vector<RectI> tiles;
-	std::vector<RectF> coll_test;
+	std::vector<RectF> fixtures;
+	std::vector<Entity*> entities;
+	std::vector<RectF> entities_coll;
 
 };
