@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "Util.h"
 #include "Circle.h"
+#include <cmath>
 
 
 template<typename T>
@@ -31,12 +32,19 @@ public:
 	{
 
 	}
+	float GetSlope() const
+	{
+		return -a / b;
+	}
 	//potentially performance bad if used beyond intializing (changing line lengths)
 	float GetLengthSq() const
 	{
 		return float((P.x - Q.x) * (P.x - Q.x)) + ((P.y - Q.y) * (P.y - Q.y));
 	}
-	
+	float GetLength() const
+	{
+		return std::sqrt(float((P.x - Q.x) * (P.x - Q.x)) + ((P.y - Q.y) * (P.y - Q.y)));
+	}
 	bool PointIsInLineSegment(const Vec2_<T>& pt) const
 	{
 		if (!(IsBetween(P.x, pt.x, Q.x, 0.1f))) 

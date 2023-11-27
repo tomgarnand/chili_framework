@@ -208,11 +208,20 @@ public:
 	}
 
 
-	Vec2 CheckAndAdjustMovement(const Vec2& origin, const Vec2& move) const
+	Vec2 CheckAndAdjustMovement(const CircF& circle, const Vec2& move) const
 	{
+		Vec2 origin = circle.GetCenter();
 
-		std::vector<Vec2> intercepts = CheckCollision_Fixtures(origin, move);
-		std::vector < std::pair<Entity*, Vec2> > intercepts_entities = CheckCollision_Entities(origin, move);
+		//calculate move + radius
+		float radius = circle.GetRadius();
+		LineF movement = LineF(origin, move);
+		Vec2 Dir = { movement.Q.x - movement.P.x, movement.Q.y - movement.P.y };
+		float length = movement.GetLength();
+		Vec2 NormalizedDir = { Dir.x / length, Dir.y / length };
+		Vec2 Q_star = { movement.Q.x + radius * NormalizedDir.x, movement.Q.y + radius * NormalizedDir.y };
+
+		std::vector<Vec2> intercepts = CheckCollision_Fixtures(origin, Q_star);
+		std::vector < std::pair<Entity*, Vec2> > intercepts_entities = CheckCollision_Entities(origin, Q_star);
 		for (auto& pair : intercepts_entities)
 		{
 			intercepts.emplace_back(pair.second);
@@ -237,7 +246,8 @@ public:
 			}
 		}
 
-		return shortest_move;
+		//taking away the radius we added to the collision checks earlier
+		return { shortest_move.x - radius * NormalizedDir.x, shortest_move.y - radius * NormalizedDir.y };
 	}
 	
 

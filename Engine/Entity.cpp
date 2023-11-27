@@ -361,7 +361,7 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 	for (auto& proj : ownedProjectiles)
 	{
 		std::pair<Vec2, Vec2> move = proj->AttemptMoveProjectile();
-		Vec2 result = world.CheckAndAdjustMovement(move.first, move.second, proj->GetRadius());
+		std::pair < bool, Entity* > hit = world.CheckCollision_And_ReturnEntity((move.first, move.second, proj->GetRadius());
 		//need to also return who is hit, need to make a new world function, address how we add Rects to coll_test
 		proj->MoveProjectile(result);
 	}
