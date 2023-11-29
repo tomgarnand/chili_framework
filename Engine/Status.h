@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include "Animation.h"
 
 enum class EffectType
 {
@@ -48,13 +49,14 @@ public:
 	void IncreaseEffectiveness(const float& effectivenessIncrease) { effectiveness += effectivenessIncrease; }
 	//void AddAngle(float angle_in) { angle = angle_in; }
 	//float GetAngle() const { return angle; }
+	void AddSplashAnimation(Animation& ani) { splash_effect = &ani; }
 private:
 	EffectCategory cat;
 	EffectType type;
 	int duration; //0 duration represents an instant effect
 	float effectiveness;
 	//float angle;
-	Animation* splash_effect = nullptr;
+	Animation* splash_effect = nullptr; //could get wonky without sprite scaling
 public:
 	static Effect nulleff;
 };

@@ -1,6 +1,5 @@
 #pragma once
 #include "Vec2.h"
-#include "Animation.h"
 #include "Status.h"
 #include "Circle.h"
 
@@ -13,32 +12,40 @@ class HitMethod;
 class Projectile
 {
 public:
-	Projectile(Effect effect, Animation& animation, float speed)
+	Projectile(Effect effect, Animation& animation, float range, float speed, float radius)
 		:
 		effect(effect),
 		animation(&animation),
-		extraHitMethod(new Guaranteed(Outcome::Hit))
+		extraHitMethod(new Guaranteed(Outcome::Hit)),
+		speed(speed),
+		range(range),
+		circle({ {}, radius }) //uninitiallized pos
+	{}
+	Projectile(Effect effect, Animation& animation, HitMethod& hitMethod, float range, float speed, float radius)
+		:
+		effect(effect),
+		animation(&animation),
+		speed(speed),
+		range(range),
+		circle({ {}, radius }), //uninitiallized pos
+		extraHitMethod(&hitMethod)
 	{
-	}
-	void InitProjectile(float range_in)
-	{
-		range = range_in;
+		has_special_hit_method = true;
 	}
 	void FireProjectile(CircF firer, Vec2 target_pos) //there is a way to do this without squareroots, but does it matter?
 	{
 		float dist = circle.pos.GetDistance(target_pos);
 
-		//direction from firer to target
+		//normalized direction from firer to target, could have used angles
 		dir = { (target_pos.x - firer.pos.x) / dist ,(target_pos.y - firer.pos.y) / dist };
 		circle.pos = firer.pos + (dir * (circle.radius + firer.radius));
-
 	}
 	CircF GetCircle() const { return circle; }
 	float GetRadius() const { return circle.radius; }
 	Vec2 AttemptMoveProjectile(float dt)
 	{
 		//need direction from target pos
-		if (circle.pos.GetDistanceSq(final_pos) < (speed * speed))
+		if (circle.pos.GetDistanceSq(final_pos) < (dt * speed * speed))
 		{
 			return circle.pos + (dir * dt * speed);
 		}
@@ -62,7 +69,6 @@ private:
 	Vec2 dir;
 	float speed;
 	float range;
-
 
 	Animation* animation;
 	Effect effect;

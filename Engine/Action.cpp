@@ -6,14 +6,6 @@ Action* Action::Idle = new Action("Idle", { -1, Application::nullapp });
 
 Criteria Action::noCriteria = Criteria();
 
-void Action::InitApplicationParent()
-{
-	for (auto& app : ApplicationVector)
-	{
-		app->InitParent(this);
-	}
-}
-
 bool Action::CriteriaPassed(const Status& status)
 {
 	bool failed = false;

@@ -9,7 +9,7 @@
 #include <memory>
 #include <stdexcept>
 #include <algorithm>
-#include "Surface.h"
+
 
 #include "Attributes.h"
 #include "Projectile.h"
@@ -209,7 +209,7 @@ public:
 		projectile(*proj),
 		hitMethod(new Guaranteed(Outcome::Hit))
 	{
-		projectile.value().InitProjectile(this, parent->GetRange());
+
 	}
 	Application(const Effect& effect, HitMethod* hitMethod)
 		:
@@ -219,9 +219,8 @@ public:
 
 	Effect GetEffect() const { return effect; }
 	HitMethod* GetHitMethod() const { return hitMethod; }
-	void InitParent(Action* useThis) { parent = useThis; }
 private:
-	Action* parent = nullptr;
+
 	Effect effect;
 	HitMethod* hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
 	//instead of an effect, a application can store a proj with an effect in it
@@ -255,7 +254,6 @@ public:
 		}
 		name.clear();
 		name = name_in;
-		InitApplicationParent();
 	}
 	Action(std::string name_in, std::vector<std::pair<int, Application*>> Applications)
 	{
@@ -276,7 +274,6 @@ public:
 
 		name.clear();
 		name = name_in;
-		InitApplicationParent();
 	}
 	//Starts on tick 0
 	Action(std::string name_in, int maxTicks, std::vector<std::pair<int, Application*>> Applications, const Criteria& criteria, const float& range)
@@ -302,7 +299,6 @@ public:
 
 		name.clear();
 		name = name_in;
-		InitApplicationParent();
 	}
 	int GetMaxTicks() const { return maxTicks; }
 
@@ -321,10 +317,10 @@ public:
 	bool RequiresTargetSelection() { return false; }
 	float GetRange() const { return range; }
 private:
-	void InitApplicationParent();
 	int maxTicks = -1; //uninitialized value, aka lasts forever
 	std::vector<Application*> ApplicationVector;
 	Criteria criteria;
+	//targeting range
 	float range = 0; //I wanted to put this in criteria, but criteria is only dealing with effects rn
 	bool SubTick = false;
 	static Criteria noCriteria;
