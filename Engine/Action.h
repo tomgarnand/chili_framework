@@ -209,7 +209,7 @@ public:
 		projectile(*proj),
 		hitMethod(new Guaranteed(Outcome::Hit))
 	{
-		projectile.value().InitProjectile(parent->GetRange());
+		projectile.value().InitProjectile(this, parent->GetRange());
 	}
 	Application(const Effect& effect, HitMethod* hitMethod)
 		:
@@ -217,7 +217,6 @@ public:
 		hitMethod(hitMethod)
 	{}
 
-	Projectile GiveProjectile();
 	Effect GetEffect() const { return effect; }
 	HitMethod* GetHitMethod() const { return hitMethod; }
 	void InitParent(Action* useThis) { parent = useThis; }
@@ -226,7 +225,10 @@ private:
 	Effect effect;
 	HitMethod* hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
 	//instead of an effect, a application can store a proj with an effect in it
+public:
+	//not sure how i can access this without making it public... haha be safe out there!!
 	std::optional<Projectile> projectile; //1 proj per app cuz you can have multiple apps on the same tick
+	
 
 public:
 	static Application* nullapp;

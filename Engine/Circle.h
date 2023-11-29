@@ -9,9 +9,8 @@ public:
 	//center at (h,k) with radius r
 	Circle(T h, T k, T, r)
 		:
-		h(h),
-		k(k),
-		r(r)
+		pos({h,k}),
+		radius(r)
 	{
 
 	}
@@ -19,6 +18,50 @@ public:
 	{
 		Circle(center.x, center,y, radius)
 	}
+
+#pragma region operators
+	Circle operator+(const Circle& rhs) const
+	{
+		return Circle(x + rhs.x, y + rhs.y);
+	}
+	Circle operator+(const T& rhs) const
+	{
+		return Circle(x + rhs, y + rhs);
+	}
+	Circle& operator+=(const Circle& rhs)
+	{
+		return *this = *this + rhs;
+	}
+	Circle operator*(T rhs) const
+	{
+		return Circle(x * rhs, y * rhs);
+	}
+	Circle& operator*(const Circle& rhs)
+	{
+		return Circle(x * rhs.x, y * rhs.y);
+	}
+	Circle& operator*=(T rhs)
+	{
+		return *this = *this * rhs;
+	}
+	Circle operator-(const Circle& rhs) const
+	{
+		return Circle(x - rhs.x, y - rhs.y);
+	}
+	Circle operator-(const T& rhs) const
+	{
+		return Circle(x - rhs, y - rhs);
+	}
+	Circle& operator-=(const Circle& rhs)
+	{
+		return *this = *this - rhs;
+	}
+	bool operator!=(const Circle& rhs) const
+	{
+		return (x != rhs.x || y != rhs.y);
+	}
+#pragma endregion
+
 	Vec2_<T> GetCenter() const
 	{
 		return { h,k };
@@ -29,9 +72,8 @@ public:
 	}
 
 public:
-	T h;
-	T k;
-	T r;
+	Vec2_<T> pos;
+	T radius;
 };
 
 typedef Circle<float> CircF;

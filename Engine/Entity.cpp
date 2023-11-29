@@ -2,7 +2,7 @@
 
 
 
-std::vector<Drawable> Entity::GetDrawables(const std::string& map) const
+std::vector<Drawable> Entity::GetDrawable(const std::string& map) const
 {
 	std::vector<Drawable> Drawables;
 	Drawable d(src);
@@ -92,7 +92,7 @@ void Entity::EndTick(const World& world, float dt, std::vector<std::string>& sta
 	{
 		//for ea action in current_subtick_actionS
 		
-		DoAction(current_subtick_action, current_subtick_targets, stateStack);
+		DoApplication(current_action->GetApplicationByTick(tick), current_subtick_targets, stateStack);
 		Resolve(world, dt);
 	}
 	else if (tick == -1)
@@ -112,14 +112,21 @@ void Entity::EndTick(const World& world, float dt, std::vector<std::string>& sta
 		}
 		else
 		{
-			DoAction(current_action, current_targets, stateStack);
+			//Resolve projectives. could be handled every subtick too. Might be more fluid
+			for (auto& proj : ownedProjectiles)
+			{
+				if (proj->isExpired() && proj->GetTargetHit() != nullptr)
+				{
+					DoApplication(proj, { proj->GetTargetHit() }, stateStack);
+				}
+				ownedProjectiles.erase(std::remove_if(ownedProjectiles.begin(), ownedProjectiles.end(), [](const Projectile& proj) { return proj.isExpired(); }), ownedProjectiles.end());
+			}
+			DoApplication(current_action->GetApplicationByTick(tick), current_targets, stateStack);
 			Resolve(world, dt);
 			AdvanceTick();
 		}
-	}
-	
-	
 
+	}
 }
 
 void Entity::StartTick(std::vector<std::string>& stateStack)
@@ -140,13 +147,16 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 			{
 				current_action->GetApplicationByTick(tick)->GetHitMethod()->InitiateCheck(stateStack);
 			}
-			//if this is a projectile hitmethod
-			else if (HitBox* HitBoxPtr = dynamic_cast<HitBox*>(current_action->GetApplicationByTick(tick)->GetHitMethod()))
+			
+			//give projectile
+			//we handle it next in a subtick update
+			if (current_action->GetApplicationByTick(tick)->projectile.has_value())
 			{
-				//the entity is responsible for checking to see if it's projectiles hit anything
-				for (auto& proj : ownedProjectiles)
+				//the menu call to this action determines the number of targets, so we dont worry about it here
+				for (auto& tar : current_targets)
 				{
-
+					ownedProjectiles.emplace_back(current_action->GetApplicationByTick(tick)->projectile.value());
+					ownedProjectiles.back()->FireProjectile(circle, tar->GetPos("testmap"));
 				}
 			}
 		}
@@ -182,104 +192,117 @@ bool Entity::IsActionEnded()
 	return false;
 }
 
-void Entity::DoAction(Action* action, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
+void Entity::DoApplication(Effect effect, HitMethod* HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
 {
-	if (action->GetApplicationByTick(tick) != nullptr)
+	std::vector<Outcome> out; //(targets.size()); didnt work with emplace back
+	Outcome i_out;
+	switch (HitMethod->GetMethod())
 	{
-		HitMethod* HitMethod = action->GetApplicationByTick(tick)->GetHitMethod();
-		std::vector<Outcome> out; //(targets.size()); didnt work with emplace back
-		Outcome i_out;
-		switch (HitMethod->GetMethod())
-		{
-		case(Method::DiceThrow):
-		{
+	case(Method::DiceThrow):
+	{
 
-			int roll = d20.roll();
-			if (roll == 1)
-			{
-				out.emplace_back(Outcome::CriticalMiss);
-				break;
-			}
-			else
-			{
-				for (Entity*& target : targets)
-				{
-					DiceThrow* DiceThrowPtr = dynamic_cast<DiceThrow*>(HitMethod);
-					if (DiceThrowPtr) {
-						i_out = DiceThrowPtr->CheckSuccess(roll,
-							stats.getStat(DiceThrowPtr->GetBonusStat()),
-							target->GetArmorClass(),
-							target->GetStats().getStat(Stat::Dexterity));
-						out.emplace_back(i_out);
-					}
-					else {
-						// Handle the case where the cast fails (not a Guaranteed object)
-					}
-
-					out.emplace_back(i_out);
-				}
-			}
+		int roll = d20.roll();
+		if (roll == 1)
+		{
+			out.emplace_back(Outcome::CriticalMiss);
 			break;
 		}
-		case(Method::QTE):
+		else
 		{
 			for (Entity*& target : targets)
 			{
-				QTE* QTEPtr = dynamic_cast<QTE*>(HitMethod);
-				if (QTEPtr) {
-					i_out = QTEPtr->CheckSuccess(stateStack);
+				DiceThrow* DiceThrowPtr = dynamic_cast<DiceThrow*>(HitMethod);
+				if (DiceThrowPtr) {
+					i_out = DiceThrowPtr->CheckSuccess(roll,
+						stats.getStat(DiceThrowPtr->GetBonusStat()),
+						target->GetArmorClass(),
+						target->GetStats().getStat(Stat::Dexterity));
 					out.emplace_back(i_out);
 				}
 				else {
 					// Handle the case where the cast fails (not a Guaranteed object)
 				}
-			}
-			break;
-		}
-		case(Method::Guaranteed):
-			for (Entity*& target : targets)
-			{
-				Guaranteed* guaranteedPtr = dynamic_cast<Guaranteed*>(HitMethod);
-				if (guaranteedPtr) {
-					i_out = guaranteedPtr->CheckSuccess();
-					out.emplace_back(i_out);
-				}
-				else {
-					// Handle the case where the cast fails (not a Guaranteed object)
-				}
-			}
-			break;
-		}
-		int i = 0;
 
-		for (auto& o : out)
-		{
-			if (o == Outcome::CriticalMiss)
-			{
-				Apply(action->GetApplicationByTick(tick), Outcome::Hit); //design choice, self apply on critical miss
-				goto skip_apply;
+				out.emplace_back(i_out);
 			}
 		}
+		break;
+	}
+	case(Method::QTE):
+	{
 		for (Entity*& target : targets)
 		{
-			target->Apply(action->GetApplicationByTick(tick), out[i]);
-			i++;
+			QTE* QTEPtr = dynamic_cast<QTE*>(HitMethod);
+			if (QTEPtr) {
+				i_out = QTEPtr->CheckSuccess(stateStack);
+				out.emplace_back(i_out);
+			}
+			else {
+				// Handle the case where the cast fails (not a Guaranteed object)
+			}
+		}
+		break;
+	}
+	case(Method::Guaranteed):
+		for (Entity*& target : targets)
+		{
+			Guaranteed* guaranteedPtr = dynamic_cast<Guaranteed*>(HitMethod);
+			if (guaranteedPtr) {
+				i_out = guaranteedPtr->CheckSuccess();
+				out.emplace_back(i_out);
+			}
+			else {
+				// Handle the case where the cast fails (not a Guaranteed object)
+			}
+		}
+		break;
+	}
+	int i = 0;
+
+	for (auto& o : out)
+	{
+		if (o == Outcome::CriticalMiss)
+		{
+			Apply(effect, Outcome::Hit); //design choice, self apply on critical miss
+			goto skip_apply;
 		}
 	}
-skip_apply: {} //because crit miss self applies
+	for (Entity*& target : targets)
+	{
+		target->Apply(effect, out[i]);
+		i++;
+	}
 
+skip_apply: {} //because crit miss self applies
+}
+
+void Entity::DoApplication(Projectile* proj, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
+{
+	DoApplication(proj->GetEffect(), proj->GetHitMethod(), targets, stateStack);
+}
+
+void Entity::DoApplication(Application* app, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
+{
+	if (app != nullptr)
+	{
+		DoApplication(app->GetEffect(), app->GetHitMethod(), targets, stateStack);
+	}
 }
 
 void Entity::Apply(const Application* app, const Outcome& out)
 {
+	Apply(app->GetEffect(), out);
+}
+
+void Entity::Apply(Effect effect, const Outcome& out)
+{
 	if (out == Outcome::CriticalHit)
 	{
-		app->GetEffect().IncreaseEffectiveness(app->GetEffect().GetEffectiveness() * static_cast<int>(out)); //*2
+		effect.IncreaseEffectiveness(effect.GetEffectiveness() * static_cast<int>(out)); //*2
 	}
-	statuses.AddEffect(app->GetEffect().GetCategory(), app->GetEffect());
-
-	//queue visual/sound effects
+	statuses.AddEffect(effect.GetCategory(), effect);
 }
+
 
 void Entity::FlagSubTickEvent(Action* action, Entity* target)
 {
@@ -358,12 +381,25 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 	}
 
 	//projectiles
+	//this is where projectiles will either land or miss, or get updated
 	for (auto& proj : ownedProjectiles)
 	{
-		std::pair<Vec2, Vec2> move = proj->AttemptMoveProjectile();
-		std::pair < bool, Entity* > hit = world.CheckCollision_And_ReturnEntity((move.first, move.second, proj->GetRadius());
+		Vec2 move = proj->AttemptMoveProjectile(dt);
+		std::pair < bool, Entity* > hit = world.CheckCollision_And_ReturnEntity(proj->GetCircle(), move);
 		//need to also return who is hit, need to make a new world function, address how we add Rects to coll_test
-		proj->MoveProjectile(result);
+		if (hit.first)
+		{ 
+			proj->setExpired();
+			proj->setTargetHit(hit.second);
+			if (proj->hasSpecialHitMethod() && proj->GetHitMethod()->returnAtTickEnd());
+			{
+				proj->GetHitMethod()->InitiateCheck(stateStack);
+			}
+		}
+		else
+		{
+			proj->MoveProjectile(move);
+		}
 	}
 
 	actionToAnimate = action;

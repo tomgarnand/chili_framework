@@ -80,7 +80,7 @@ public:
 	void UpdateFromScript();
 	void effectActivate();
 	void AddAction(Action* action_in, Animation animation_in);
-	
+	void TakeProjectile(Projectile proj);
 
 	int GetArmorClass() const { return ArmorClass; }
 	const Attributes& GetStats() const { return stats; }
@@ -97,8 +97,11 @@ public:
 
 	bool IsActionEnded();
 
-	void DoAction(Action* action, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
+	void DoApplication(Effect effect, HitMethod* HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
+	void DoApplication(Projectile* proj, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
+	void DoApplication(Application* app, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
 	void Apply(const Application* app, const Outcome& out);
+	void Apply(Effect effect, const Outcome& out);
 	void FlagSubTickEvent(Action* action, Entity* target);
 	void FlagSubTickEvent(Action* action, std::vector<Entity*> targets);
 	

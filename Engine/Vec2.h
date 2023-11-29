@@ -83,7 +83,10 @@ public:
 	{
 		return ((pt.x - x) * (pt.x - x)) + ((pt.y - y) * (pt.y - y));
 	}
-
+	float GetDistance(const Vec2_& pt) const
+	{
+		return std::sqrt(((pt.x - x) * (pt.x - x)) + ((pt.y - y) * (pt.y - y)));
+	}
 
 public:
 	T x;

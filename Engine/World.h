@@ -176,11 +176,22 @@ public:
 		
 
 	}
-	std::pair<bool, Entity*> CheckCollision_And_ReturnEntity(const Vec2& origin, const Vec2& move) const
+	std::pair<bool, Entity*> CheckCollision_And_ReturnEntity(const CircF& circle, const Vec2& move) const
 	{
-		std::vector < std::pair<Entity*, Vec2> > intercepts_entities = CheckCollision_Entities(origin, move);
+		Vec2 origin = circle.GetCenter();
 
-		std::vector<Vec2> intercepts = CheckCollision_Fixtures(origin, move);
+		//calculate move + radius
+		float radius = circle.GetRadius();
+		LineF movement = LineF(origin, move);
+		Vec2 Dir = { movement.Q.x - movement.P.x, movement.Q.y - movement.P.y };
+		float length = movement.GetLength();
+		Vec2 NormalizedDir = { Dir.x / length, Dir.y / length };
+		Vec2 Q_star = { movement.Q.x + radius * NormalizedDir.x, movement.Q.y + radius * NormalizedDir.y };
+
+
+		std::vector < std::pair<Entity*, Vec2> > intercepts_entities = CheckCollision_Entities(origin, Q_star);
+
+		std::vector<Vec2> intercepts = CheckCollision_Fixtures(origin, Q_star);
 		for (auto& vec : intercepts)
 		{
 			intercepts_entities.emplace_back(nullptr, vec);
