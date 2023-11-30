@@ -68,7 +68,7 @@ private:
 	Vec2 final_pos;
 	Vec2 dir;
 	float speed;
-	float range;
+	float range; //0 means instant land on target location
 
 	Animation* animation;
 	Effect effect;

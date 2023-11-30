@@ -45,6 +45,18 @@ public:
 		);
 		drawable.Render( gfx );
 	}
+	void Draw(std::vector<Drawable> drawables) const
+	{
+		for (auto& drawable : drawables)
+		{
+			drawable.ApplyTransformation(
+				Mat3::Rotation(angle) *
+				Mat3::Scale(scale) *
+				Mat3::Translation(-pos.x, -pos.y)
+			);
+			drawable.Render(gfx);
+		}
+	}
 	void SetScale( float s )
 	{
 		scale = s;
