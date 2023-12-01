@@ -155,6 +155,7 @@ public:
 	}
 private:
 	bool active = true;
+	HitMethod* postHitMethod = nullptr;
 };
 
 class Criteria
@@ -192,8 +193,6 @@ private:
 	//if a prohibition is missing, cross out the action in selection and make it unselectable
 };
 
-class Action;
-
 class Application
 {
 public:
@@ -209,18 +208,29 @@ public:
 		projectile(*proj),
 		hitMethod(new Guaranteed(Outcome::Hit))
 	{
-
+		projectile.value().InitParent(this);
 	}
 	Application(const Effect& effect, HitMethod* hitMethod)
 		:
 		effect(effect),
 		hitMethod(hitMethod)
 	{}
+	Application(Projectile* proj, HitMethod* hitMethod)
+		:
+		effect(Effect::nulleff),
+		projectile(*proj),
+		hitMethod(new Guaranteed(Outcome::Hit))
+	{
+		projectile.value().InitParent(this);
+		//TODO
+		//default hit method for projectiles is hitbox, but you can have another stored inside
+		//or just have no hitbox (homing) and have only one hitmethod
+		//or homing guaranteed
+	}
 
 	Effect GetEffect() const { return effect; }
 	HitMethod* GetHitMethod() const { return hitMethod; }
 private:
-
 	Effect effect;
 	HitMethod* hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
 	//instead of an effect, a application can store a proj with an effect in it

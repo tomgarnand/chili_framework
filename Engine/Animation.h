@@ -2,7 +2,6 @@
 #include "Surface.h"
 #include "Graphics.h"
 #include <vector>
-#include "Drawable.h"
 #include <map>
 
 
@@ -14,11 +13,11 @@ public:
 	Animation(std::vector<Animation> animations, std::vector<float> angle);
 	void Update(float dt);
 	RectI GetSourceRect() const;
+	const RectI& GetSourceRectRef() const;
 	RectI GetSourceRect(float angle) const;
-	void AddExtraAnimation(Animation* extra_in) { extra = extra_in; }
-	bool ContainsExtraAnimation() const;
-	Animation* GetExtraAnimation() const { return extra; }
+
 	bool IsDirectional() const { return Directional; }
+	const Surface& GetSource() const { return sprite; }
 private:
 	void Advance();
 private:
@@ -33,5 +32,4 @@ private:
 	float holdTime;
 	float curFrameTime = 0.0f;
 	
-	Animation* extra = nullptr;
 };

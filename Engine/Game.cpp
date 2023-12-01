@@ -235,9 +235,9 @@ void Game::ComposeFrame()
 		g.dialogbox.Draw(gfx);
 	}
 	
-	cam.Draw(g.player.GetDrawable(current_map));
-	cam.Draw(g.npc1.GetDrawable(current_map));
-	cam.Draw(g.npc2.GetDrawable(current_map));
+	cam.Draw(g.player.GetDrawables(current_map));
+	cam.Draw(g.npc1.GetDrawables(current_map));
+	cam.Draw(g.npc2.GetDrawables(current_map));
 
 	gfx.DrawRect(0, Graphics::ScreenWidth - 1, 0, 20, Colors::Gray);
 	int percentfill = Graphics::ScreenWidth * (TickTimer/maxTickDuration);

@@ -2,9 +2,9 @@
 
 
 
-std::vector<Drawable> Entity::GetDrawable(const std::string& map) const
+std::vector<Drawable> Entity::GetDrawables(const std::string& map) const
 {
-	std::vector<Drawable> Drawables;
+	std::vector<Drawable> drawables;
 	Drawable d(src);
 
 	Vec2 currentPos{};
@@ -27,18 +27,6 @@ std::vector<Drawable> Entity::GetDrawable(const std::string& map) const
 		{
 			currentFrame = it2->second.GetSourceRect();
 		}
-		if (it2->second.ContainsExtraAnimation())
-		{
-			Drawable e(actionToAnimate->GetSurface());
-			e.AddSourceRect(it2->second.GetExtraAnimation()->GetSourceRect());
-			e.ApplyTransformation(
-				Mat3::Translation(currentPos.x - radius, currentPos.y - radius) *
-				Mat3::Scale(scale) * //entity's scale
-				Mat3::Rotation(angle)
-			);
-			d.AddExraDrawable(e);
-
-		}
 		d.AddSourceRect(currentFrame);
 	}
 	if (effectActive)
@@ -47,11 +35,23 @@ std::vector<Drawable> Entity::GetDrawable(const std::string& map) const
 	}
 
 	d.ApplyTransformation(
-		Mat3::Translation(currentPos.x - radius, currentPos.y - radius) *
+		Mat3::Translation(currentPos.x - circle.radius, currentPos.y - circle.radius) *
 		Mat3::Scale(scale) *
 		Mat3::Rotation(angle)
 	);
-	return d;
+	drawables.emplace_back(d);
+
+	for (auto& proj : ownedProjectiles)
+	{
+		Drawable p(proj->GetAnimation());
+		p.ApplyTransformation(
+			Mat3::Translation(proj->GetCircle().pos.x - proj->GetCircle().radius, proj->GetCircle().pos.y - proj->GetCircle().radius) *
+			Mat3::Scale(1) //* //entity's scale
+			//Mat3::Rotation(angle) //use dir as a radian and incorporate rotating sprites or a directional sprite
+		);
+		drawables.emplace_back(p);
+	}
+	return drawables;
 }
 
 void Entity::Update(const World& world, float dt)
@@ -339,7 +339,7 @@ void Entity::Resolve(const World& world, float dt)
 
 	if (vel != Vec2(0.0f, 0.0f))
 	{
-		pos[current_map] = world.CheckAndAdjustMovement(pos[current_map], pos[current_map] + (vel * dt * speed), radius);
+		pos[current_map] = world.CheckAndAdjustMovement(circle, pos[current_map] + (vel * dt * speed));
 	}
 
 
@@ -382,8 +382,9 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 
 	//projectiles
 	//this is where projectiles will either land or miss, or get updated
-	for (auto& proj : ownedProjectiles)
+	for (auto proj : ownedProjectiles)
 	{
+		proj->GetAnimation().Update(dt);
 		Vec2 move = proj->AttemptMoveProjectile(dt);
 		std::pair < bool, Entity* > hit = world.CheckCollision_And_ReturnEntity(proj->GetCircle(), move);
 		//need to also return who is hit, need to make a new world function, address how we add Rects to coll_test
@@ -391,9 +392,9 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 		{ 
 			proj->setExpired();
 			proj->setTargetHit(hit.second);
-			if (proj->hasSpecialHitMethod() && proj->GetHitMethod()->returnAtTickEnd());
+			if (proj->hasSpecialHitMethod() && proj->GetHitMethod().returnAtTickEnd());
 			{
-				proj->GetHitMethod()->InitiateCheck(stateStack);
+				proj->GetHitMethod().InitiateCheck(stateStack);
 			}
 		}
 		else
@@ -405,18 +406,16 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 	actionToAnimate = action;
 	//animation
 	auto it = animation.find(actionToAnimate);
-	if (it != animation.end()) {
+	if (it != animation.end()) 
+	{
 		it->second.Update(dt);
-		if (it->second.ContainsExtraAnimation())
-		{
-			it->second.GetExtraAnimation()->Update(dt);
-		}
 	}
 	else //case for animation not found, so that whole spritesheet isnt drawn
 	{
 		actionToAnimate = Action::Idle;
 		auto it = animation.find(actionToAnimate);
-		if (it != animation.end()) {
+		if (it != animation.end()) 
+		{
 			it->second.Update(dt);
 		}
 	}
@@ -431,6 +430,4 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 			effectActive = false;
 		}
 	}
-
-
 }

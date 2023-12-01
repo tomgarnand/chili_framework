@@ -49,7 +49,7 @@ public:
 	void IncreaseEffectiveness(const float& effectivenessIncrease) { effectiveness += effectivenessIncrease; }
 	//void AddAngle(float angle_in) { angle = angle_in; }
 	//float GetAngle() const { return angle; }
-	void AddSplashAnimation(Animation& ani) { splash_effect = &ani; }
+	//void AddSplashAnimation(Animation& ani) { splash_effect = &ani; }
 private:
 	EffectCategory cat;
 	EffectType type;

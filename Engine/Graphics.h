@@ -78,7 +78,7 @@ public:
 		DrawSprite(GetVec2(ma),  s, effect);
 	}
 	template<typename E>
-	void DrawSprite(Mat3 ma, RectI srcRect, const Surface& s, E effect)
+	void DrawSprite(Mat3 ma, const RectI& srcRect, const Surface& s, E effect)
 	{
 		DrawSprite((int)GetVec2(ma).x, (int)GetVec2(ma).y, srcRect, GetScreenRect(), s, effect);
 	}
@@ -93,13 +93,14 @@ public:
 		DrawSprite(x, y, s.GetRect(), s, effect);
 	}
 	template<typename E>
-	void DrawSprite(int x, int y, RectI srcRect, const Surface& s, E effect)
+	void DrawSprite(int x, int y, const RectI& srcRect, const Surface& s, E effect)
 	{
 		DrawSprite(x, y, srcRect, GetScreenRect(), s, effect);
 	}
 	template<typename E>
-	void DrawSprite(int x, int y, RectI srcRect, const RectI& clipRect, const Surface& s, E effect)
+	void DrawSprite(int x, int y, const RectI& srcRect_in, const RectI& clipRect, const Surface& s, E effect)
 	{
+		RectI srcRect = srcRect_in;
 		assert(srcRect.left >= 0);
 		assert(srcRect.right <= s.GetWidth());
 		assert(srcRect.top >= 0);

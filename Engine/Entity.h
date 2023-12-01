@@ -73,14 +73,13 @@ public:
 
 	CircF GetCircle() const {return circle; }
 
-	Drawable GetDrawable(const std::string& map) const;
+	std::vector<Drawable> GetDrawables(const std::string& map) const;
 	//std::vector<Projectile*>& GetProjectiles() { return ownedProjectiles; }
 
 	void Update(const World& world, float dt);
 	void UpdateFromScript();
 	void effectActivate();
 	void AddAction(Action* action_in, Animation animation_in);
-	void TakeProjectile(Projectile proj);
 
 	int GetArmorClass() const { return ArmorClass; }
 	const Attributes& GetStats() const { return stats; }

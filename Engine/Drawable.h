@@ -1,10 +1,15 @@
 #pragma once
 
 #include "Graphics.h"
-#include <vector>
+#include "Rect.h"
+#include "Mat3.h"
 #include "Vec2.h"
 #include "Surface.h"
+#include "Animation.h"
 #include "SpriteEffect.h"
+#include <optional>
+#include <functional> // For std::reference_wrapper
+
 
 enum class VisualEffect
 {
@@ -17,28 +22,41 @@ class Drawable
 {
 public:
 
-	Drawable( const Surface& src)
+	Drawable(const Surface& src)
 		:
-		src( &src )
+		src( src )
 	{
+	}
+	Drawable(const Animation& ani)
+		:
+		src(ani.GetSource()),
+		hasRect(true),
+		animation(ani)
+	{
+
 	}
 	void ApplyTransformation( const Mat3& transformation_in )
 	{
 		transformation = transformation_in * transformation;
 	}
-	void Render( Graphics& gfx ) const 
+	void Render( Graphics& gfx ) 
 	{
+		if (animation.has_value())
+		{
+			srcRect = animation.value().get().GetSourceRectRef();
+		}
+		
 		switch(effect)
 		{
 			case(VisualEffect::Default):
 			if (hasRect)
 			{
 
-				gfx.DrawSprite(transformation, srcRect, *src, SpriteEffect::Chroma{ Colors::Magenta });
+				gfx.DrawSprite(transformation, srcRect, src, SpriteEffect::Chroma{ Colors::Magenta });
 			}
 			else
 			{
-				gfx.DrawSprite(transformation, *src, SpriteEffect::Chroma{ Colors::Magenta });
+				gfx.DrawSprite(transformation, src, SpriteEffect::Chroma{ Colors::Magenta });
 			}
 			break;
 		
@@ -46,17 +64,13 @@ public:
 			if (hasRect)
 			{
 
-				gfx.DrawSprite(transformation, srcRect, *src, SpriteEffect::Substitution{ Colors::Magenta, Colors::Red });
+				gfx.DrawSprite(transformation, srcRect, src, SpriteEffect::Substitution{ Colors::Magenta, Colors::Red });
 			}
 			else
 			{
-				gfx.DrawSprite(transformation, *src, SpriteEffect::Substitution{ Colors::Magenta, Colors::Red });
+				gfx.DrawSprite(transformation, src, SpriteEffect::Substitution{ Colors::Magenta, Colors::Red });
 			}
 			break;
-		}
-		if (extra)
-		{
-			gfx.DrawSprite((*extra).transformation, (*extra).srcRect, *(*extra).src, SpriteEffect::Chroma{ Colors::Magenta });
 		}
 	}
 	void AddSourceRect(const RectI& srcRect_in)
@@ -73,14 +87,16 @@ public:
 	{
 		return hasRect;
 	}
-	void AddExraDrawable(Drawable& extra_in)
+	const Surface& GetSurface() const
 	{
-		extra = &extra_in;
+		return src;
 	}
 private:
-	Drawable* extra = nullptr;
 	VisualEffect effect = VisualEffect::Default;
-	const Surface* src; 
+
+	const Surface& src; 
+	std::optional<std::reference_wrapper<const Animation>> animation;
+
 	RectI srcRect = {};
 	bool hasRect = false;
 	Mat3 transformation = Mat3::Identity();

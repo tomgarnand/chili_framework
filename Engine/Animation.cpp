@@ -13,7 +13,7 @@ Animation::Animation(int x, int y, int width, int height, int count, const Surfa
 }
 
 Animation::Animation(std::vector<Animation> animations, std::vector<float> angle)
-	:
+	: //a map is specifically constructed from radian assignments in this constructor
 	sprite(animations.front().sprite),
 	holdTime(animations.front().holdTime),
 	Directional(true)
@@ -42,6 +42,11 @@ RectI Animation::GetSourceRect() const
 	return frames[iCurFrame];
 }
 
+const RectI& Animation::GetSourceRectRef() const
+{
+	return frames[iCurFrame];
+}
+
 RectI Animation::GetSourceRect(float angle) const
 {
 	auto it = directional_frames.lower_bound(angle);
@@ -66,15 +71,6 @@ RectI Animation::GetSourceRect(float angle) const
 	else {
 		return it->second[iCurFrame];
 	}
-}
-
-bool Animation::ContainsExtraAnimation() const
-{
-	if (extra == nullptr)
-	{
-		return false;
-	}
-	return true;
 }
 
 void Animation::Advance()

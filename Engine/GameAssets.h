@@ -44,8 +44,8 @@ public:
 			link_standing_animations.emplace_back(Animation(0, 90 * (i - 4), 90, 90, 1, link, 0.16f));
 		}
 		casting = new Animation(link_standing_animations[3]);
-		Fireball->AddSurface(ball);
-		casting->AddExtraAnimation(fireball_animation);
+
+
 		
 		float pi = std::numbers::pi;
 		player.AddAction(Move, Animation(link_moving_animations, { pi, 0.0f, ((3.0f * pi) / 2.0f), (pi / 2.0f) })); //left right up down - via spritesheet
@@ -123,6 +123,10 @@ public:
 	Animation* fireball_animation = new Animation(0, 0, 24, 24, 7, ball, 0.16f);
 	Animation* casting;
 
+	DiceThrow* roll20 = new DiceThrow(Stat::Intelligence);
+
+	Projectile* fireball_proj = new Projectile(Effect(EffectCategory::Active, EffectType::Burn, 10.0f, 1), *fireball_animation, *roll20, 100.0f, 25.0f, 12.0f);
+
 #pragma endregion
 #pragma region Moves
 
@@ -130,8 +134,9 @@ public:
 	Action* Move = new Action("Move", { -1,move });
 
 
-	Application* Burn = new Application(Effect(EffectCategory::Active, EffectType::Burn, 10, 1.0f));
-	Action* Fireball = new Action("Fireball", 10, { { 0,Burn } }, {}, 100.0f );
+	//Application* Burn = new Application(Effect(EffectCategory::Active, EffectType::Burn, 10, 1.0f));
+	Application* fireball_app = new Application(fireball_proj);
+	Action* Fireball = new Action("Fireball", 10, { { 0,fireball_app } }, {}, 100.0f );
 
 	Application* RestoreHealth = new Application(Effect(EffectCategory::Active, EffectType::Heal, 0, 5.0f));
 	Action* Health_Potion = new Action("Health Potion", { {1,RestoreHealth} });
