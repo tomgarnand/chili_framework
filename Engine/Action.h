@@ -33,14 +33,16 @@ class HitMethod
 public:		
 	HitMethod() = default;
  
- virtual Outcome CheckSuccess(const int& roll20, const int& bonus, const int& AC, const int& other) const { return Outcome::NotApplicable; }
- virtual Outcome CheckSuccess() const { return Outcome::NotApplicable; }
- virtual Outcome CheckSuccess(const std::vector<std::string>& stateStack) const { return Outcome::NotApplicable; }
+	virtual Outcome CheckSuccess(const int& roll20, const int& bonus, const int& AC, const int& other) const { return Outcome::NotApplicable; }
+	virtual Outcome CheckSuccess() const { return Outcome::NotApplicable; }
+	virtual Outcome CheckSuccess(const std::vector<std::string>& stateStack) const { return Outcome::NotApplicable; }
 
- virtual void InitiateCheck(std::vector<std::string>& stateStack) const {}
+	virtual std::unique_ptr<HitMethod> clone() const { return std::make_unique<HitMethod>(*this); };
 
- bool returnAtTickEnd() const { return returnAtTickEndFlag; }
- const Method& GetMethod() { return method; }
+	virtual void InitiateCheck(std::vector<std::string>& stateStack) const {}
+
+	bool returnAtTickEnd() const { return returnAtTickEndFlag; }
+	const Method& GetMethod() { return method; }
 protected:
 	bool returnAtTickEndFlag = false;
 	Method method = Method::None;
@@ -54,7 +56,10 @@ public:
 	{
 		method = Method::DiceThrow;
 	}
-
+	std::unique_ptr<HitMethod> clone() const override 
+	{
+		return std::make_unique<DiceThrow>(*this);
+	}
 	Outcome CheckSuccess(const int& roll20, const int& bonus, const int& AC, const int& others) const override //others is armor + shield + dex + other effects
 	{
 		if (roll20 == 20)
@@ -87,6 +92,9 @@ public:
 	{
 		method = Method::Guaranteed;
 	}
+	std::unique_ptr<HitMethod> clone() const override {
+		return std::make_unique<Guaranteed>(*this);
+	}
 	Outcome CheckSuccess() const
 	{
 		return outcome;
@@ -105,7 +113,10 @@ public:
 		method = Method::QTE;
 		code = d99999.roll();
 	}
-
+	std::unique_ptr<HitMethod> clone() const override 
+	{
+		return std::make_unique<QTE>(*this);
+	}
 	Outcome CheckSuccess(const std::vector<std::string>& stateStack) const override
 	{
 		//checks for a unique string in the statestack, if its not there it adds one to be replaced later and this returned to
@@ -154,9 +165,16 @@ public:
 	{
 
 	}
-	void AddExtraHitMethod(HitMethod* extra) { postHitMethod = extra; }
+	std::unique_ptr<HitMethod> clone() const override //shouldnt be used
+	{
+		return std::make_unique<HitBox>(*this);
+	}
+	void AddExtraHitMethod(const HitMethod& extra)  
+	{
+		postHitMethod = extra.clone();
+	}
 private:
-	HitMethod* postHitMethod = nullptr;
+	std::unique_ptr<HitMethod> postHitMethod = nullptr;
 };
 
 class Criteria
@@ -224,6 +242,7 @@ public:
 		{
 			hitMethod = HitBox();
 		}
+		projectile.value().InitParent(this);
 	}
 	Application(const Effect& effect, Projectile* proj, bool homing, HitMethod hitMethod_in)
 		:
@@ -238,29 +257,9 @@ public:
 		else
 		{
 			hitMethod = HitBox();
-			dynamic_cast<HitBox&>(hitMethod).AddExtraHitMethod(&hitMethod_in);
+			dynamic_cast<HitBox&>(hitMethod).AddExtraHitMethod(hitMethod_in);
 		}
 		projectile.value().InitParent(this);
-	}
-	Application(const Effect& effect, Projectile* proj, HitMethod hitMethod_in, bool homing)
-		:
-		effect(Effect::nulleff),
-		projectile(*proj)
-	{
-		if (homing)
-		{
-			hitMethod = Guaranteed(Outcome::Hit);
-		}
-		else
-		{
-			hitMethod = hitMethod_in;
-		}
-
-		projectile.value().InitParent(this);
-		//TODO
-		//default hit method for projectiles is hitbox, but you can have another stored inside
-		//or just have no hitbox (homing) and have only one hitmethod
-		//or homing guaranteed
 	}
 public:
 	//not sure how i can access this without making it public... haha be safe out there!!
