@@ -1,6 +1,5 @@
 #pragma once
 #include "Vec2.h"
-#include "Status.h"
 #include "Circle.h"
 
 class Entity; //forward declaration
@@ -9,9 +8,8 @@ class Application; //forward declaration
 class Projectile
 {
 public:
-	Projectile(Effect effect, const Animation& animation, float range, float speed, float radius)
+	Projectile(const Animation& animation, float range, float speed, float radius)
 		:
-		effect(effect),
 		animation(new Animation(animation)), //hopefully this default copy just copies the src reference
 		speed(speed),
 		range(range),
@@ -39,6 +37,7 @@ public:
 		float dist = circle.pos.GetDistance(target_pos);
 
 		//normalized direction from firer to target, could have used angles
+		//angles could be necessary for directional spriting
 		dir = { (target_pos.x - firer.pos.x) / dist ,(target_pos.y - firer.pos.y) / dist };
 		circle.pos = firer.pos + (dir * (circle.radius + firer.radius));
 	}
@@ -61,8 +60,7 @@ public:
 	void setExpired() { expired = true; }
 	void setTargetHit(Entity* hit) { target_hit = hit; }
 	Entity* GetTargetHit() const { return target_hit; }
-	Effect GetEffect() const { return effect; }
-
+	Application* pGetParent() { return parent; }
 
 	Animation& GetAnimation() const
 	{
@@ -72,13 +70,14 @@ private:
 	Application* parent = nullptr;
 
 	CircF circle;
+
 	Vec2 final_pos;
+	Vec2* homing_pos;
 	Vec2 dir;
 	float speed;
 	float range; //0 means instant land on target location
 
 	Animation* animation;
-	Effect effect;
 
 	bool expired = false;
 	Entity* target_hit = nullptr;

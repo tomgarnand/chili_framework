@@ -96,7 +96,7 @@ public:
 
 	bool IsActionEnded();
 
-	void DoApplication(Effect effect, HitMethod* HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
+	void DoApplication(Effect effect, HitMethod HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
 	void DoApplication(Projectile* proj, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
 	void DoApplication(Application* app, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
 	void Apply(const Application* app, const Outcome& out);

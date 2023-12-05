@@ -143,9 +143,9 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 		if (current_action->GetApplicationByTick(tick) != Application::nullapp)
 		{
 			//Queue hit methods that require input before hit can be determined
-			if (current_action->GetApplicationByTick(tick)->GetHitMethod()->returnAtTickEnd())
+			if (current_action->GetApplicationByTick(tick)->GetHitMethod().returnAtTickEnd())
 			{
-				current_action->GetApplicationByTick(tick)->GetHitMethod()->InitiateCheck(stateStack);
+				current_action->GetApplicationByTick(tick)->GetHitMethod().InitiateCheck(stateStack);
 			}
 			
 			//give projectile
@@ -192,11 +192,11 @@ bool Entity::IsActionEnded()
 	return false;
 }
 
-void Entity::DoApplication(Effect effect, HitMethod* HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
+void Entity::DoApplication(Effect effect, HitMethod HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
 {
 	std::vector<Outcome> out; //(targets.size()); didnt work with emplace back
 	Outcome i_out;
-	switch (HitMethod->GetMethod())
+	switch (HitMethod.GetMethod())
 	{
 	case(Method::DiceThrow):
 	{
@@ -211,7 +211,7 @@ void Entity::DoApplication(Effect effect, HitMethod* HitMethod, std::vector<Enti
 		{
 			for (Entity*& target : targets)
 			{
-				DiceThrow* DiceThrowPtr = dynamic_cast<DiceThrow*>(HitMethod);
+				DiceThrow* DiceThrowPtr = dynamic_cast<DiceThrow*>(&HitMethod);
 				if (DiceThrowPtr) {
 					i_out = DiceThrowPtr->CheckSuccess(roll,
 						stats.getStat(DiceThrowPtr->GetBonusStat()),
@@ -232,7 +232,7 @@ void Entity::DoApplication(Effect effect, HitMethod* HitMethod, std::vector<Enti
 	{
 		for (Entity*& target : targets)
 		{
-			QTE* QTEPtr = dynamic_cast<QTE*>(HitMethod);
+			QTE* QTEPtr = dynamic_cast<QTE*>(&HitMethod);
 			if (QTEPtr) {
 				i_out = QTEPtr->CheckSuccess(stateStack);
 				out.emplace_back(i_out);
@@ -246,7 +246,7 @@ void Entity::DoApplication(Effect effect, HitMethod* HitMethod, std::vector<Enti
 	case(Method::Guaranteed):
 		for (Entity*& target : targets)
 		{
-			Guaranteed* guaranteedPtr = dynamic_cast<Guaranteed*>(HitMethod);
+			Guaranteed* guaranteedPtr = dynamic_cast<Guaranteed*>(&HitMethod);
 			if (guaranteedPtr) {
 				i_out = guaranteedPtr->CheckSuccess();
 				out.emplace_back(i_out);
@@ -278,7 +278,7 @@ skip_apply: {} //because crit miss self applies
 
 void Entity::DoApplication(Projectile* proj, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
 {
-	DoApplication(proj->GetEffect(), proj->GetHitMethod(), targets, stateStack);
+	DoApplication(proj->pGetParent(), targets, stateStack);
 }
 
 void Entity::DoApplication(Application* app, std::vector<Entity*> targets, std::vector<std::string>& stateStack)

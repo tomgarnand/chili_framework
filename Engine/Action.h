@@ -148,13 +148,14 @@ class HitBox : public HitMethod
 {
 public:
 	HitBox()
-	{}
+	{
+	}
 	Outcome CheckSuccess(const Vec2& entity_pos)
 	{
 
 	}
+	void AddExtraHitMethod(HitMethod* extra) { postHitMethod = extra; }
 private:
-	bool active = true;
 	HitMethod* postHitMethod = nullptr;
 };
 
@@ -200,44 +201,77 @@ public:
 	Application(const Effect& effect)
 		:
 		effect(effect),
-		hitMethod(new Guaranteed(Outcome::Hit))
+		hitMethod(Guaranteed(Outcome::Hit))
 	{}
-	Application(Projectile* proj)
-		:
-		effect(Effect::nulleff),
-		projectile(*proj),
-		hitMethod(new Guaranteed(Outcome::Hit))
-	{
-		projectile.value().InitParent(this);
-	}
-	Application(const Effect& effect, HitMethod* hitMethod)
+	Application(const Effect& effect, HitMethod hitMethod)
 		:
 		effect(effect),
 		hitMethod(hitMethod)
 	{}
-	Application(Projectile* proj, HitMethod* hitMethod)
+#pragma region projectile
+	Application(const Effect& effect, Projectile* proj, bool homing)
 		:
 		effect(Effect::nulleff),
-		projectile(*proj),
-		hitMethod(new Guaranteed(Outcome::Hit))
+		projectile(*proj)
 	{
+		//its either homing or hitbox
+		//nothing fancy
+		if (homing)
+		{
+			hitMethod = Guaranteed(Outcome::Hit);
+		}
+		else
+		{
+			hitMethod = HitBox();
+		}
+	}
+	Application(const Effect& effect, Projectile* proj, bool homing, HitMethod hitMethod_in)
+		:
+		effect(Effect::nulleff),
+		projectile(*proj)
+	{
+		//its either homing with a hitmethod or hotbox with a extra hitmethod
+		if (homing)
+		{
+			hitMethod = hitMethod_in;
+		}
+		else
+		{
+			hitMethod = HitBox();
+			dynamic_cast<HitBox&>(hitMethod).AddExtraHitMethod(&hitMethod_in);
+		}
+		projectile.value().InitParent(this);
+	}
+	Application(const Effect& effect, Projectile* proj, HitMethod hitMethod_in, bool homing)
+		:
+		effect(Effect::nulleff),
+		projectile(*proj)
+	{
+		if (homing)
+		{
+			hitMethod = Guaranteed(Outcome::Hit);
+		}
+		else
+		{
+			hitMethod = hitMethod_in;
+		}
+
 		projectile.value().InitParent(this);
 		//TODO
 		//default hit method for projectiles is hitbox, but you can have another stored inside
 		//or just have no hitbox (homing) and have only one hitmethod
 		//or homing guaranteed
 	}
-
-	Effect GetEffect() const { return effect; }
-	HitMethod* GetHitMethod() const { return hitMethod; }
-private:
-	Effect effect;
-	HitMethod* hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
-	//instead of an effect, a application can store a proj with an effect in it
 public:
 	//not sure how i can access this without making it public... haha be safe out there!!
 	std::optional<Projectile> projectile; //1 proj per app cuz you can have multiple apps on the same tick
-	
+#pragma endregion
+	Effect GetEffect() const { return effect; }
+	HitMethod& GetHitMethod() { return hitMethod; }
+private:
+	Effect effect;
+	HitMethod hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
+	//instead of an effect, a application can store a proj with an effect in it
 
 public:
 	static Application* nullapp;
