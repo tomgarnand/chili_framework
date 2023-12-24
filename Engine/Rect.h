@@ -75,7 +75,12 @@ public:
 	{
 		return bottom - top;
 	}
-
+	explicit operator Rect<int>() const {
+		return Rect<int>(static_cast<int>(std::round(left)),
+			static_cast<int>(std::round(right)),
+			static_cast<int>(std::round(top)),
+			static_cast<int>(std::round(bottom)));
+	}
 public:
 	T left;
 	T right;

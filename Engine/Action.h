@@ -36,6 +36,7 @@ public:
 	virtual Outcome CheckSuccess(const int& roll20, const int& bonus, const int& AC, const int& other) const { return Outcome::NotApplicable; }
 	virtual Outcome CheckSuccess() const { return Outcome::NotApplicable; }
 	virtual Outcome CheckSuccess(const std::vector<std::string>& stateStack) const { return Outcome::NotApplicable; }
+	virtual Outcome CheckSuccess(const Vec2& entity_pos) { return Outcome::NotApplicable; }
 
 	virtual std::unique_ptr<HitMethod> clone() const { return std::make_unique<HitMethod>(*this); };
 
@@ -161,9 +162,15 @@ public:
 	HitBox()
 	{
 	}
+	// Custom copy constructor
+	HitBox(const HitBox& other) {
+		if (other.postHitMethod) {
+			postHitMethod = other.postHitMethod->clone();
+		}
+	}
 	Outcome CheckSuccess(const Vec2& entity_pos)
 	{
-
+		return {};
 	}
 	std::unique_ptr<HitMethod> clone() const override //shouldnt be used
 	{
@@ -221,7 +228,7 @@ public:
 		effect(effect),
 		hitMethod(Guaranteed(Outcome::Hit))
 	{}
-	Application(const Effect& effect, HitMethod hitMethod)
+	Application(const Effect& effect, const HitMethod& hitMethod)
 		:
 		effect(effect),
 		hitMethod(hitMethod)
@@ -244,7 +251,7 @@ public:
 		}
 		projectile.value().InitParent(this);
 	}
-	Application(const Effect& effect, Projectile* proj, bool homing, HitMethod hitMethod_in)
+	Application(const Effect& effect, Projectile* proj, bool homing, const HitMethod& hitMethod_in)
 		:
 		effect(Effect::nulleff),
 		projectile(*proj)

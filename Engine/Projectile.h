@@ -1,6 +1,7 @@
 #pragma once
 #include "Vec2.h"
 #include "Circle.h"
+#include "Animation.h"
 
 class Entity; //forward declaration
 class Application; //forward declaration

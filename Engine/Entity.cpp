@@ -54,7 +54,7 @@ std::vector<Drawable> Entity::GetDrawables(const std::string& map) const
 	return drawables;
 }
 
-void Entity::Update(const World& world, float dt)
+void Entity::Update(float dt)
 {
 	//update active effects
 	for (Effect& effect : statuses.getEffectsByCategory(EffectCategory::Active))
@@ -86,14 +86,14 @@ void Entity::AddAction(Action* action_in, Animation animation_in)
 
 }
 
-void Entity::EndTick(const World& world, float dt, std::vector<std::string>& stateStack)
+void Entity::EndTick(float dt, std::vector<std::string>& stateStack)
 {
 	if (SubTickEvent)
 	{
 		//for ea action in current_subtick_actionS
 		
 		DoApplication(current_action->GetApplicationByTick(tick), current_subtick_targets, stateStack);
-		Resolve(world, dt);
+		Resolve(dt);
 	}
 	else if (tick == -1)
 	{
@@ -113,16 +113,20 @@ void Entity::EndTick(const World& world, float dt, std::vector<std::string>& sta
 		else
 		{
 			//Resolve projectives. could be handled every subtick too. Might be more fluid
+				//could also move expired projectiles to a expiringProjectiles object, to avoid iteration through all and extra projectile class variables
 			for (auto& proj : ownedProjectiles)
 			{
 				if (proj->isExpired() && proj->GetTargetHit() != nullptr)
 				{
 					DoApplication(proj, { proj->GetTargetHit() }, stateStack);
 				}
-				ownedProjectiles.erase(std::remove_if(ownedProjectiles.begin(), ownedProjectiles.end(), [](const Projectile& proj) { return proj.isExpired(); }), ownedProjectiles.end());
+				ownedProjectiles.erase(std::remove_if(
+					ownedProjectiles.begin(), ownedProjectiles.end(), [](Projectile* proj) 
+					{ return proj->isExpired(); }), ownedProjectiles.end());
+				//pointer life?
 			}
 			DoApplication(current_action->GetApplicationByTick(tick), current_targets, stateStack);
-			Resolve(world, dt);
+			Resolve(dt);
 			AdvanceTick();
 		}
 
@@ -155,7 +159,7 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 				//the menu call to this action determines the number of targets, so we dont worry about it here
 				for (auto& tar : current_targets)
 				{
-					ownedProjectiles.emplace_back(current_action->GetApplicationByTick(tick)->projectile.value());
+					ownedProjectiles.emplace_back(&current_action->GetApplicationByTick(tick)->projectile.value());
 					ownedProjectiles.back()->FireProjectile(circle, tar->GetPos("testmap"));
 				}
 			}
@@ -192,7 +196,7 @@ bool Entity::IsActionEnded()
 	return false;
 }
 
-void Entity::DoApplication(Effect effect, HitMethod HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
+void Entity::DoApplication(const Effect& effect, HitMethod& HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack)
 {
 	std::vector<Outcome> out; //(targets.size()); didnt work with emplace back
 	Outcome i_out;
@@ -326,7 +330,7 @@ void Entity::FlagSubTickEvent(Action* action, std::vector<Entity*> targets)
 
 }
 
-void Entity::Resolve(const World& world, float dt)
+void Entity::Resolve(float dt)
 {
 	//shaping up to be a huge bloaty function that has all the functionality for how statuses effect an entity
 	if (statuses.CheckForEffect(EffectType::Move))
@@ -339,7 +343,7 @@ void Entity::Resolve(const World& world, float dt)
 
 	if (vel != Vec2(0.0f, 0.0f))
 	{
-		pos[current_map] = world.CheckAndAdjustMovement(circle, pos[current_map] + (vel * dt * speed));
+		pos[current_map] = world->CheckAndAdjustMovement(circle, pos[current_map] + (vel * dt * speed));
 	}
 
 
@@ -353,14 +357,14 @@ void Entity::Resolve(const World& world, float dt)
 	vel = Vec2(0.0f, 0.0f);
 }
 
-void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string>& stateStack)
+void Entity::SubTickUpdate(float dt, std::vector<std::string>& stateStack)
 {
 	Action* action = Action::Idle;
 	if (SubTickEvent)
 	{
 		tick = 0;
 		//immediately apply the action effects to status, then resolve status
-		EndTick(world, dt, stateStack);
+		EndTick(dt, stateStack);
 
 		//then immediately remove them from statuses
 		GetStatuses().RemoveSubTickEvents();
@@ -386,15 +390,15 @@ void Entity::SubTickUpdate(const World& world, float dt, std::vector<std::string
 	{
 		proj->GetAnimation().Update(dt);
 		Vec2 move = proj->AttemptMoveProjectile(dt);
-		std::pair < bool, Entity* > hit = world.CheckCollision_And_ReturnEntity(proj->GetCircle(), move);
+		std::pair < bool, Entity* > hit = world->CheckCollision_And_ReturnEntity(proj->GetCircle(), move);
 		//need to also return who is hit, need to make a new world function, address how we add Rects to coll_test
 		if (hit.first)
 		{ 
 			proj->setExpired();
 			proj->setTargetHit(hit.second);
-			if (proj->hasSpecialHitMethod() && proj->GetHitMethod().returnAtTickEnd());
+			if (proj->pGetParent()->GetHitMethod().returnAtTickEnd())
 			{
-				proj->GetHitMethod().InitiateCheck(stateStack);
+				proj->pGetParent()->GetHitMethod().InitiateCheck(stateStack);
 			}
 		}
 		else

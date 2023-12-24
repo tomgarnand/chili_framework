@@ -49,7 +49,7 @@ public:
 				}
 			}
 		}
-
+		return intercepts;
 	}
 	std::vector<Vec2> CheckCollision_Fixtures(const Vec2& origin, const Vec2& move) const
 	{
@@ -93,7 +93,7 @@ public:
 			}
 		}
 
-
+		return intercepts;
 	}
 	std::pair<bool, Entity*> CheckCollision_And_ReturnEntity(const CircF& circle, const Vec2& move) const
 	{

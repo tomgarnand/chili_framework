@@ -35,7 +35,7 @@ Game::Game(MainWindow& wnd)
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
 	Stack.emplace_back(g.pMainMenu);
-	g.player.SetDir(3 * pi / 2);
+	g.player.SetDir(float(3 * pi / 2));
 }
 
 void Game::Go()
@@ -131,20 +131,20 @@ void Game::UpdateModel()
 	
 	if (TickLive)
 	{
-		g.player.SubTickUpdate(world, dt, StateStack); //update animations & do subtick
+		g.player.SubTickUpdate(dt, StateStack); //update animations & do subtick
 		for (Entity* unit : (*g.entities))
 		{
-			unit->SubTickUpdate(world, dt, StateStack);
+			unit->SubTickUpdate(dt, StateStack);
 		}
 
 		//end tick
 		if (TickTimer > maxTickDuration)
 		{
-			g.player.EndTick(world, dt, StateStack); 
+			g.player.EndTick(dt, StateStack); 
 
 			for (Entity* unit : (*g.entities))
 			{
-				unit->EndTick(world, dt, StateStack);
+				unit->EndTick(dt, StateStack);
 			}
 
 			TickLive = false;
@@ -154,10 +154,10 @@ void Game::UpdateModel()
 	//start tick
 	if (!TickLive)
 	{
-		g.player.Update(world, dt);//update statuses
+		g.player.Update(dt);//update statuses
 		for (Entity* unit : (*g.entities))
 		{
-			unit->Update(world, dt);
+			unit->Update(dt);
 		}
 		//-------
 		// PLAYER
@@ -240,7 +240,7 @@ void Game::ComposeFrame()
 	cam.Draw(g.npc2.GetDrawables(current_map));
 
 	gfx.DrawRect(0, Graphics::ScreenWidth - 1, 0, 20, Colors::Gray);
-	int percentfill = Graphics::ScreenWidth * (TickTimer/maxTickDuration);
+	int percentfill = Graphics::ScreenWidth * int(TickTimer/maxTickDuration);
 	gfx.DrawRect(0, percentfill, 0, 20, Colors::Gray);
 	
 }

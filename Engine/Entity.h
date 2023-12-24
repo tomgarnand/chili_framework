@@ -7,10 +7,11 @@
 #include "Drawable.h"
 #include "Action.h"
 #include "Animation.h"
-#include "World.h"
 #include <cmath>
 #include <numbers>
-#include "Circle.h"
+
+#include "World_Holder.h"
+
 
 class Entity
 {
@@ -52,7 +53,6 @@ public:
 	const Vec2& GetPos(const std::string& map) const{return pos.at(map);}
 	void SetPos(const std::string& map, const Vec2& newPos ){pos[map] = newPos;}
 	//void TranslateBy( const Vec2& offset ){pos += offset;}
-	CircF GetCircle() const { return circle; }
 
 	void SetScale( float s ){scale = s;}
 	float GetScale() const{return scale;}
@@ -71,12 +71,13 @@ public:
 
 	}
 
-	CircF GetCircle() const {return circle; }
+	CircF GetCircle() const { return circle; }
+	RectF GetRect() const { return rect; }
 
 	std::vector<Drawable> GetDrawables(const std::string& map) const;
 	//std::vector<Projectile*>& GetProjectiles() { return ownedProjectiles; }
 
-	void Update(const World& world, float dt);
+	void Update(float dt);
 	void UpdateFromScript();
 	void effectActivate();
 	void AddAction(Action* action_in, Animation animation_in);
@@ -85,7 +86,7 @@ public:
 	const Attributes& GetStats() const { return stats; }
 	Status& GetStatuses() { return statuses; }
 
-	void EndTick(const World& world, float dt, std::vector<std::string>& stateStack);
+	void EndTick(float dt, std::vector<std::string>& stateStack);
 	void StartTick(std::vector<std::string>& stateStack);
 	void StartAction(Action* action, std::vector<Entity*> targets_in);
 	void AdvanceTick() 
@@ -96,7 +97,7 @@ public:
 
 	bool IsActionEnded();
 
-	void DoApplication(Effect effect, HitMethod HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
+	void DoApplication(const Effect& effect, HitMethod& HitMethod, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
 	void DoApplication(Projectile* proj, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
 	void DoApplication(Application* app, std::vector<Entity*> targets, std::vector<std::string>& stateStack);
 	void Apply(const Application* app, const Outcome& out);
@@ -104,9 +105,9 @@ public:
 	void FlagSubTickEvent(Action* action, Entity* target);
 	void FlagSubTickEvent(Action* action, std::vector<Entity*> targets);
 	
-	void Resolve(const World& world, float dt);
+	void Resolve(float dt);
 
-	void SubTickUpdate(const World& world, float dt, std::vector<std::string>& stateStack);
+	void SubTickUpdate(float dt, std::vector<std::string>& stateStack);
 	Entity* Self()
 	{
 		return this; //is this dangerous?
@@ -115,9 +116,12 @@ public:
 	//void Update(std::string current_map, const Entity& player);
 
 protected:
+	WorldHolder* world;
+
 	std::string name;
 
 	CircF circle;
+	RectF rect;
 	//bool collision = true;
 
 	float angle = 0.0f;

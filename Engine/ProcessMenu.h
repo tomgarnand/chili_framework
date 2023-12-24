@@ -277,7 +277,7 @@ public:
 		{
 			//implement target filtering
 			
-			boxes.emplace_back(entity->GetHitBox());
+			boxes.emplace_back((Rect<int>)entity->GetRect());
 		}
 		targetingMenu = new SelectionMenu(BoxMenu(boxes), allEntities);
 		targetingMenu->DisableDrawNames();
