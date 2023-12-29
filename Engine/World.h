@@ -5,25 +5,14 @@
 #include "Line.h"
 #include "TMXLoader/TMXLoader.h"
 #include "Entity.h"
+#include "World_Holder.h"
 
 class World
 {
 public:
-	class Level
-	{
-	public:
-		class Fixtures
-		{};
-		Level() = default;
-	private:
-		std::vector<Fixtures> fixtures;
-
-	};
-
-
-public:
-	World()
+	World(WorldHolder* wh_in)
 		:
+		wh(wh_in),
 		spritesheet("Assets\\spritesheet.bmp")
 	{
 		loader = new TMXLoader();
@@ -48,10 +37,16 @@ public:
 				tiles.emplace_back(row * tileHeight, (row * tileHeight) + tileHeight, col * tileWidth, (col * tileWidth) + tileWidth);
 			}
 		}
+		wh->InitFixtures(&fixtures); //if theres a problem here we need to store fixtures as a pointer
 	}
-	void InitEntities(Entity* entities)
+	void InitEntities(std::vector<Entity> entity)
 	{
-
+		for (auto& e : entity)
+		{
+			entities.emplace_back(&e);
+			wh->AddEntity(&e, e.pGetCircle()); //if theres a problem here we need to create a function pGetCircle
+			e.InitWorldHolder(wh);
+		}
 	}
 	void DrawRects(Graphics& gfx)
 	{
@@ -112,8 +107,8 @@ public:
 		}
 	}
 	
-	
 private:
+	WorldHolder* wh;
 	TMXLoader* loader;
 	Surface spritesheet;
 	std::vector<RectI> tiles;

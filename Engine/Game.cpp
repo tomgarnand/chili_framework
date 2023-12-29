@@ -31,11 +31,12 @@ Game::Game(MainWindow& wnd)
 	g(),
 	menu(g.pPlayer, g.entities),
 	cam(gfx),
-	world()
+	world(&wh)
 {
 	//initialize inventory from load file? we could push in a vector<string>, besides that they arent needed anymore
 	Stack.emplace_back(g.pMainMenu);
 	g.player.SetDir(float(3 * pi / 2));
+	world.InitEntities(g.Entities);
 }
 
 void Game::Go()

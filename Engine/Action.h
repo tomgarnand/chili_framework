@@ -15,6 +15,7 @@
 #include "Projectile.h"
 #include "Status.h"
 #include <optional>
+#include <variant>
 
 //after pretty much finishing this, a question popped in my mind: What if I had just used maps instead of a million vector iterating sub functions?
 //but I'm not knowledgeable enough (yet) to know if what would be the better HitMethod
@@ -25,7 +26,8 @@ enum class Method
 	None,
 	DiceThrow,
 	Guaranteed,
-	QTE
+	QTE,
+	HitBox
 };
 
 class HitMethod
@@ -44,9 +46,14 @@ public:
 
 	bool returnAtTickEnd() const { return returnAtTickEndFlag; }
 	const Method& GetMethod() { return method; }
+	void AddExtraHitMethod(const HitMethod& extra)
+	{
+		
+	}
 protected:
 	bool returnAtTickEndFlag = false;
 	Method method = Method::None;
+
 };
 class DiceThrow : public HitMethod
 {
@@ -161,13 +168,14 @@ class HitBox : public HitMethod
 public:
 	HitBox()
 	{
+		method = Method::HitBox;
 	}
-	// Custom copy constructor
-	HitBox(const HitBox& other) {
-		if (other.postHitMethod) {
-			postHitMethod = other.postHitMethod->clone();
-		}
-	}
+	// Custom copy constructor - commented out for variant solution
+	//HitBox(const HitBox& other) {
+	//	if (other.postHitMethod) {
+	//		postHitMethod = other.postHitMethod->clone();
+	//	}
+	//}
 	Outcome CheckSuccess(const Vec2& entity_pos)
 	{
 		return {};
@@ -176,7 +184,7 @@ public:
 	{
 		return std::make_unique<HitBox>(*this);
 	}
-	void AddExtraHitMethod(const HitMethod& extra)  
+	void AddExtraHitMethod(const HitMethod& extra)
 	{
 		postHitMethod = extra.clone();
 	}
@@ -264,7 +272,8 @@ public:
 		else
 		{
 			hitMethod = HitBox();
-			dynamic_cast<HitBox&>(hitMethod).AddExtraHitMethod(hitMethod_in);
+			//hitMethod.AddExtraHitMethod(hitMethod_in);
+			std::visit([&hitMethod_in](auto& obj) { obj.AddExtraHitMethod(hitMethod_in); }, hitMethod);
 		}
 		projectile.value().InitParent(this);
 	}
@@ -276,7 +285,7 @@ public:
 	HitMethod& GetHitMethod() { return hitMethod; }
 private:
 	Effect effect;
-	HitMethod hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
+	std::variant<HitMethod, DiceThrow, Guaranteed, QTE, HitBox> hitMethod; //if I ever wanted to store multiple different hitmethods in an application, it might have to be a vec of unique ptrs
 	//instead of an effect, a application can store a proj with an effect in it
 
 public:

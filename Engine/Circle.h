@@ -16,7 +16,7 @@ public:
 	}
 	Circle(const Vec2_<T> center, T radius)
 	{
-		Circle(Vec2(center.x, center.y), radius);
+		Circle(center.x, center.y, radius);
 	}
 
 #pragma region operators

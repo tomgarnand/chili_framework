@@ -78,7 +78,9 @@ private:
 	std::string current_map = "testmap";
 
 	double pi = std::numbers::pi;
+	WorldHolder wh;
 	World world;
+
 	
 	std::vector<std::string> StateStack;
 

@@ -35,7 +35,7 @@ std::vector<Drawable> Entity::GetDrawables(const std::string& map) const
 	}
 
 	d.ApplyTransformation(
-		Mat3::Translation(currentPos.x - circle.radius, currentPos.y - circle.radius) *
+		Mat3::Translation(currentPos.x - circle->radius, currentPos.y - circle->radius) *
 		Mat3::Scale(scale) *
 		Mat3::Rotation(angle)
 	);
@@ -160,7 +160,7 @@ void Entity::StartTick(std::vector<std::string>& stateStack)
 				for (auto& tar : current_targets)
 				{
 					ownedProjectiles.emplace_back(&current_action->GetApplicationByTick(tick)->projectile.value());
-					ownedProjectiles.back()->FireProjectile(circle, tar->GetPos("testmap"));
+					ownedProjectiles.back()->FireProjectile(*circle, tar->GetPos("testmap"));
 				}
 			}
 		}
@@ -343,7 +343,7 @@ void Entity::Resolve(float dt)
 
 	if (vel != Vec2(0.0f, 0.0f))
 	{
-		pos[current_map] = world->CheckAndAdjustMovement(circle, pos[current_map] + (vel * dt * speed));
+		pos[current_map] = world->CheckAndAdjustMovement(*circle, pos[current_map] + (vel * dt * speed));
 	}
 
 

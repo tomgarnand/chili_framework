@@ -47,7 +47,11 @@ public:
 		tick = -1;
 
 		float radius = 45.0f;
-		circle = CircF(starting_pos.second, radius);
+		circle = new CircF(starting_pos.second, radius);
+	}
+	void InitWorldHolder(WorldHolder* wh_in)
+	{
+		world = wh_in;
 	}
 	const std::string& GetName() const { return name; }
 	const Vec2& GetPos(const std::string& map) const{return pos.at(map);}
@@ -71,7 +75,8 @@ public:
 
 	}
 
-	CircF GetCircle() const { return circle; }
+	CircF GetCircle() const { return *circle; }
+	CircF* pGetCircle() const { return circle; }
 	RectF GetRect() const { return rect; }
 
 	std::vector<Drawable> GetDrawables(const std::string& map) const;
@@ -116,11 +121,11 @@ public:
 	//void Update(std::string current_map, const Entity& player);
 
 protected:
-	WorldHolder* world;
+	WorldHolder* world = nullptr;
 
 	std::string name;
 
-	CircF circle;
+	CircF* circle;
 	RectF rect;
 	//bool collision = true;
 

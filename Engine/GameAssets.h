@@ -118,6 +118,7 @@ public:
 	Entity npc1 = Entity("npc1", link, Attributes(), { current_map, {200,200} });
 	Entity npc2 = Entity("npc2", link, Attributes(), { current_map, {400,220} });
 
+	std::vector<Entity> Entities = { player, npc1, npc2 };
 
 	Surface ball = Surface("Assets//ARWFlame.bmp");
 	Animation* fireball_animation = new Animation(0, 0, 24, 24, 7, ball, 0.16f);
